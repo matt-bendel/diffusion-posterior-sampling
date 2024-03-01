@@ -124,7 +124,7 @@ def main():
             torch.save(mask[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_mask.pt')
 
             if i == 0 and j == 0:
-                plt.imsave(f'/storage/matt_models/inpainting/dps/test_{i}.png', clear_color(sample[l].unsqueeze(0)))
+                plt.imsave(f'/storage/matt_models/inpainting/dps/test_{i}.png', clear_color(sample[j].unsqueeze(0)))
 
         base_im_count += sample.shape[0]
 
