@@ -14,7 +14,8 @@ from guided_diffusion.gaussian_diffusion import create_sampler
 from data.dataloader import get_dataset, get_dataloader
 from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
-
+from data.FFHQDataModule import FFHQDataModule
+from pytorch_lightning import seed_everything
 
 def load_yaml(file_path: str) -> dict:
     with open(file_path) as f:
@@ -30,6 +31,7 @@ def main():
     parser.add_argument('--gpu', type=int, default=0)
     parser.add_argument('--save_dir', type=str, default='./results')
     args = parser.parse_args()
+    seed_everything(1, workers=True)
    
     # logger
     logger = get_logger()
@@ -80,42 +82,44 @@ def main():
                                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     dataset = get_dataset(**data_config, transforms=transform)
     loader = get_dataloader(dataset, batch_size=1, num_workers=0, train=False)
+    dm = FFHQDataModule(task_config)
+    dm.setup()
+    test_loader = dm.test_dataloader()
+    val_loader = dm.val_dataloader()
+    train_loader = dm.train_dataloader()
 
-    # Exception) In case of inpainting, we need to generate a mask 
-    if measure_config['operator']['name'] == 'inpainting':
-        mask_gen = mask_generator(
-           **measure_config['mask_opt']
-        )
-        
     # Do Inference
-    for i, ref_img in enumerate(loader):
+    base_im_count = 0
+    for i, data in enumerate(test_loader):
         logger.info(f"Inference for image {i}")
-        fname = str(i).zfill(5) + '.png'
-        ref_img = ref_img.to(device)
+        y, x, mask, mean, std = data[0]
 
-        # Exception) In case of inpainging,
-        if measure_config['operator'] ['name'] == 'inpainting':
-            mask = mask_gen(ref_img)
-            mask = mask[:, 0, :, :].unsqueeze(dim=0)
-            measurement_cond_fn = partial(cond_method.conditioning, mask=mask)
-            sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
+        ref_img = x.to(device)
 
-            # Forward measurement model (Ax + n)
-            y = operator.forward(ref_img, mask=mask)
-            y_n = noiser(y)
+        mask = mask.to(device)
+        mask = mask[:, 0, :, :].unsqueeze(dim=0)
+        measurement_cond_fn = partial(cond_method.conditioning, mask=mask)
+        sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
-        else: 
-            # Forward measurement model (Ax + n)
-            y = operator.forward(ref_img)
-            y_n = noiser(y)
-         
+        # Forward measurement model (Ax + n)
+        y = operator.forward(ref_img, mask=mask)
+        y_n = noiser(y)
+
         # Sampling
         x_start = torch.randn(ref_img.shape, device=device).requires_grad_()
         sample = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path)
+        print(sample.shape)
 
-        plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
-        plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
-        plt.imsave(os.path.join(out_path, 'recon', fname), clear_color(sample))
+        # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
+        # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
+        for j in range(sample.shape[0]):
+            torch.save(sample[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_sample_{0}.pt')
+            torch.save(mask[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_mask.pt')
+
+            if i == 0 and j == 0:
+                plt.imsave(f'/storage/matt_models/inpainting/dps/test_{i}.png', clear_color(sample[l].unsqueeze(0)))
+
+        base_im_count += sample.shape[0]
 
 if __name__ == '__main__':
     main()

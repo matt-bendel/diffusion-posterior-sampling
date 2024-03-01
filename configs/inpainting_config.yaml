@@ -1,3 +1,8 @@
+checkpoint_dir: "/storage/matt_models/inpainting/"
+data_path: "/storage/FFHQ/ffhq256_49k_if"
+data_path_test: "/storage/FFHQ/ffhq256_900_if"
+batch_size: 80
+
 conditioning:
   method: ps
   params:
