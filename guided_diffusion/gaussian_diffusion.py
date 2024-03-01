@@ -201,8 +201,8 @@ class GaussianDiffusion:
             pbar.set_postfix({'distance': distance.item()}, refresh=False)
             if record:
                 if idx % 10 == 0:
-                    file_path = os.path.join(save_root, f"progress/x_{str(idx).zfill(4)}.png")
-                    plt.imsave(file_path, clear_color(img))
+                    file_path = f"/storage/matt_models/inpainting/dps/progress/x_{str(idx).zfill(4)}.png"
+                    plt.imsave(file_path, clear_color(img[0]))
 
         return img       
         
