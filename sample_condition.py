@@ -7,6 +7,7 @@ import types
 import torch
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
+import numpy as np
 
 from guided_diffusion.condition_methods import get_conditioning_method
 from guided_diffusion.measurements import get_noise, get_operator
