@@ -2,6 +2,7 @@ from functools import partial
 import os
 import argparse
 import yaml
+import types
 
 import torch
 import torchvision.transforms as transforms
@@ -16,6 +17,11 @@ from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
 from data.FFHQDataModule import FFHQDataModule
 from pytorch_lightning import seed_everything
+
+
+def load_object(dct):
+    return types.SimpleNamespace(**dct)
+
 
 def load_yaml(file_path: str) -> dict:
     with open(file_path) as f:
@@ -77,12 +83,8 @@ def main():
         os.makedirs(os.path.join(out_path, img_dir), exist_ok=True)
 
     # Prepare dataloader
-    data_config = task_config['data']
-    transform = transforms.Compose([transforms.ToTensor(),
-                                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-    dataset = get_dataset(**data_config, transforms=transform)
-    loader = get_dataloader(dataset, batch_size=1, num_workers=0, train=False)
-    dm = FFHQDataModule(task_config)
+
+    dm = FFHQDataModule(load_object(task_config))
     dm.setup()
     test_loader = dm.test_dataloader()
     val_loader = dm.val_dataloader()
