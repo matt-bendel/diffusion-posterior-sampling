@@ -99,7 +99,6 @@ def main():
         ref_img = x.to(device)
 
         mask = mask.to(device)
-        mask = mask[:, 0, :, :].unsqueeze(dim=0)
         measurement_cond_fn = partial(cond_method.conditioning, mask=mask)
         sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
