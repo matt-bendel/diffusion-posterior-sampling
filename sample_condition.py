@@ -96,6 +96,11 @@ def main():
         logger.info(f"Inference for image {i}")
         y, x, mask, mean, std = data[0]
 
+        if i == 0:
+            y_np = (y[0] * std[0, :, None, None] + mean[0, :, None, None]).cpu().numpy()
+            plt.imshow(np.transpose(y_np, (1, 2, 0)))
+            plt.savefig('y_test.png')
+
         ref_img = x.to(device)
 
         mask = mask.to(device)
