@@ -367,6 +367,7 @@ class DDPM(SpacedDiffusion):
         sample = out['mean']
 
         noise = torch.randn_like(x)
+        print(t)
         if t != 0:  # no noise when t == 0
             sample += torch.exp(0.5 * out['log_variance']) * noise
 
