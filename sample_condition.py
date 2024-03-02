@@ -93,7 +93,7 @@ def main():
 
     # Do Inference
     base_im_count = 0
-    for i, data in enumerate(test_loader):
+    for i, data in enumerate(val_loader):
         logger.info(f"Inference for image {i}")
         y, x, mask, mean, std = data[0]
 
@@ -120,8 +120,8 @@ def main():
         # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
         # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
         for j in range(sample.shape[0]):
-            torch.save(sample[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_sample_{0}.pt')
-            torch.save(mask[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_mask.pt')
+            torch.save(sample[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/val/image_{base_im_count+j}_sample_{0}.pt')
+            # torch.save(mask[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_mask.pt')
 
             if i == 0 and j == 0:
                 plt.imsave(f'/storage/matt_models/inpainting/dps/test_{i}.png', clear_color(sample[j].unsqueeze(0)))
