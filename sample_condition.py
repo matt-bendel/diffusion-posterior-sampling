@@ -92,41 +92,48 @@ def main():
     train_loader = dm.train_dataloader()
 
     # Do Inference
-    base_im_count = 0
-    for i, data in enumerate(train_loader):
-        logger.info(f"Inference for image {i}")
-        y, x, mask, mean, std = data[0]
+    for k in range(5):
+        base_im_count = 0
+        for i, data in enumerate(test_loader):
+            logger.info(f"Inference for image {i}")
+            y, x, mask, mean, std = data[0]
 
-        if i == 0 or i == 1:
-            y_np = (y[0] * std[0, :, None, None] + mean[0, :, None, None]).cpu().numpy()
-            plt.imshow(np.transpose(y_np, (1, 2, 0)))
-            plt.savefig(f'y_{i}_test.png')
+            if i == 0 or i == 1:
+                y_np = (y[0] * std[0, :, None, None] + mean[0, :, None, None]).cpu().numpy()
+                plt.imshow(np.transpose(y_np, (1, 2, 0)))
+                plt.savefig(f'y_{i}_test.png')
 
-        ref_img = x.to(device)
+            ref_img = x.to(device)
 
-        mask = mask.to(device)
-        measurement_cond_fn = partial(cond_method.conditioning, mask=mask)
-        sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
+            if k > 0:
+                mask = torch.zeros(mask.shape)
+                for j in range(x.shape[0]):
+                    mask[j] = torch.load(f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_mask.pt')
 
-        # Forward measurement model (Ax + n)
-        y = operator.forward(ref_img, mask=mask)
-        y_n = noiser(y)
+            mask = mask.to(device)
 
-        # Sampling
-        x_start = torch.randn(ref_img.shape, device=device).requires_grad_()
-        sample = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path)
-        print(sample.shape)
+            measurement_cond_fn = partial(cond_method.conditioning, mask=mask)
+            sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
-        # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
-        # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
-        for j in range(sample.shape[0]):
-            torch.save(sample[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/train/image_{base_im_count+j}_sample_{0}.pt')
-            # torch.save(mask[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_mask.pt')
+            # Forward measurement model (Ax + n)
+            y = operator.forward(ref_img, mask=mask)
+            y_n = noiser(y)
 
-            if i == 0 and j == 0:
-                plt.imsave(f'/storage/matt_models/inpainting/dps/test_{i}.png', clear_color(sample[j].unsqueeze(0)))
+            # Sampling
+            x_start = torch.randn(ref_img.shape, device=device).requires_grad_()
+            sample = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path)
+            print(sample.shape)
 
-        base_im_count += sample.shape[0]
+            # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
+            # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
+            for j in range(sample.shape[0]):
+                torch.save(sample[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_sample_{k}.pt')
+                torch.save(mask[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_mask.pt')
+
+                if i == 0 and j == 0:
+                    plt.imsave(f'/storage/matt_models/inpainting/dps/test_{i}.png', clear_color(sample[j].unsqueeze(0)))
+
+            base_im_count += sample.shape[0]
 
 if __name__ == '__main__':
     main()
