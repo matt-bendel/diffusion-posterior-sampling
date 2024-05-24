@@ -107,7 +107,7 @@ def main():
             if i == 0 or i == 1:
                 y_np = (y[0] * std[0, :, None, None] + mean[0, :, None, None]).cpu().numpy()
                 plt.imshow(np.transpose(y_np, (1, 2, 0)))
-                plt.savefig(f'y_{i}_{k}_test.png')
+                plt.savefig(f'y_{i}_test.png')
 
             ref_img = x.to(device)
             mask = mask.to(device)
