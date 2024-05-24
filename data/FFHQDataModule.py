@@ -67,21 +67,24 @@ class FFHQDataModule(pl.LightningDataModule):
     def setup(self, stage: Optional[str] = None):
         # Assign train/val datasets for use in dataloaders
         transform = transforms.Compose([transforms.ToTensor(), DataTransform(self.args)])
-        train_val_dataset = datasets.ImageFolder(self.args.data_path, transform=transform)
-        test_data = datasets.ImageFolder(self.args.data_path_test, transform=transform)
+        full_data = datasets.ImageFolder(self.args.data_path, transform=transform)
 
-        train_data, dev_data = torch.utils.data.random_split(
-            train_val_dataset, [45000, 4000],
-            generator=torch.Generator().manual_seed(0)
+        # Split into 1k val set for lr tune
+        _, test_data = torch.utils.data.split(
+            full_data, [50000, 20000]
         )
 
-        self.train, self.validate, self.test = train_data, dev_data, test_data
+        lr_tune, _ = torch.utils.data.split(
+            test_data, [1000, 19000]
+        )
+
+        self.full_data, self.lr_tune_data, self.test_data = full_data, lr_tune, test_data
 
     # define your dataloaders
     # again, here defined for train, validate and test, not for predict as the project is not there yet.
     def train_dataloader(self):
         return DataLoader(
-            dataset=self.train,
+            dataset=self.full_data,
             batch_size=self.args.batch_size,
             num_workers=4,
             drop_last=True,
@@ -90,7 +93,7 @@ class FFHQDataModule(pl.LightningDataModule):
 
     def val_dataloader(self):
         return DataLoader(
-            dataset=self.validate,
+            dataset=self.lr_tune_data,
             batch_size=self.args.batch_size,
             num_workers=4,
             drop_last=True,
@@ -99,7 +102,7 @@ class FFHQDataModule(pl.LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(
-            dataset=self.test,
+            dataset=self.test_data,
             batch_size=self.args.batch_size,
             num_workers=4,
             pin_memory=False,

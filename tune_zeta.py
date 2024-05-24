@@ -8,6 +8,7 @@ import torch
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 import numpy as np
+import lpips
 
 from guided_diffusion.condition_methods import get_conditioning_method
 from guided_diffusion.measurements import get_noise, get_operator
@@ -39,44 +40,30 @@ def main():
     parser.add_argument('--save_dir', type=str, default='./results')
     args = parser.parse_args()
     seed_everything(1, workers=True)
-   
+
     # logger
     logger = get_logger()
-    
+
     # Device setting
     device_str = f"cuda:{args.gpu}" if torch.cuda.is_available() else 'cpu'
     logger.info(f"Device set to {device_str}.")
-    device = torch.device(device_str)  
-    
+    device = torch.device(device_str)
+
     # Load configurations
     model_config = load_yaml(args.model_config)
     diffusion_config = load_yaml(args.diffusion_config)
     task_config = load_yaml(args.task_config)
-   
-    #assert model_config['learn_sigma'] == diffusion_config['learn_sigma'], \
-    #"learn_sigma must be the same for model and diffusion configuartion."
-    
+
+    loss_fn_vgg = lpips.LPIPS(net='vgg').to(device)
+
+    # assert model_config['learn_sigma'] == diffusion_config['learn_sigma'], \
+    # "learn_sigma must be the same for model and diffusion configuartion."
+
     # Load model
     model = create_model(**model_config)
     model = model.to(device)
     model.eval()
 
-    # Prepare Operator and noise
-    measure_config = task_config['measurement']
-    operator = get_operator(device=device, **measure_config['operator'])
-    noiser = get_noise(**measure_config['noise'])
-    logger.info(f"Operation: {measure_config['operator']['name']} / Noise: {measure_config['noise']['name']}")
-
-    # Prepare conditioning method
-    cond_config = task_config['conditioning']
-    cond_method = get_conditioning_method(cond_config['method'], operator, noiser, **cond_config['params'])
-    measurement_cond_fn = cond_method.conditioning
-    logger.info(f"Conditioning method : {task_config['conditioning']['method']}")
-   
-    # Load diffusion sampler
-    sampler = create_sampler(**diffusion_config) 
-    sample_fn = partial(sampler.p_sample_loop, model=model, measurement_cond_fn=measurement_cond_fn)
-   
     # Working directory
     out_path = os.path.join(args.save_dir, measure_config['operator']['name'])
     os.makedirs(out_path, exist_ok=True)
@@ -87,13 +74,32 @@ def main():
 
     dm = FFHQDataModule(load_object(task_config))
     dm.setup()
-    train_loader = dm.train_dataloader()
+    val_loader = dm.val_dataloader()
 
+    zetas = [0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.8, 2]
+
+    lpips_finals_vals = {}
     # Do Inference
-    print(len(train_loader))
-    for k in range(1):
-        base_im_count = 0
-        for i, data in enumerate(train_loader):
+    for zeta in zetas:
+        # Prepare Operator and noise
+        measure_config = task_config['measurement']
+        operator = get_operator(device=device, **measure_config['operator'])
+        noiser = get_noise(**measure_config['noise'])
+        logger.info(f"Operation: {measure_config['operator']['name']} / Noise: {measure_config['noise']['name']}")
+
+        # Prepare conditioning method
+        cond_config = task_config['conditioning']
+        cond_config['scale'] = zeta
+        cond_method = get_conditioning_method(cond_config['method'], operator, noiser, **cond_config['params'])
+        measurement_cond_fn = cond_method.conditioning
+        logger.info(f"Conditioning method : {task_config['conditioning']['method']}")
+
+        # Load diffusion sampler
+        sampler = create_sampler(**diffusion_config)
+        sample_fn = partial(sampler.p_sample_loop, model=model, measurement_cond_fn=measurement_cond_fn)
+
+        lpips_list = []
+        for i, data in enumerate(val_loader):
             logger.info(f"Inference for image {i}")
             y, x, mask, mean, std = data[0]
 
@@ -103,7 +109,6 @@ def main():
                 plt.savefig(f'y_{i}_{k}_test.png')
 
             ref_img = x.to(device)
-
             mask = mask.to(device)
 
             measurement_cond_fn = partial(cond_method.conditioning, mask=mask)
@@ -116,18 +121,14 @@ def main():
             # Sampling
             x_start = torch.randn(ref_img.shape, device=device).requires_grad_()
             sample = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path)
-            print(sample.shape)
 
-            # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
-            # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
-            for j in range(sample.shape[0]):
-                torch.save(sample[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_sample_{k}.pt')
-                torch.save(mask[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_mask.pt')
+            # LPIPS HERE...
+            lpips_val = loss_fn_vgg(sample, ref_img)
+            lpips_list.append(lpips_val)
 
-                if i == 0 and j == 0:
-                    plt.imsave(f'/storage/matt_models/inpainting/dps/test_{i}.png', clear_color(sample[j].unsqueeze(0)))
+        lpips_finals_vals[f'{zeta}'] = np.mean(lpips_list)
 
-            base_im_count += sample.shape[0]
+    print(lpips_final_vals)
 
 if __name__ == '__main__':
     main()
