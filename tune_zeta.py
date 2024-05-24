@@ -65,6 +65,7 @@ def main():
     model.eval()
 
     # Working directory
+    measure_config = task_config['measurement']
     out_path = os.path.join(args.save_dir, measure_config['operator']['name'])
     os.makedirs(out_path, exist_ok=True)
     for img_dir in ['input', 'recon', 'progress', 'label']:
