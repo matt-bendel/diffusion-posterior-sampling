@@ -127,6 +127,7 @@ def main():
             lpips_list.append(lpips_val)
 
         lpips_finals_vals[f'{zeta}'] = np.mean(lpips_list)
+        print(f'{zeta}: {np.mean(lpips_list)}')
 
     print(lpips_final_vals)
 
