@@ -70,13 +70,9 @@ class FFHQDataModule(pl.LightningDataModule):
         full_data = datasets.ImageFolder(self.args.data_path, transform=transform)
 
         # Split into 1k val set for lr tune
-        _, test_data = torch.utils.data.split(
-            full_data, [50000, 20000]
-        )
+        test_data = torch.utils.data.Subset(full_data, range(50000, 70000))
 
-        lr_tune, _ = torch.utils.data.split(
-            test_data, [1000, 19000]
-        )
+        lr_tune, _ = torch.utils.data.Subset(test_data, range(1000))
 
         self.full_data, self.lr_tune_data, self.test_data = full_data, lr_tune, test_data
 
