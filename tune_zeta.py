@@ -125,7 +125,7 @@ def main():
 
             # LPIPS HERE...
             lpips_val = loss_fn_vgg(sample, ref_img)
-            lpips_list.append(lpips_val.cpu().numpy())
+            lpips_list.append(lpips_val.detach().cpu().numpy())
 
         lpips_finals_vals[f'{zeta}'] = np.mean(lpips_list)
         print(f'{zeta}: {np.mean(lpips_list)}')
