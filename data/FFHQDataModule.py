@@ -72,7 +72,7 @@ class FFHQDataModule(pl.LightningDataModule):
         # Split into 1k val set for lr tune
         test_data = torch.utils.data.Subset(full_data, range(50000, 70000))
 
-        lr_tune = torch.utils.data.Subset(test_data, range(1000))
+        lr_tune = torch.utils.data.Subset(test_data, range(500))
 
         self.full_data, self.lr_tune_data, self.test_data = full_data, lr_tune, test_data
 
