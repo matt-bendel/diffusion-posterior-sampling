@@ -81,7 +81,6 @@ class PosteriorSampling(ConditioningMethod):
         super().__init__(operator, noiser)
         self.scale = kwargs.get('scale', 1.0)
         print(f'SCALE: {self.scale}')
-        exit()
 
     def conditioning(self, x_prev, x_t, x_0_hat, measurement, **kwargs):
         norm_grad, norm = self.grad_and_value(x_prev=x_prev, x_0_hat=x_0_hat, measurement=measurement, **kwargs)
