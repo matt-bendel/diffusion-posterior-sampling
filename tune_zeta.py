@@ -92,7 +92,6 @@ def main():
         cond_config = task_config['conditioning']
         cond_config['params']['scale'] = zeta
         print(cond_config)
-        exit()
         cond_method = get_conditioning_method(cond_config['method'], operator, noiser, **cond_config['params'])
         measurement_cond_fn = cond_method.conditioning
         logger.info(f"Conditioning method : {task_config['conditioning']['method']}")
