@@ -69,6 +69,7 @@ def main():
 
     # Prepare conditioning method
     cond_config = task_config['conditioning']
+    cond_config['params']['scale'] = 2.0
     cond_method = get_conditioning_method(cond_config['method'], operator, noiser, **cond_config['params'])
     measurement_cond_fn = cond_method.conditioning
     logger.info(f"Conditioning method : {task_config['conditioning']['method']}")
@@ -87,13 +88,13 @@ def main():
 
     dm = FFHQDataModule(load_object(task_config))
     dm.setup()
-    train_loader = dm.train_dataloader()
+    test_loader = dm.test_dataloader()
 
     # Do Inference
-    print(len(train_loader))
+    print(len(test_loader))
     for k in range(1):
         base_im_count = 0
-        for i, data in enumerate(train_loader):
+        for i, data in enumerate(test_loader):
             logger.info(f"Inference for image {i}")
             y, x, mask, mean, std = data[0]
 
@@ -121,8 +122,8 @@ def main():
             # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
             # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
             for j in range(sample.shape[0]):
-                torch.save(sample[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_sample_{k}.pt')
-                torch.save(mask[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test/image_{base_im_count+j}_mask.pt')
+                torch.save(sample[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test_20k/image_{base_im_count+j}_sample_{k}.pt')
+                torch.save(mask[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test_20k/image_{base_im_count+j}_mask.pt')
 
                 if i == 0 and j == 0:
                     plt.imsave(f'/storage/matt_models/inpainting/dps/test_{i}.png', clear_color(sample[j].unsqueeze(0)))
