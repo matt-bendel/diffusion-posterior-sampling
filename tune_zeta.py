@@ -77,7 +77,7 @@ def main():
     dm.setup()
     val_loader = dm.val_dataloader()
 
-    zetas = [0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.8, 2]
+    zetas = [2.2, 2.4, 2.6, 2.8, 3.0]
 
     lpips_finals_vals = {}
     # Do Inference
