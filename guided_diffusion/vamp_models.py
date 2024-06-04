@@ -86,7 +86,7 @@ class Denoising(VAMP):
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
-        return (1 / (noise_sig ** 2) + (r_sig_inv ** 2) + gamma_1) * (r_sig_inv ** 2 * x_t + (1 / (noise_sig ** 2)) * y + gamma_1 * r_1)
+        return 1 / (1 / (noise_sig ** 2) + (r_sig_inv ** 2) + gamma_1) * (r_sig_inv * x_t + (1 / (noise_sig)) * y + gamma_1 * r_1)
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
