@@ -45,7 +45,7 @@ class VAMP:
 
         return tr_out / self.K
 
-    def linear_estimation(self, r_1, gamma_1, x_t, y, noise_sig):
+    def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         mu_1 = self.f_1(r_1, gamma_1, x_t, y, noise_sig)
         eta_1 = self.eta_1(gamma_1, r_1, x_t, y)
         gamma_2 = eta_1 - gamma_1
@@ -65,9 +65,12 @@ class VAMP:
         mu_2 = None
         gamma_1 = self.gamma_1
         r_1 = self.r_1
+        t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)
+        print(t_alpha_bar.shape)
+        exit()
 
         for i in range(self.max_iters):
-            r_2, gamma_2 = self.linear_estimation(r_1, gamma_1, x_t, y, noise_sig)
+            r_2, gamma_2 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig, t_alpha_bar, noise_sig)
             r_1, gamma_1, mu_2 = self.denoising(r_2, gamma_2)
 
         self.gamma_1 = gamma_1
@@ -85,3 +88,21 @@ class Denoising(VAMP):
 
     def eta_1(self, gamma_1, x_t, y, noise_sig):
         raise NotImplementedError() # TODO
+
+
+class Inpainting(VAMP):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, K=1):
+        super().__init__(model, betas, alphas_cumprod, max_iters, K)
+
+    def f_1(self, r_1, gamma_1, x_t, y, noise_sig):
+        raise NotImplementedError() # TODO:
+
+    def eta_1(self, gamma_1, x_t, y, noise_sig):
+        raise NotImplementedError() # TODO
+
+
+def extract_and_expand(array, time, target):
+    array = torch.from_numpy(array).to(target.device)[time].float()
+    while array.ndim < target.ndim:
+        array = array.unsqueeze(-1)
+    return array.expand_as(target)
