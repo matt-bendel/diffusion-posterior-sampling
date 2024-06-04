@@ -192,6 +192,8 @@ class GaussianDiffusion:
             next_im += extract_and_expand(self.xi_t, time, img) * self.denoise(x=img, t=time, model=model, y=measurement, forward_model=forward_model)['pred_xstart']
             next_im += extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
 
+            img = next_im
+
             if record:
                 if idx % 50 == 0:
                     file_path = f"/storage/matt_models/inpainting/dps/x_{str(idx).zfill(4)}.png"
