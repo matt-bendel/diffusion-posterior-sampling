@@ -39,7 +39,6 @@ class VAMP:
 
             tr_out += torch.mean((probe * (mu_2_delta - mu_2)).view(mu_2.shape[0], -1), 1) / self.delta
 
-        print(f'tr: {tr_out}')
         return tr_out / self.K
 
     def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
@@ -68,9 +67,6 @@ class VAMP:
             r_2, gamma_2 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig, t_alpha_bar, noise_sig)
             r_1, gamma_1, mu_2 = self.denoising(r_2, gamma_2)
 
-            print(gamma_1)
-            print(gamma_2)
-
             if torch.isnan(gamma_2) or torch.isnan(gamma_1):
                 exit()
 
@@ -93,15 +89,17 @@ class Denoising(VAMP):
         return r_sig_inv ** 2 + 1 / (noise_sig ** 2) + gamma_1
 
 
-# class Inpainting(VAMP):
-#     def __init__(self, model, betas, alphas_cumprod, max_iters, K=1):
-#         super().__init__(model, betas, alphas_cumprod, max_iters, K)
-#
-#     def f_1(self, r_1, gamma_1, x_t, y, noise_sig):
-#         raise NotImplementedError() # TODO:
-#
-#     def eta_1(self, gamma_1, x_t, y, noise_sig):
-#         raise NotImplementedError() # TODO
+class Inpainting(VAMP):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, K=1):
+        super().__init__(model, betas, alphas_cumprod, max_iters, K, x_T)
+
+    def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
+        # TODO
+        pass
+
+    def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
+        # TODO
+        pass
 
 
 def extract_and_expand(array, time, target):

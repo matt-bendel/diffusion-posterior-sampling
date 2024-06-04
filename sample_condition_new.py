@@ -115,8 +115,8 @@ def main():
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
             # Forward measurement model (Ax + n)
-            y_n = ref_img + torch.rand_like(ref_img).to(ref_img.device) * measure_config['noise']['sigma']#operator.forward(ref_img, mask=mask)
-            # y_n = noiser(y)
+            # y_n = operator.forward(ref_img, mask=mask)
+            y_n = noiser(ref_img)
 
             # Sampling
             x_start = torch.randn(ref_img.shape, device=device).requires_grad_()
@@ -127,7 +127,9 @@ def main():
             # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
             for j in range(sample.shape[0]):
                 if i == 0 and j == 0:
-                    plt.imsave(f'test_cond.png', clear_color(sample[j].unsqueeze(0)))
+                    plt.imsave(f'test_recon.png', clear_color(sample[j].unsqueeze(0)))
+                    plt.imsave(f'test_y.png', clear_color(y_n[j].unsqueeze(0)))
+                    plt.imsave(f'test_x.png', clear_color(ref_img[j].unsqueeze(0)))
                     exit()
 
             base_im_count += sample.shape[0]
