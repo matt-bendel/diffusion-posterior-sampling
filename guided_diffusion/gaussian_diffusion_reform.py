@@ -206,6 +206,10 @@ class GaussianDiffusion:
 
     def p_mean_variance(self, model, x, t):
         model_output = model(x, self._scale_timesteps(t))
+        print(x.shape)
+        prin(t.shape)
+        print(model_output.shape)
+        exit()
 
         # In the case of "learned" variance, model will give twice channels.
         if model_output.shape[1] == 2 * x.shape[1]:
@@ -358,6 +362,7 @@ class _WrappedModel:
 @register_sampler(name='ddpm')
 class DDPM(SpacedDiffusion):
     def denoise(self, model, x, t, y, cond, vamp):
+        cond = False
         if not cond:
             pred_xstart = self.p_mean_variance(model, x, t)
         else:
