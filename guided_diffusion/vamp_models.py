@@ -1,15 +1,15 @@
 import torch
 
 class VAMP:
-    def __init__(self, model, betas, alphas_cumprod, max_iters, K):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
         self.max_iters = max_iters
         self.K = K
         self.delta = 1e-4
         self.betas = betas
-        self.gamma_1 = None
-        self.r_1 = None
+        self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
+        self.r_1 = (torch.sqrt(1e-6) * torch.randn_like(x_T)).to(x_T.device)
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         raise NotImplementedError()
