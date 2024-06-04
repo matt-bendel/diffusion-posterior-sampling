@@ -115,7 +115,7 @@ def main():
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
             # Forward measurement model (Ax + n)
-            y_n = ref_img + torch.rand_like(x) * measure_config['noise']['sigma']#operator.forward(ref_img, mask=mask)
+            y_n = ref_img + torch.rand_like(ref_img).to(ref_img.device) * measure_config['noise']['sigma']#operator.forward(ref_img, mask=mask)
             # y_n = noiser(y)
 
             # Sampling
