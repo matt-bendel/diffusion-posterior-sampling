@@ -35,7 +35,7 @@ class VAMP:
         return x_0
 
     def denoiser_tr_approx(self, r_2, gamma_2, mu_2):
-        tr_out = torch.zeros(mu_2.shape[0], 1)
+        tr_out = torch.zeros(mu_2.shape[0], 1).to(mu_2.device)
         for k in range(self.K):
             probe = torch.sign(torch.randn_like(mu_2).to(mu_2.device))
             mu_2_delta = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), 1 / gamma_2)
