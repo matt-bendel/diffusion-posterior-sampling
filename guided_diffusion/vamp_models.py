@@ -21,9 +21,6 @@ class VAMP:
         diff = torch.abs(noise_var - self.betas)
         nearest_indices = torch.argmin(diff, dim=1)
 
-        print(nearest_indices)
-        exit()
-
         t = nearest_indices.repeat(noisy_im.shape[0])
         noise_predict = self.model(noisy_im, t)
 
@@ -71,6 +68,9 @@ class VAMP:
         for i in range(self.max_iters):
             r_2, gamma_2 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig, t_alpha_bar, noise_sig)
             r_1, gamma_1, mu_2 = self.denoising(r_2, gamma_2)
+
+            print(gamma_1)
+            print(gamma_2)
 
         self.gamma_1 = gamma_1.detach()
         self.r_1 = r_1.detach()
