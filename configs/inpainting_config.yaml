@@ -25,4 +25,4 @@ measurement:
 
   noise:
     name: gaussian
-    sigma: 1e-6
+    sigma: 0.00001
