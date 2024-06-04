@@ -9,7 +9,7 @@ class VAMP:
         self.delta = 1e-4
         self.betas = betas
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
-        self.r_1 = (torch.sqrt(1e-6) * torch.randn_like(x_T)).to(x_T.device)
+        self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         raise NotImplementedError()
