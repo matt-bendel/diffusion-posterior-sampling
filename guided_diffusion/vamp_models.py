@@ -18,7 +18,7 @@ class VAMP:
         raise NotImplementedError()
 
     def uncond_denoiser_function(self, noisy_im, noise_var):
-        diff = torch.abs(noise_var - self.betas)
+        diff = torch.abs(noise_var - (1 - self.alphas_cumprod))
         nearest_indices = torch.argmin(diff, dim=1)
 
         t = nearest_indices.repeat(noisy_im.shape[0])
@@ -27,9 +27,7 @@ class VAMP:
         if noise_predict.shape[1] == 2 * noisy_im.shape[1]:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
-        tmp = extract_and_expand(self.alphas_cumprod, t, noisy_im)[0, 0, 0, 0]
-
-        x_0 = noisy_im / torch.sqrt(tmp) - torch.sqrt((1 - tmp) / tmp) * noise_predict
+        x_0 = (noisy_im - torch.sqrt(noise_var) * noise_predict) / torch.sqrt(1 - noise_var)
 
         return x_0
 
@@ -46,7 +44,6 @@ class VAMP:
     def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(gamma_1, t_alpha_bar, noise_sig)
-        print(eta_1)
         gamma_2 = eta_1 - gamma_1
         r_2 = (eta_1 * mu_1 - gamma_1 * r_1) / gamma_2
 
