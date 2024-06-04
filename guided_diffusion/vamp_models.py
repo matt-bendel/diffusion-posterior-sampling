@@ -3,7 +3,7 @@ import torch
 class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T):
         self.model = model
-        self.alphas_cumprod = alphas_cumprod
+        self.alphas_cumprod = torch.tensor(alphas_cumprod).to(x_T.device)
         self.max_iters = max_iters
         self.K = K
         self.delta = 1e-4
