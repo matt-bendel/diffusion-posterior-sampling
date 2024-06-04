@@ -3,7 +3,7 @@ import torch
 class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T):
         self.model = model
-        self.alphas_cumprod = torch.tensor(alphas_cumprod).to(x_T.device)
+        self.alphas_cumprod = alphas_cumprod
         self.max_iters = max_iters
         self.K = K
         self.delta = 1e-4
@@ -18,7 +18,7 @@ class VAMP:
         raise NotImplementedError()
 
     def uncond_denoiser_function(self, noisy_im, noise_var):
-        diff = torch.abs(noise_var - (1 - self.alphas_cumprod))
+        diff = torch.abs(noise_var - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)))
         nearest_indices = torch.argmin(diff, dim=1)
 
         t = nearest_indices.repeat(noisy_im.shape[0])
