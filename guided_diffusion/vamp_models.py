@@ -54,15 +54,16 @@ class VAMP:
     def denoising(self, r_2, gamma_2):
         mu_2 = self.uncond_denoiser_function(r_2.float(), 1 / gamma_2)
         eta_2 = gamma_2 / self.denoiser_tr_approx(r_2, gamma_2, mu_2)
+        print(eta_2)
+        print(gamma_2)
         gamma_1 = eta_2 - gamma_2
         r_1 = (eta_2 * mu_2 - gamma_2 * r_2) / gamma_1
 
-        return r_1, gamma_1, mu_2
+        return r_1.detach(), gamma_1.detach(), mu_2.detach()
 
     def run_vamp(self, x_t, y, t, noise_sig):
         mu_2 = None
         gamma_1 = self.gamma_1
-        print(gamma_1)
         r_1 = self.r_1
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
