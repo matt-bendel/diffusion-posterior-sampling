@@ -62,6 +62,7 @@ class VAMP:
     def run_vamp(self, x_t, y, t, noise_sig):
         mu_2 = None
         gamma_1 = self.gamma_1
+        print(gamma_1)
         r_1 = self.r_1
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
