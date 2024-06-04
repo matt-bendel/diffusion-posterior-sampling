@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from tqdm.auto import tqdm
 
+from guided_diffusion.vamp_models import Denoising
 from util.img_utils import clear_color
 from .posterior_mean_variance import get_mean_processor, get_var_processor
 
@@ -184,11 +185,13 @@ class GaussianDiffusion:
         img = x_start
         device = x_start.device
 
+        vamp_model = Denoising(model, self.betas, self.alphas_cumprod, 1)
+
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
 
-            img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * self.denoise(x=img, t=time, model=model, y=measurement, forward_model=forward_model)['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
+            img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model)['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
             img = img.detach()
 
             if record:
@@ -198,7 +201,7 @@ class GaussianDiffusion:
 
         return img
 
-    def denoise(self, model, x, t, y, forward_model):
+    def denoise(self, model, x, t, y, cond, vamp):
         raise NotImplementedError
 
     def p_mean_variance(self, model, x, t):
@@ -354,11 +357,14 @@ class _WrappedModel:
 
 @register_sampler(name='ddpm')
 class DDPM(SpacedDiffusion):
-    def denoise(self, model, x, t, y, forward_model):
-        out = self.p_mean_variance(model, x, t)
-        sample = out['mean']
+    def denoise(self, model, x, t, y, cond, vamp):
+        if not cond:
+            pred_xstart = self.p_mean_variance(model, x, t)
+        else:
+            pred_xstart = vamp.run_vamp(y, forward_model, model, x, t)
 
-        return {'sample': sample, 'pred_xstart': out['pred_xstart']}
+        return {'pred_xstart': pred_xstart}
+
 
 
 @register_sampler(name='ddim')
