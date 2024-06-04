@@ -21,6 +21,9 @@ class VAMP:
         diff = torch.abs(noise_var - self.betas)
         nearest_indices = torch.argmin(diff, dim=1)
 
+        print(nearest_indices)
+        exit()
+
         t = nearest_indices.repeat(noisy_im.shape[0])
         noise_predict = self.model(noisy_im, t)
 
