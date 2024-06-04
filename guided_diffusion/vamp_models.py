@@ -7,7 +7,7 @@ class VAMP:
         self.max_iters = max_iters
         self.K = K
         self.delta = 1e-4
-        self.betas = betas
+        self.betas = torch.tensor(betas).to(x_T.device)
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
         self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
 
