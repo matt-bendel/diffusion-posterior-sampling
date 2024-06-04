@@ -185,7 +185,7 @@ class GaussianDiffusion:
         img = x_start
         device = x_start.device
 
-        vamp_model = Denoising(model, self.betas, self.alphas_cumprod, 1)
+        vamp_model = Denoising(model, self.betas, self.alphas_cumprod, 1, x_start)
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         for idx in pbar:

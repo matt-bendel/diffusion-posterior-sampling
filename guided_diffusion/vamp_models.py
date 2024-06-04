@@ -78,8 +78,8 @@ class VAMP:
 
 
 class Denoising(VAMP):
-    def __init__(self, model, betas, alphas_cumprod, max_iters, K=1):
-        super().__init__(model, betas, alphas_cumprod, max_iters, K)
+    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, K=1):
+        super().__init__(model, betas, alphas_cumprod, max_iters, K, x_T)
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
