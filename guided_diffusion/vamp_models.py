@@ -38,7 +38,7 @@ class VAMP:
         tr_out = torch.zeros(mu_2.shape[0], 1)
         for k in range(self.K):
             probe = torch.sign(torch.randn_like(mu_2).to(mu_2.device))
-            mu_2_delta = self.uncond_denoiser_function(r_2 + self.delta * probe, 1 / gamma_2)
+            mu_2_delta = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), 1 / gamma_2)
 
             tr_out += torch.mean((probe * (mu_2_delta - mu_2)).view(mu_2.shape[0], -1), 1) / self.delta
 
