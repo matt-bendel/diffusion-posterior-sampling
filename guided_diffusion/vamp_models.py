@@ -27,6 +27,11 @@ class VAMP:
         alphas = 1 - self.betas
         alphas_cumprod = torch.cumprod(alphas, 0)[nearest_indices]
 
+        print(alphas_cumprod)
+        print(noisy_im.shape)
+        print(noise_predict.shape)
+        exit()
+
         x_0 = noisy_im / torch.sqrt(alphas_cumprod) - torch.sqrt((1 - alphas_cumprod) / alphas_cumprod) * noise_predict
 
         return x_0
