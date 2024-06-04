@@ -20,9 +20,12 @@ class VAMP:
     def uncond_denoiser_function(self, noisy_im, noise_var):
         # TODO: FIND T
         diff = torch.abs(noise_var - self.betas)
+        print(diff)
         nearest_indices = torch.argmin(diff, dim=1)
 
         print(nearest_indices)
+        print(self.betas)
+        print(noise_var)
         print(self.betas[nearest_indices])
         exit()
 
