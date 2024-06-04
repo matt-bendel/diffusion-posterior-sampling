@@ -27,10 +27,9 @@ class VAMP:
         if noise_predict.shape[1] == 2 * noisy_im.shape[1]:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
-        alphas = 1 - self.betas
-        alphas_cumprod = torch.cumprod(alphas, 0)[nearest_indices]
+        tmp = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        x_0 = noisy_im / torch.sqrt(alphas_cumprod) - torch.sqrt((1 - alphas_cumprod) / alphas_cumprod) * noise_predict
+        x_0 = noisy_im / torch.sqrt(tmp) - torch.sqrt((1 - tmp) / tmp) * noise_predict
 
         return x_0
 
