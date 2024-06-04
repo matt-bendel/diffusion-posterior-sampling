@@ -70,10 +70,10 @@ class VAMP:
             r_2, gamma_2 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig, t_alpha_bar, noise_sig)
             r_1, gamma_1, mu_2 = self.denoising(r_2, gamma_2)
 
-        self.gamma_1 = gamma_1
-        self.r_1 = r_1
+        self.gamma_1 = gamma_1.detach()
+        self.r_1 = r_1.detach()
 
-        return mu_2
+        return mu_2.detach()
 
 
 class Denoising(VAMP):
