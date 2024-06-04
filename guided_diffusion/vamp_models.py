@@ -18,11 +18,10 @@ class VAMP:
         raise NotImplementedError()
 
     def uncond_denoiser_function(self, noisy_im, noise_var):
-        # TODO: FIND T
         diff = torch.abs(noise_var - self.betas)
         nearest_indices = torch.argmin(diff, dim=1)
 
-        t = nearest_indices.unsqueeze(0).repeat(noisy_im.shape[0])
+        t = nearest_indices.unsqueeze(0).repeat(noisy_im.shape[0], 1)
         noise_predict = self.model(noisy_im, t)
 
         alphas = 1 - self.betas
