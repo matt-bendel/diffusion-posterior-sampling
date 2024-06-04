@@ -176,7 +176,8 @@ class GaussianDiffusion:
                       measurement,
                       measurement_cond_fn,
                       record,
-                      save_root):
+                      save_root,
+                      forward_model=None):
         """
         The function used for sampling from noise.
         """
@@ -187,9 +188,9 @@ class GaussianDiffusion:
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
 
-            next_im = self.rho_t * img
-            next_im += self.xi_t * self.denoise(x=img, t=time, model=model, y=measurement, forward_model=forward_model)
-            next_im += self.sigma_t * torch.randn_like(img)
+            next_im = extract_and_expand(self.rho_t, time, img) * img
+            next_im += extract_and_expand(self.xi_t[idx], time, img) * self.denoise(x=img, t=time, model=model, y=measurement, forward_model=forward_model)
+            next_im += extract_and_expand(self.sigma_t[idx], time, img) * torch.randn_like(img)
 
             if record:
                 if idx % 50 == 0:
