@@ -49,7 +49,7 @@ class VAMP:
         gamma_2 = eta_1 - gamma_1
         r_2 = (eta_1 * mu_1 - gamma_1 * r_1) / gamma_2
 
-        return r_2, gamma_2
+        return r_2.detach(), gamma_2.detach()
 
     def denoising(self, r_2, gamma_2):
         mu_2 = self.uncond_denoiser_function(r_2.float(), 1 / gamma_2)
@@ -71,6 +71,9 @@ class VAMP:
 
             print(gamma_1)
             print(gamma_2)
+
+            if torch.isnan(gamma_2) or torch.isnan(gamma_1):
+                exit()
 
         self.gamma_1 = gamma_1.detach()
         self.r_1 = r_1.detach()
