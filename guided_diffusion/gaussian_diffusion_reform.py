@@ -207,7 +207,7 @@ class GaussianDiffusion:
     def p_mean_variance(self, model, x, t):
         model_output = model(x, self._scale_timesteps(t))
         print(x.shape)
-        prin(t.shape)
+        print(t.shape)
         print(model_output.shape)
         exit()
 
