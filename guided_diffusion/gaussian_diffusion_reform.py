@@ -361,7 +361,7 @@ class DDPM(SpacedDiffusion):
         if not cond:
             pred_xstart = self.p_mean_variance(model, x, t)
         else:
-            pred_xstart = vamp.run_vamp(x, y, t, noise_sig=torch.tensor(0.01))
+            pred_xstart = vamp.run_vamp(x, y, t, noise_sig=torch.tensor(0.01).to(x.device))
 
         return {'pred_xstart': pred_xstart}
 
