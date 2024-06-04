@@ -53,7 +53,7 @@ class VAMP:
         return r_2, gamma_2
 
     def denoising(self, r_2, gamma_2):
-        mu_2 = self.uncond_denoiser_function(r_2, 1 / gamma_2)
+        mu_2 = self.uncond_denoiser_function(r_2.float(), 1 / gamma_2)
         eta_2 = gamma_2 / self.denoiser_tr_approx(r_2, gamma_2, mu_2)
         gamma_1 = eta_2 - gamma_2
         r_1 = (eta_2 * mu_2 - gamma_2 * r_2) / gamma_1
