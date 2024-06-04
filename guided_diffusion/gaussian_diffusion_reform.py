@@ -189,8 +189,8 @@ class GaussianDiffusion:
             time = torch.tensor([idx] * img.shape[0], device=device)
 
             next_im = extract_and_expand(self.rho_t, time, img) * img
-            next_im += extract_and_expand(self.xi_t[idx], time, img) * self.denoise(x=img, t=time, model=model, y=measurement, forward_model=forward_model)
-            next_im += extract_and_expand(self.sigma_t[idx], time, img) * torch.randn_like(img)
+            next_im += extract_and_expand(self.xi_t, time, img) * self.denoise(x=img, t=time, model=model, y=measurement, forward_model=forward_model)
+            next_im += extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
 
             if record:
                 if idx % 50 == 0:
