@@ -103,7 +103,7 @@ def main():
             if i == 0 or i == 1:
                 y_np = (y[0] * std[0, :, None, None] + mean[0, :, None, None]).cpu().numpy()
                 plt.imshow(np.transpose(y_np, (1, 2, 0)))
-                plt.savefig(f'y_{i}_{k}_test.png')
+                plt.savefig(f'y_noise_test.png')
 
             ref_img = x.to(device)
 
@@ -113,7 +113,7 @@ def main():
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
             # Forward measurement model (Ax + n)
-            y = operator.forward(ref_img, mask=mask)
+            y = ref_img #operator.forward(ref_img, mask=mask)
             y_n = noiser(y)
 
             # Sampling
