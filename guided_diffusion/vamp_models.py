@@ -39,6 +39,7 @@ class VAMP:
 
             tr_out += torch.mean((probe * (mu_2_delta - mu_2)).view(mu_2.shape[0], -1), 1) / self.delta
 
+        print(f'tr: {tr_out}')
         return tr_out / self.K
 
     def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
