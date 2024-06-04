@@ -66,7 +66,8 @@ class VAMP:
         gamma_1 = self.gamma_1
         r_1 = self.r_1
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)
-        print(t_alpha_bar)
+        print(t_alpha_bar[0, 0, 0, 0])
+        print(noise_sig)
         exit()
 
         for i in range(self.max_iters):

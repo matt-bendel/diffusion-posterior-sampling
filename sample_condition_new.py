@@ -98,6 +98,8 @@ def main():
             logger.info(f"Inference for image {i}")
             y, x, mask, mean, std = data[0]
 
+            y = x + torch.rand_like(x) * measure_config['noise']['sigma']
+
             if i == 0 or i == 1:
                 y_np = (y[0] * std[0, :, None, None] + mean[0, :, None, None]).cpu().numpy()
                 plt.imshow(np.transpose(y_np, (1, 2, 0)))
