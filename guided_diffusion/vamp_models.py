@@ -22,19 +22,15 @@ class VAMP:
         diff = torch.abs(noise_var - self.betas)
         nearest_indices = torch.argmin(diff, dim=1)
 
-        print(nearest_indices)
-        print(noise_var)
-        print(self.betas[nearest_indices])
-        exit()
-
         t = nearest_indices.unsqueeze(0).repeat(noisy_im.shape[0])
-        t = torch.tensor([nearest] * img.shape[0], device=device)
         noise_predict = self.model(noisy_im, t)
 
-        model_mean, pred_xstart = self.mean_processor.get_mean_and_xstart(x, t)
+        alphas = 1 - self.betas
+        alphas_cumprod = torch.cumprod(alphas)[nearest_indices]
 
-        return {'mean': model_mean,
-                'pred_xstart': pred_xstart}
+        x_0 = noisy_im / torch.sqrt(alphas_cumprod) - torch.sqrt((1 - alphas_cumprod) / alphas_cumprod) * noise_predict
+
+        return x_0
 
     def denoiser_tr_approx(self, r_2, gamma_2, mu_2):
         tr_out = torch.zeros(mu_2.shape[0], 1)
@@ -49,9 +45,6 @@ class VAMP:
     def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(gamma_1, t_alpha_bar, noise_sig)
-        print(eta_1)
-        print(1 / eta_1)
-        exit()
         gamma_2 = eta_1 - gamma_1
         r_2 = (eta_1 * mu_1 - gamma_1 * r_1) / gamma_2
 
