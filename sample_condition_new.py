@@ -122,7 +122,7 @@ def main():
             # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
             # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
             for j in range(sample.shape[0]):
-                if i == 0 and j == 0:
+                if i == 1 and j == 0:
                     plt.imsave(f'test_uncond.png', clear_color(sample[j].unsqueeze(0)))
                     exit()
 
