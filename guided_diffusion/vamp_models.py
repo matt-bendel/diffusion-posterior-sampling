@@ -95,17 +95,11 @@ class Inpainting(VAMP):
         self.kept_inds = kept_inds
         self.missing_inds = missing_inds
 
-        total_missing = self.missing_inds.shape
-        total_kept = self.kept_inds.shape
-
-        print(total_kept)
-        print(total_missing)
-        exit()
-
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
         right_term = r_sig_inv * x_t + (1 / noise_sig) * y + gamma_1 * r_1
+        right_term = right_term.detach()
         return right_term[self.kept_inds] * (1 / (r_sig_inv ** 2 + 1 / (noise_sig ** 1) + gamma_1)) + right_term[self.missing_inds] * (1 / (r_sig_inv ** 2 + gamma_1))
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
@@ -114,17 +108,10 @@ class Inpainting(VAMP):
         total_missing = self.missing_inds.shape[0]
         total_kept = self.kept_inds.shape[0]
 
-        print(total_kept)
-        print(total_missing)
-        exit()
-
         sum_1 = total_missing * ((1 / (noise_sig ** 2)) ** -1)
         sum_2 = total_kept * ((1 / (noise_sig ** 2) + r_sig_inv ** 2) ** -1)
 
         return ((sum_1 + sum_2) / (total_kept + total_missing)) ** -1
-
-        # TODO
-        pass
 
 
 def extract_and_expand(array, time, target):
