@@ -115,12 +115,12 @@ def main():
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
             # Forward measurement model (Ax + n)
-            # y_n = operator.forward(ref_img, mask=mask)
+            y_n = operator.forward(ref_img, mask=mask)
             y_n = noiser(ref_img)
 
             # Sampling
             x_start = torch.randn(ref_img.shape, device=device).requires_grad_()
-            sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path)
+            sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask)
             print(sample.shape)
 
             # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))

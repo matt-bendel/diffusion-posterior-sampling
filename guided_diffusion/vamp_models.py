@@ -90,14 +90,32 @@ class Denoising(VAMP):
 
 
 class Inpainting(VAMP):
-    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, K=1):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, kept_inds, missing_inds, K=1):
         super().__init__(model, betas, alphas_cumprod, max_iters, K, x_T)
+        self.kept_inds = kept_inds
+        self.missing_inds = missing_inds
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
-        # TODO
-        pass
+        r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
+
+        right_term = r_sig_inv * x_t + (1 / noise_sig) * y + gamma_1 * r_1
+        return right_term[self.kept_inds] * (1 / (r_sig_inv ** 2 + 1 / (noise_sig ** 1) + gamma_1)) + right_term[self.missing_inds] * (1 / (r_sig_inv ** 2 + gamma_1))
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
+        r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
+
+        total_missing = self.missing_inds.shape[0]
+        total_kept = self.kept_inds.shape[0]
+
+        print(total_kept)
+        print(total_missing)
+        exit()
+
+        sum_1 = total_missing * ((1 / (noise_sig ** 2)) ** -1)
+        sum_2 = total_kept * ((1 / (noise_sig ** 2) + r_sig_inv ** 2) ** -1)
+
+        return ((sum_1 + sum_2) / (total_kept + total_missing)) ** -1
+
         # TODO
         pass
 
