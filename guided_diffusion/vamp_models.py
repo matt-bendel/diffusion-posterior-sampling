@@ -31,7 +31,7 @@ class VAMP:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
         if noise_var > 1:
-            x_0 = (noisy_im - torch.sqrt(1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) * noise_predict) / torch.sqrt(torch.tensor(self.alphas_cumprod).to(noisy_im.device))
+            x_0 = (noisy_im - torch.sqrt(1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)[nearest_indices]) * noise_predict) / torch.sqrt(torch.tensor(self.alphas_cumprod).to(noisy_im.device)[nearest_indices])
         else:
             x_0 = (noisy_im - torch.sqrt(noise_var) * noise_predict) / torch.sqrt(1 - noise_var)
 
