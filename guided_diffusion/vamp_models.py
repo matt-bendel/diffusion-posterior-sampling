@@ -113,6 +113,7 @@ class Inpainting(VAMP):
 
         print(total_kept)
         print(total_missing)
+        exit()
 
         sum_1 = total_missing * ((1 / (noise_sig ** 2) + gamma_1) ** -1)
         sum_2 = total_kept * ((1 / (noise_sig ** 2) + r_sig_inv ** 2 + gamma_1) ** -1)
