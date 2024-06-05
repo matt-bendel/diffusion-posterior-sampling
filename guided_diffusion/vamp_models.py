@@ -10,6 +10,8 @@ class VAMP:
         self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
 
         self.betas = torch.tensor(betas).to(x_T.device)
+        # self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
+        # self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
         self.gamma_1 = torch.ones(x_T.shape[0], 1, device=x_T.device)
         self.r_1 = torch.randn_like(x_T).to(x_T.device)
 
@@ -20,11 +22,8 @@ class VAMP:
         raise NotImplementedError()
 
     def uncond_denoiser_function(self, noisy_im, noise_var):
-        print(noise_var)
-        exit()
         diff = torch.abs(noise_var - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)))
         nearest_indices = torch.argmin(diff, dim=1)
-
 
         t = nearest_indices.repeat(noisy_im.shape[0])
         noise_predict = self.model(noisy_im, t)
