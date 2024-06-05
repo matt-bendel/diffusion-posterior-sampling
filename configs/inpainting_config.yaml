@@ -15,7 +15,7 @@ data:
 
 measurement:
   operator:
-    name: noise
+    name: inpainting
   mask_opt:
     mask_type: random
     # mask_len_range: !!python/tuple [128, 129]  # for box
