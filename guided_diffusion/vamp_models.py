@@ -100,12 +100,8 @@ class Inpainting(VAMP):
 
         right_term = r_sig_inv * x_t + (1 / noise_sig) * y + gamma_1 * r_1
 
-        kept_ones = self.kept_ones * (1 / (r_sig_inv ** 2 + 1 / (noise_sig ** 2) + gamma_1))
-        missing_ones = self.missing_ones * (1 / (r_sig_inv ** 2 + gamma_1))
-
-        print(kept_ones)
-        print(missing_ones)
-        exit()
+        kept_ones = 1 / (1 / (noise_sig ** 2) + (r_sig_inv ** 2) + gamma_1) * self.kept_ones
+        missing_ones = 1 / ((r_sig_inv ** 2) + gamma_1) * self.missing_ones
 
         return right_term * (kept_ones + missing_ones)
 
@@ -115,7 +111,7 @@ class Inpainting(VAMP):
         total_missing = torch.count_nonzero(self.missing_ones)
         total_kept = torch.count_nonzero(self.kept_ones)
 
-        sum_1 = total_missing * ((1 / (noise_sig ** 2) + gamma_1) ** -1)
+        sum_1 = total_missing * ((r_sig_inv ** 2 + gamma_1) ** -1)
         sum_2 = total_kept * ((1 / (noise_sig ** 2) + r_sig_inv ** 2 + gamma_1) ** -1)
 
         return ((sum_1 + sum_2) / (total_kept + total_missing)) ** -1
