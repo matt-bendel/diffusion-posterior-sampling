@@ -185,9 +185,9 @@ class GaussianDiffusion:
         img = x_start
         device = x_start.device
 
-        # vamp_model = Denoising(model, self.betas, self.alphas_cumprod, 1, x_start)
-        ones = torch.ones(x_start.shape).to(x_start.device)
-        vamp_model = Inpainting(model, self.betas, self.alphas_cumprod, 1, x_start, ones * mask, ones * (1 - mask))
+        vamp_model = Denoising(model, self.betas, self.alphas_cumprod, 1, x_start)
+        # ones = torch.ones(x_start.shape).to(x_start.device)
+        # vamp_model = Inpainting(model, self.betas, self.alphas_cumprod, 1, x_start, ones * mask, ones * (1 - mask))
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         for idx in pbar:
@@ -363,7 +363,7 @@ class DDPM(SpacedDiffusion):
         if not cond:
             pred_xstart = self.p_mean_variance(model, x, t)
         else:
-            pred_xstart = vamp.run_vamp(x, y, t, noise_sig=torch.tensor(0.001).to(x.device), use_damping=False)
+            pred_xstart = vamp.run_vamp(x, y, t, noise_sig=torch.tensor(0.25).to(x.device), use_damping=False)
 
         return {'pred_xstart': pred_xstart}
 
