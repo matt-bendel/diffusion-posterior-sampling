@@ -23,28 +23,23 @@ class VAMP:
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
         raise NotImplementedError()
 
-    def uncond_denoiser_function(self, noisy_im, noise_var):
-        diff = torch.abs(noise_var - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)))
-        nearest_indices = torch.argmin(diff, dim=1)
+    def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar):
+        scale_factor = torch.sqrt((1 - t_alpha_bar) / noise_var)
 
-        t = nearest_indices.repeat(noisy_im.shape[0])
-        noise_predict = self.model(noisy_im, t)
+        noise_predict = self.model(noisy_im * scale_factor, t)
 
         if noise_predict.shape[1] == 2 * noisy_im.shape[1]:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
-        # if noise_var > 1:
-        #     x_0 = (noisy_im - torch.sqrt(1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)[nearest_indices]) * noise_predict) / torch.sqrt(torch.tensor(self.alphas_cumprod).to(noisy_im.device)[nearest_indices])
-        # else:
-        x_0 = (noisy_im - torch.sqrt(noise_var) * noise_predict) / torch.sqrt(1 - noise_var)
+        x_0 = (noisy_im - torch.sqrt(1 - t_alpha_bar) * noise_predict) / torch.sqrt(t_alpha_bar)
 
-        return x_0
+        return x_0 / scale_factor
 
-    def denoiser_tr_approx(self, r_2, gamma_2, mu_2):
+    def denoiser_tr_approx(self, r_2, gamma_2, mu_2, t, t_alpha_bar):
         tr_out = torch.zeros(mu_2.shape[0], 1).to(mu_2.device)
         for k in range(self.K):
             probe = torch.sign(torch.randn_like(mu_2).to(mu_2.device))
-            mu_2_delta = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), 1 / gamma_2)
+            mu_2_delta = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), 1 / gamma_2, t, t_alpha_bar)
 
             tr_out += torch.mean((probe * (mu_2_delta - mu_2)).view(mu_2.shape[0], -1), 1) / self.delta
 
@@ -54,15 +49,13 @@ class VAMP:
         mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(gamma_1, t_alpha_bar, noise_sig)
         gamma_2 = eta_1 - gamma_1
-        print(gamma_2)
-        exit()
         r_2 = (eta_1[:, 0, None, None, None] * mu_1 - gamma_1[:, 0, None, None, None] * r_1) / gamma_2[:, 0, None, None, None]
 
         return r_2, gamma_2, eta_1
 
-    def denoising(self, r_2, gamma_2):
-        mu_2 = self.uncond_denoiser_function(r_2.float(), 1 / gamma_2)
-        eta_2 = gamma_2 / self.denoiser_tr_approx(r_2, gamma_2, mu_2)
+    def denoising(self, r_2, gamma_2, t, t_alpha_bar):
+        mu_2 = self.uncond_denoiser_function(r_2.float(), 1 / gamma_2, t, t_alpha_bar)
+        eta_2 = gamma_2 / self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar)
         gamma_1 = eta_2 - gamma_2
         r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None, None, None]
 
@@ -85,7 +78,7 @@ class VAMP:
             old_gamma_2 = gamma_2
 
             r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig, t_alpha_bar, noise_sig)
-            r_1, gamma_1, eta_2, mu_2 = self.denoising(r_2, gamma_2)
+            r_1, gamma_1, eta_2, mu_2 = self.denoising(r_2, gamma_2, t, t_alpha_bar)
 
             print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
 
