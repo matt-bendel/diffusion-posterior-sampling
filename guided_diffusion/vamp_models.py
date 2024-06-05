@@ -95,8 +95,8 @@ class Inpainting(VAMP):
         self.kept_inds = kept_inds
         self.missing_inds = missing_inds
 
-        total_missing = self.missing_inds.shape[0]
-        total_kept = self.kept_inds.shape[0]
+        total_missing = self.missing_inds.shape
+        total_kept = self.kept_inds.shape
 
         print(total_kept)
         print(total_missing)
