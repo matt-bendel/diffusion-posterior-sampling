@@ -76,7 +76,12 @@ class VAMP:
             old_gamma_2 = gamma_2
 
             r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig, t_alpha_bar, noise_sig)
+            print(eta_1)
+            print(gamma_2)
             r_1, gamma_1, eta_2, mu_2 = self.denoising(r_2, gamma_2)
+            print(eta_2)
+            print(gamma_1)
+            exit()
 
             print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
 
@@ -133,9 +138,6 @@ class Inpainting(VAMP):
 
         total_missing = torch.count_nonzero(self.missing_ones, dim=(1, 2, 3))
         total_kept = torch.count_nonzero(self.kept_ones, (1, 2, 3))
-
-        print(total_kept + total_missing)
-        exit()
 
         sum_1 = total_missing[:, None] * ((r_sig_inv ** 2 + gamma_1) ** -1)
         sum_2 = total_kept[:, None] * ((1 / (noise_sig ** 2) + r_sig_inv ** 2 + gamma_1) ** -1)
