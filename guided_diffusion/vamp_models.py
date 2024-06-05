@@ -12,6 +12,8 @@ class VAMP:
         self.betas = torch.tensor(betas).to(x_T.device)
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
         self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
+        self.gamma_2 = None
+        self.r_2 = None
         # self.gamma_1 = torch.ones(x_T.shape[0], 1, device=x_T.device)
         # self.r_1 = torch.randn_like(x_T).to(x_T.device)
 
@@ -68,8 +70,8 @@ class VAMP:
         mu_2 = None  # needs to exist outside of for loop scope for return
         gamma_1 = self.gamma_1
         r_1 = self.r_1
-        r_2 = False  # needs to exist outside of for loop scope for damping
-        gamma_2 = False  # needs to exist outside of for loop scope for damping
+        r_2 = self.r_2  # needs to exist outside of for loop scope for damping
+        gamma_2 = self.gamma_2  # needs to exist outside of for loop scope for damping
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         for i in range(self.max_iters):
@@ -84,8 +86,6 @@ class VAMP:
             r_1, gamma_1, eta_2, mu_2 = self.denoising(r_2, gamma_2)
 
             print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
-            print(1 / gamma_2)
-            exit()
 
             if torch.isnan(gamma_2) or torch.isnan(gamma_1):
                 exit()
@@ -102,6 +102,8 @@ class VAMP:
 
         self.gamma_1 = gamma_1
         self.r_1 = r_1
+        self.gamma_2 = gamma_2
+        self.r_2 = r_2
 
         return mu_2
 
