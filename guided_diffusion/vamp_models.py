@@ -20,6 +20,8 @@ class VAMP:
         raise NotImplementedError()
 
     def uncond_denoiser_function(self, noisy_im, noise_var):
+        print(noise_var)
+        exit()
         diff = torch.abs(noise_var - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)))
         nearest_indices = torch.argmin(diff, dim=1)
 
@@ -33,7 +35,7 @@ class VAMP:
         # if noise_var > 1:
         #     x_0 = (noisy_im - torch.sqrt(1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)[nearest_indices]) * noise_predict) / torch.sqrt(torch.tensor(self.alphas_cumprod).to(noisy_im.device)[nearest_indices])
         # else:
-        x_0 = (noisy_im - torch.sqrt(noise_var) * noise_predict) / torch.sqrt(torch.abs(1 - noise_var))
+        x_0 = (noisy_im - torch.sqrt(noise_var) * noise_predict) / torch.sqrt(1 - noise_var)
 
         return x_0
 
