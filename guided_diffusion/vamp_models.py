@@ -7,6 +7,8 @@ class VAMP:
         self.max_iters = max_iters
         self.K = K
         self.delta = 1e-4
+        self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
+
         self.betas = torch.tensor(betas).to(x_T.device)
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
         self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
@@ -47,7 +49,7 @@ class VAMP:
         gamma_2 = eta_1 - gamma_1
         r_2 = (eta_1 * mu_1 - gamma_1 * r_1) / gamma_2
 
-        return r_2.detach(), gamma_2.detach()
+        return r_2, gamma_2, eta_1
 
     def denoising(self, r_2, gamma_2):
         mu_2 = self.uncond_denoiser_function(r_2.float(), 1 / gamma_2)
@@ -55,7 +57,7 @@ class VAMP:
         gamma_1 = eta_2 - gamma_2
         r_1 = (eta_2 * mu_2 - gamma_2 * r_2) / gamma_1
 
-        return r_1.detach(), gamma_1.detach(), mu_2.detach()
+        return r_1, gamma_1, eta_2, mu_2
 
     def run_vamp(self, x_t, y, t, noise_sig):
         mu_2 = None
@@ -64,19 +66,18 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         for i in range(self.max_iters):
-            r_2, gamma_2 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig, t_alpha_bar, noise_sig)
-            r_1, gamma_1, mu_2 = self.denoising(r_2, gamma_2)
+            r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig, t_alpha_bar, noise_sig)
+            r_1, gamma_1, eta_2, mu_2 = self.denoising(r_2, gamma_2)
 
-            print(gamma_1)
-            print(gamma_2)
+            print(f'eta_1 = {eta_1.cpu().numpy()}; eta_2 = {eta_2.cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2).cpu().numpy()}')
 
             if torch.isnan(gamma_2) or torch.isnan(gamma_1):
                 exit()
 
-        self.gamma_1 = gamma_1.detach()
-        self.r_1 = r_1.detach()
+        self.gamma_1 = gamma_1
+        self.r_1 = r_1
 
-        return mu_2.detach()
+        return mu_2
 
 
 class Denoising(VAMP):
@@ -101,7 +102,7 @@ class Inpainting(VAMP):
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
-        right_term = r_sig_inv * x_t + (1 / noise_sig) * y + gamma_1 * r_1
+        right_term = r_sig_inv * x_t + (1 / noise_sig) * y * self.kept_ones + gamma_1 * r_1
 
         kept_ones = 1 / (1 / (noise_sig ** 2) + (r_sig_inv ** 2) + gamma_1) * self.kept_ones
         missing_ones = 1 / ((r_sig_inv ** 2) + gamma_1) * self.missing_ones
@@ -109,13 +110,15 @@ class Inpainting(VAMP):
         return right_term * (kept_ones + missing_ones)
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
+        print(gamma_1.shape)
+        exit()
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
-        total_missing = torch.count_nonzero(self.missing_ones)
-        total_kept = torch.count_nonzero(self.kept_ones)
+        total_missing = torch.count_nonzero(self.missing_ones, dim=(1, 2, 3))
+        total_kept = torch.count_nonzero(self.kept_ones, (1, 2, 3))
 
-        sum_1 = total_missing * ((r_sig_inv ** 2 + gamma_1) ** -1)
-        sum_2 = total_kept * ((1 / (noise_sig ** 2) + r_sig_inv ** 2 + gamma_1) ** -1)
+        sum_1 = total_missing[:, None] * ((r_sig_inv ** 2 + gamma_1) ** -1)
+        sum_2 = total_kept[:, None] * ((1 / (noise_sig ** 2) + r_sig_inv ** 2 + gamma_1) ** -1)
 
         return ((sum_1 + sum_2) / (total_kept + total_missing)) ** -1
 
