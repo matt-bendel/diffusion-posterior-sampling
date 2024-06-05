@@ -46,6 +46,11 @@ class VAMP:
     def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(gamma_1, t_alpha_bar, noise_sig)
+
+        print(eta_1)
+        print(gamma_1)
+        exit()
+
         gamma_2 = eta_1 - gamma_1
         r_2 = (eta_1 * mu_1 - gamma_1 * r_1) / gamma_2
 
@@ -76,8 +81,6 @@ class VAMP:
             old_gamma_2 = gamma_2
 
             r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig, t_alpha_bar, noise_sig)
-            print(eta_1)
-            print(gamma_2)
             r_1, gamma_1, eta_2, mu_2 = self.denoising(r_2, gamma_2)
             print(eta_2)
             print(gamma_1)
