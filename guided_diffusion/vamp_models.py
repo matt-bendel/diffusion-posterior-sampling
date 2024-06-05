@@ -52,7 +52,7 @@ class VAMP:
         gamma_2 = eta_1 - gamma_1
         r_2 = (eta_1[:, 0, None, None, None] * mu_1 - gamma_1[:, 0, None, None, None] * r_1) / gamma_2[:, 0, None, None, None]
 
-        return r_2, gamma_2, eta_1
+        return r_2, torch.abs(gamma_2), eta_1
 
     def denoising(self, r_2, gamma_2, t, t_alpha_bar):
         mu_2 = self.uncond_denoiser_function(r_2.float(), 1 / gamma_2, t, t_alpha_bar)
@@ -60,7 +60,7 @@ class VAMP:
         gamma_1 = eta_2 - gamma_2
         r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None, None, None]
 
-        return r_1, gamma_1, eta_2, mu_2
+        return r_1, torch.abs(gamma_1), eta_2, mu_2
 
     def run_vamp(self, x_t, y, t, noise_sig, use_damping=False):
         mu_2 = None  # needs to exist outside of for loop scope for return
