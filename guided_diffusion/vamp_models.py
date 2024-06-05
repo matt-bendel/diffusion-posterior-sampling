@@ -10,7 +10,7 @@ class VAMP:
         self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
 
         self.betas = torch.tensor(betas).to(x_T.device)
-        self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], device=x_T.device)
+        self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
         self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
         self.gamma_2 = None
         self.r_2 = None
@@ -54,7 +54,7 @@ class VAMP:
         mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(gamma_1, t_alpha_bar, noise_sig)
         gamma_2 = eta_1 - gamma_1
-        r_2 = (eta_1 * mu_1 - gamma_1 * r_1) / gamma_2
+        r_2 = (eta_1[:, 0, None, None, None] * mu_1 - gamma_1[:, 0, None, None, None] * r_1) / gamma_2[:, 0, None, None, None]
 
         return r_2, gamma_2, eta_1
 
@@ -62,7 +62,7 @@ class VAMP:
         mu_2 = self.uncond_denoiser_function(r_2.float(), 1 / gamma_2)
         eta_2 = gamma_2 / self.denoiser_tr_approx(r_2, gamma_2, mu_2)
         gamma_1 = eta_2 - gamma_2
-        r_1 = (eta_2 * mu_2 - gamma_2 * r_2) / gamma_1
+        r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None, None, None]
 
         return r_1, gamma_1, eta_2, mu_2
 
@@ -118,7 +118,7 @@ class Denoising(VAMP):
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
-        return 1 / (1 / (noise_sig ** 2) + (r_sig_inv ** 2) + gamma_1) * (r_sig_inv * x_t + (1 / (noise_sig)) * y + gamma_1 * r_1)
+        return 1 / (1 / (noise_sig ** 2) + (r_sig_inv ** 2) + gamma_1[:, 0, None, None, None]) * (r_sig_inv * x_t + (1 / (noise_sig)) * y + gamma_1[:, 0, None, None, None] * r_1)
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
@@ -134,10 +134,10 @@ class Inpainting(VAMP):
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
-        right_term = r_sig_inv * x_t + (1 / noise_sig) * y * self.kept_ones + gamma_1 * r_1
+        right_term = r_sig_inv * x_t + (1 / noise_sig) * y * self.kept_ones + gamma_1[:, 0, None, None, None] * r_1
 
-        kept_ones = 1 / (1 / (noise_sig ** 2) + (r_sig_inv ** 2) + gamma_1) * self.kept_ones
-        missing_ones = 1 / ((r_sig_inv ** 2) + gamma_1) * self.missing_ones
+        kept_ones = 1 / (1 / (noise_sig ** 2) + (r_sig_inv ** 2) + gamma_1[:, 0, None, None, None]) * self.kept_ones
+        missing_ones = 1 / ((r_sig_inv ** 2) + gamma_1[:, 0, None, None, None]) * self.missing_ones
 
         return right_term * (kept_ones + missing_ones)
 
