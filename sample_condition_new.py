@@ -116,7 +116,7 @@ def main():
 
             # Forward measurement model (Ax + n)
             y_n = operator.forward(ref_img, mask=mask)
-            y_n = noiser(ref_img)
+            y_n = noiser(y_n)
 
             # Sampling
             with torch.no_grad():
