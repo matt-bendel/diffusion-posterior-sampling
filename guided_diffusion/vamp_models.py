@@ -84,6 +84,8 @@ class VAMP:
             r_1, gamma_1, eta_2, mu_2 = self.denoising(r_2, gamma_2)
 
             print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
+            print(1 / gamma_2)
+            exit()
 
             if torch.isnan(gamma_2) or torch.isnan(gamma_1):
                 exit()
