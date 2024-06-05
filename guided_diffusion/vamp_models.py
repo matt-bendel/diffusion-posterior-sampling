@@ -27,11 +27,11 @@ class VAMP:
         t = nearest_indices.repeat(noisy_im.shape[0])
         noise_predict = self.model(noisy_im, t)
 
-        print(noise_predict)
-        exit()
-
         if noise_predict.shape[1] == 2 * noisy_im.shape[1]:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
+
+        print(noise_predict)
+        exit()
 
         x_0 = (noisy_im - torch.sqrt(noise_var) * noise_predict) / torch.sqrt(1 - noise_var)
 
