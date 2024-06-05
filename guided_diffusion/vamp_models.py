@@ -129,8 +129,6 @@ class Inpainting(VAMP):
         return right_term * (kept_ones + missing_ones)
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
-        print(gamma_1.shape)
-        exit()
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
         total_missing = torch.count_nonzero(self.missing_ones, dim=(1, 2, 3))
@@ -139,7 +137,7 @@ class Inpainting(VAMP):
         sum_1 = total_missing[:, None] * ((r_sig_inv ** 2 + gamma_1) ** -1)
         sum_2 = total_kept[:, None] * ((1 / (noise_sig ** 2) + r_sig_inv ** 2 + gamma_1) ** -1)
 
-        return ((sum_1 + sum_2) / (total_kept + total_missing)) ** -1
+        return ((sum_1 + sum_2) / (total_kept[:, None] + total_missing[:, None])) ** -1
 
 
 def extract_and_expand(array, time, target):
