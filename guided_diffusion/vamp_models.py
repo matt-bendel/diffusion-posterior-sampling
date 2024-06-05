@@ -95,6 +95,13 @@ class Inpainting(VAMP):
         self.kept_inds = kept_inds
         self.missing_inds = missing_inds
 
+        total_missing = self.missing_inds.shape[0]
+        total_kept = self.kept_inds.shape[0]
+
+        print(total_kept)
+        print(total_missing)
+        exit()
+
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
