@@ -91,7 +91,7 @@ class VAMP:
                 exit()
 
             # Damping - damp both gammas and both rs
-            if use_damping and i > 0:
+            if use_damping and t[0] < 999:
                 r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
                 r_2 = self.damping_factor * r_2 + (1 - self.damping_factor) * old_r_2
 
