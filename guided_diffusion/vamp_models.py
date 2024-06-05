@@ -24,15 +24,17 @@ class VAMP:
         raise NotImplementedError()
 
     def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar):
-        scale_factor = torch.sqrt(noise_var / (1 - t_alpha_bar))
-        scaled_noisy_im = noisy_im * scale_factor[:, 0, None, None, None]
+        scale_factor_prime = torch.sqrt((1 - t_alpha_bar) / noise_var)
+        scale_factor = scale_factor_prime / torch.sqrt(t_alpha_bar)
+
+        scaled_noisy_im = noisy_im * scale_factor_prime[:, 0, None, None, None]
 
         noise_predict = self.model(scaled_noisy_im, t)
 
         if noise_predict.shape[1] == 2 * noisy_im.shape[1]:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
-        x_0_scaled = (scaled_noisy_im - torch.sqrt(1 - t_alpha_bar) * scale_factor * noise_predict) / (torch.sqrt(t_alpha_bar) * scale_factor)
+        x_0_scaled = (scaled_noisy_im - torch.sqrt(1 - t_alpha_bar) * noise_predict) / (torch.sqrt(t_alpha_bar) * scale_factor)
 
         return x_0_scaled
 
@@ -52,7 +54,7 @@ class VAMP:
         gamma_2 = eta_1 - gamma_1
         r_2 = (eta_1[:, 0, None, None, None] * mu_1 - gamma_1[:, 0, None, None, None] * r_1) / gamma_2[:, 0, None, None, None]
 
-        return r_2, torch.abs(gamma_2), eta_1
+        return r_2, gamma_2, eta_1
 
     def denoising(self, r_2, gamma_2, t, t_alpha_bar):
         mu_2 = self.uncond_denoiser_function(r_2.float(), 1 / gamma_2, t, t_alpha_bar)
@@ -60,7 +62,7 @@ class VAMP:
         gamma_1 = eta_2 - gamma_2
         r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None, None, None]
 
-        return r_1, torch.abs(gamma_1), eta_2, mu_2
+        return r_1, gamma_1, eta_2, mu_2
 
     def run_vamp(self, x_t, y, t, noise_sig, use_damping=False):
         mu_2 = None  # needs to exist outside of for loop scope for return
