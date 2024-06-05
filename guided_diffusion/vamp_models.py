@@ -99,9 +99,11 @@ class Inpainting(VAMP):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
         right_term = r_sig_inv * x_t + (1 / noise_sig) * y + gamma_1 * r_1
-        right_term = right_term.detach()
 
-        return right_term * (self.kept_ones * (1 / (r_sig_inv ** 2 + 1 / (noise_sig ** 1) + gamma_1)) + self.missing_ones * (1 / (r_sig_inv ** 2 + gamma_1)))
+        kept_ones = self.kept_ones * (1 / (r_sig_inv ** 2 + 1 / (noise_sig ** 2) + gamma_1))
+        missing_ones = self.missing_ones * (1 / (r_sig_inv ** 2 + gamma_1))
+
+        return right_term * (kept_ones + missing_ones)
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
