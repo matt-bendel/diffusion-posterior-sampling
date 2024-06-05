@@ -10,8 +10,8 @@ class VAMP:
         self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
 
         self.betas = torch.tensor(betas).to(x_T.device)
-        self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
-        self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
+        self.gamma_1 = torch.ones(x_T.shape[0], 1, device=x_T.device)
+        self.r_1 = torch.randn_like(x_T).to(x_T.device)
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         raise NotImplementedError()
