@@ -134,6 +134,9 @@ class Inpainting(VAMP):
         total_missing = torch.count_nonzero(self.missing_ones, dim=(1, 2, 3))
         total_kept = torch.count_nonzero(self.kept_ones, (1, 2, 3))
 
+        print(total_kept + total_missing)
+        exit()
+
         sum_1 = total_missing[:, None] * ((r_sig_inv ** 2 + gamma_1) ** -1)
         sum_2 = total_kept[:, None] * ((1 / (noise_sig ** 2) + r_sig_inv ** 2 + gamma_1) ** -1)
 
