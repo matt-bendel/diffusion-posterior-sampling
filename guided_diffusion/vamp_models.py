@@ -72,7 +72,7 @@ class VAMP:
         gamma_2 = self.gamma_2  # needs to exist outside of for loop scope for damping
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        for i in range(self.max_iters):
+        for i in range(self.max_iters if t < 999 else 5):
             # Keep history for damping
             old_r_1 = r_1
             old_r_2 = r_2
@@ -89,7 +89,7 @@ class VAMP:
                 exit()
 
             # Damping - damp both gammas and both rs
-            if use_damping and t[0] < 999:
+            if use_damping and (t[0] < 999 or i > 0):
                 r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
                 r_2 = self.damping_factor * r_2 + (1 - self.damping_factor) * old_r_2
 
