@@ -186,7 +186,8 @@ class GaussianDiffusion:
         device = x_start.device
 
         # vamp_model = Denoising(model, self.betas, self.alphas_cumprod, 1, x_start)
-        vamp_model = Inpainting(model, self.betas, self.alphas_cumprod, 1, x_start, mask.repeat(1, 3, 1, 1).nonzero().detach(), (mask.repeat(1, 3, 1, 1) == 0).nonzero().detach())
+        ones = torch.ones(x_start.shape).to(x_start.device)
+        vamp_model = Inpainting(model, self.betas, self.alphas_cumprod, 1, x_start, ones * mask, ones * (1 - mask))
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         for idx in pbar:
