@@ -33,7 +33,10 @@ class VAMP:
         print(noise_predict)
         exit()
 
-        x_0 = (noisy_im - torch.sqrt(noise_var) * noise_predict) / torch.sqrt(1 - noise_var)
+        if noise_var > 1:
+            x_0 = (noisy_im - torch.sqrt(1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) * noise_predict) / torch.sqrt(torch.tensor(self.alphas_cumprod).to(noisy_im.device))
+        else:
+            x_0 = (noisy_im - torch.sqrt(noise_var) * noise_predict) / torch.sqrt(1 - noise_var)
 
         return x_0
 
