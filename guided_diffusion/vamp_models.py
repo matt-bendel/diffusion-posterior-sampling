@@ -24,17 +24,17 @@ class VAMP:
         raise NotImplementedError()
 
     def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar):
-        scale_factor = torch.sqrt((1 - t_alpha_bar) / noise_var)
+        scale_factor = torch.sqrt(noise_var / (1 - t_alpha_bar))
         scaled_noisy_im = noisy_im * scale_factor[:, 0, None, None, None]
 
-        noise_predict = self.model(scaled_noisy_im * scale_factor, t)
+        noise_predict = self.model(scaled_noisy_im, t)
 
         if noise_predict.shape[1] == 2 * noisy_im.shape[1]:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
-        x_0_scaled = (scaled_noisy_im - torch.sqrt(1 - t_alpha_bar) * noise_predict) / torch.sqrt(t_alpha_bar)
+        x_0_scaled = (scaled_noisy_im - torch.sqrt(noise_var) * noise_predict) / (torch.sqrt(t_alpha_bar) * scale_factor)
 
-        return x_0_scaled / scale_factor
+        return x_0_scaled
 
     def denoiser_tr_approx(self, r_2, gamma_2, mu_2, t, t_alpha_bar):
         tr_out = torch.zeros(mu_2.shape[0], 1).to(mu_2.device)
