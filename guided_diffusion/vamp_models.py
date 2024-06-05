@@ -23,6 +23,9 @@ class VAMP:
         diff = torch.abs(noise_var - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)))
         nearest_indices = torch.argmin(diff, dim=1)
 
+        print(nearest_indices)
+        exit()
+
         t = nearest_indices.repeat(noisy_im.shape[0])
         noise_predict = self.model(noisy_im, t)
 
@@ -53,8 +56,6 @@ class VAMP:
 
     def denoising(self, r_2, gamma_2):
         mu_2 = self.uncond_denoiser_function(r_2.float(), 1 / gamma_2)
-        print(mu_2)
-        exit()
         eta_2 = gamma_2 / self.denoiser_tr_approx(r_2, gamma_2, mu_2)
         gamma_1 = eta_2 - gamma_2
         r_1 = (eta_2 * mu_2 - gamma_2 * r_2) / gamma_1
