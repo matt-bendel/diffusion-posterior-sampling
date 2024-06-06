@@ -75,8 +75,8 @@ class VAMP:
         mu_2 = None  # needs to exist outside of for loop scope for return
         gamma_1 = self.gamma_1
         r_1 = self.r_1
-        r_2 = self.r_2  # needs to exist outside of for loop scope for damping
-        gamma_2 = self.gamma_2  # needs to exist outside of for loop scope for damping
+        # r_2 = self.r_2  # needs to exist outside of for loop scope for damping
+        # gamma_2 = self.gamma_2  # needs to exist outside of for loop scope for damping
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         for i in range(self.max_iters):
@@ -97,13 +97,13 @@ class VAMP:
 
             # Damping - damp both gammas and both rs
             if use_damping and t[0] < 999:
-                # r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
-                r_2 = self.damping_factor * r_2 + (1 - self.damping_factor) * old_r_2
+                r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
+                # r_2 = self.damping_factor * r_2 + (1 - self.damping_factor) * old_r_2
 
-                # gamma_1 = (self.damping_factor * torch.abs(gamma_1) ** (-1 / 2) + (1 - self.damping_factor) * (
-                #     old_gamma_1) ** (-1 / 2)) ** -2
-                gamma_2 = (self.damping_factor * torch.abs(gamma_2) ** (-1 / 2) + (1 - self.damping_factor) * (
-                    old_gamma_2) ** (-1 / 2)) ** -2
+                gamma_1 = (self.damping_factor * torch.abs(gamma_1) ** (-1 / 2) + (1 - self.damping_factor) * (
+                    old_gamma_1) ** (-1 / 2)) ** -2
+                # gamma_2 = (self.damping_factor * torch.abs(gamma_2) ** (-1 / 2) + (1 - self.damping_factor) * (
+                #     old_gamma_2) ** (-1 / 2)) ** -2
 
         self.gamma_1 = gamma_1
         self.r_1 = r_1
