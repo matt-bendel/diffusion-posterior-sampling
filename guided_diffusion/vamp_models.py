@@ -7,7 +7,7 @@ class VAMP:
         self.max_iters = max_iters
         self.K = K
         self.delta = 1e-4
-        self.damping_factor = 0.5 # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
 
         self.betas = torch.tensor(betas).to(x_T.device)
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
@@ -28,7 +28,6 @@ class VAMP:
         nearest_indices = torch.argmin(diff, dim=1)
 
         t = nearest_indices.repeat(noisy_im.shape[0])
-        print(f't = {t[0]}')
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, noisy_im)[0, 0, 0, 0]
 
         # scale_factor_prime = torch.sqrt((1 - t_alpha_bar) / noise_var)
