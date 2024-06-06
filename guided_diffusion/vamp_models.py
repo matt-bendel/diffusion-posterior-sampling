@@ -34,9 +34,9 @@ class VAMP:
         if noise_predict.shape[1] == 2 * noisy_im.shape[1]:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
-        x_0_scaled = (scaled_noisy_im - torch.sqrt(1 - t_alpha_bar) * noise_predict) / torch.sqrt(t_alpha_bar)
+        x_0_scaled = (scaled_noisy_im - torch.sqrt(1 - t_alpha_bar) * noise_predict) / (torch.sqrt(t_alpha_bar) * scale_factor)
 
-        return x_0_scaled / scale_factor
+        return x_0_scaled
 
     def denoiser_tr_approx(self, r_2, gamma_2, mu_2, t, t_alpha_bar):
         tr_out = torch.zeros(mu_2.shape[0], 1).to(mu_2.device)
@@ -120,7 +120,7 @@ class Denoising(VAMP):
 
 
 class Inpainting(VAMP):
-    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, kept_ones, missing_ones, K=10):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, kept_ones, missing_ones, K=5):
         super().__init__(model, betas, alphas_cumprod, max_iters, K, x_T)
         self.kept_ones = kept_ones
         self.missing_ones = missing_ones
