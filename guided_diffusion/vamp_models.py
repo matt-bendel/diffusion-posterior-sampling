@@ -29,7 +29,7 @@ class VAMP:
 
         # t = nearest_indices.repeat(noisy_im.shape[0])
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, noisy_im)[0, 0, 0, 0]
-        t_alpha_bar = torch.sqrt((1 - t_alpha_bar) / noise_var)
+        t_alpha_bar = (1 - t_alpha_bar) / noise_var
 
         # scale_factor_prime = torch.sqrt((1 - t_alpha_bar) / noise_var)
         # scale_factor = scale_factor_prime / torch.sqrt(t_alpha_bar)
