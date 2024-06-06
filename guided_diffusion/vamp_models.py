@@ -37,10 +37,11 @@ class VAMP:
         if noise_predict.shape[1] == 2 * noisy_im.shape[1]:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
-        x_0_scaled = (scaled_noisy_im / torch.sqrt(t_alpha_bar) - torch.sqrt(noise_var) * noise_predict)
+        x_0 = noisy_im - torch.sqrt(noise_var) * noise_predict
+        # x_0_scaled = scaled_noisy_im / torch.sqrt(t_alpha_bar) - torch.sqrt(noise_var) * noise_predict
         # x_0_scaled = (scaled_noisy_im - torch.sqrt(noise_var * t_alpha_bar) * noise_predict) / torch.sqrt(t_alpha_bar)
 
-        return x_0_scaled
+        return x_0
 
     def denoiser_tr_approx(self, r_2, gamma_2, mu_2, t, t_alpha_bar):
         tr_out = torch.zeros(mu_2.shape[0], 1).to(mu_2.device)
