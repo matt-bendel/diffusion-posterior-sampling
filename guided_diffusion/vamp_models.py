@@ -82,10 +82,10 @@ class VAMP:
         for i in range(self.max_iters):
             # Keep history for damping
             old_r_1 = r_1
-            old_r_2 = r_2
+            # old_r_2 = r_2
 
             old_gamma_1 = gamma_1
-            old_gamma_2 = gamma_2
+            # old_gamma_2 = gamma_2
 
             r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig, t_alpha_bar, noise_sig)
             r_1, gamma_1, eta_2, mu_2 = self.denoising(r_2, gamma_2, t, t_alpha_bar)
