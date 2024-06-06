@@ -97,7 +97,7 @@ def main():
     for k in range(1):
         base_im_count = 0
         for i, data in enumerate(test_loader):
-            if i <= 7:
+            if i <= 9:
                 continue
 
             logger.info(f"Inference for image {i}")
