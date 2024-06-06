@@ -4,7 +4,7 @@ class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
-        self.max_iters = max_iters
+        self.max_iters = 3
         self.K = K
         self.delta = 1e-4
         self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
