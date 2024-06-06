@@ -97,7 +97,7 @@ def main():
     for k in range(1):
         base_im_count = 0
         for i, data in enumerate(test_loader):
-            if i <= 1:
+            if i <= 2:
                 continue
 
             logger.info(f"Inference for image {i}")
@@ -134,7 +134,7 @@ def main():
             # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
             # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
             for j in range(sample.shape[0]):
-                if i == 2 and j == 0:
+                if j == 0:
                     plt.imsave(f'test_recon.png', clear_color(sample[j].unsqueeze(0)))
                     plt.imsave(f'test_y.png', clear_color(y_n[j].unsqueeze(0)))
                     plt.imsave(f'test_x.png', clear_color(ref_img[j].unsqueeze(0)))
