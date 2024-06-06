@@ -120,7 +120,7 @@ class Denoising(VAMP):
 
 
 class Inpainting(VAMP):
-    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, kept_ones, missing_ones, K=5):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, kept_ones, missing_ones, K=1):
         super().__init__(model, betas, alphas_cumprod, max_iters, K, x_T)
         self.kept_ones = kept_ones
         self.missing_ones = missing_ones
