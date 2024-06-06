@@ -6,8 +6,8 @@ class VAMP:
         self.alphas_cumprod = alphas_cumprod
         self.max_iters = max_iters
         self.K = K
-        self.delta = 1e-4
-        self.damping_factor = 0.1 # Factor for damping (per Saurav's suggestion)
+        self.delta = 1e-5
+        self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
 
         self.betas = torch.tensor(betas).to(x_T.device)
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
