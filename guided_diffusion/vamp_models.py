@@ -4,7 +4,7 @@ class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
-        self.max_iters = 5
+        self.max_iters = max_iters
         self.K = K
         self.delta = 1e-4
         self.damping_factor = 0.5 # Factor for damping (per Saurav's suggestion)
@@ -72,7 +72,7 @@ class VAMP:
         gamma_2 = self.gamma_2  # needs to exist outside of for loop scope for damping
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        for i in range(self.max_iters):
+        for i in range(self.max_iters if t[0] > 50 else 5):
             # Keep history for damping
             old_r_1 = r_1
             old_r_2 = r_2
