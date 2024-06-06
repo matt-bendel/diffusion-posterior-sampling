@@ -124,21 +124,24 @@ def main():
             # y_n = ref_img
             y_n = noiser(y_n)
 
-            # Sampling
-            with torch.no_grad():
-                x_start = torch.randn(ref_img.shape, device=device)
-                sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask, noise_sig=measure_config['noise']['sigma'])
+            for k in range(2):
+                # Sampling
+                with torch.no_grad():
+                    x_start = torch.randn(ref_img.shape, device=device)
+                    sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask, noise_sig=measure_config['noise']['sigma'])
 
-            print(sample.shape)
+                print(sample.shape)
 
-            # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
-            # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
-            for j in range(sample.shape[0]):
-                if j == 0:
-                    plt.imsave(f'test_recon.png', clear_color(sample[j].unsqueeze(0)))
-                    plt.imsave(f'test_y.png', clear_color(y_n[j].unsqueeze(0)))
-                    plt.imsave(f'test_x.png', clear_color(ref_img[j].unsqueeze(0)))
-                    exit()
+                # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
+                # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
+                for j in range(sample.shape[0]):
+                    if j == 0:
+                        plt.imsave(f'test_recon_{k}.png', clear_color(sample[j].unsqueeze(0)))
+                        plt.imsave(f'test_y_{k}.png', clear_color(y_n[j].unsqueeze(0)))
+                        plt.imsave(f'test_x_{k}.png', clear_color(ref_img[j].unsqueeze(0)))
+
+                        if k > 0:
+                            exit()
 
             base_im_count += sample.shape[0]
 
