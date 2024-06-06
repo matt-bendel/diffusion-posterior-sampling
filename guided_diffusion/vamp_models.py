@@ -124,7 +124,6 @@ class Inpainting(VAMP):
         super().__init__(model, betas, alphas_cumprod, max_iters, K, x_T)
         self.kept_ones = kept_ones
         self.missing_ones = missing_ones
-        self.delta = 1e-3
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
