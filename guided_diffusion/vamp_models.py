@@ -38,7 +38,7 @@ class VAMP:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
         # x_0_scaled = (scaled_noisy_im / torch.sqrt(t_alpha_bar) - torch.sqrt(noise_var) * noise_predict)
-        x_0_scaled = (scaled_noisy_im - torch.sqrt((1 - t_alpha_bar) * noise_var) * noise_predict) / torch.sqrt(t_alpha_bar)
+        x_0_scaled = (scaled_noisy_im - torch.sqrt(noise_var * (1 - t_alpha_bar)) * noise_predict) / torch.sqrt(t_alpha_bar)
 
         return x_0_scaled
 
