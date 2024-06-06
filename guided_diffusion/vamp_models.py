@@ -23,12 +23,13 @@ class VAMP:
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
         raise NotImplementedError()
 
-    def uncond_denoiser_function(self, noisy_im, noise_var, t_old, t_alpha_bar_old):
-        diff = torch.abs(noise_var - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))
-        nearest_indices = torch.argmin(diff, dim=1)
+    def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar_old):
+        # diff = torch.abs(noise_var - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))
+        # nearest_indices = torch.argmin(diff, dim=1)
 
-        t = nearest_indices.repeat(noisy_im.shape[0])
+        # t = nearest_indices.repeat(noisy_im.shape[0])
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, noisy_im)[0, 0, 0, 0]
+        t_alpha_bar = torch.sqrt((1 - t_alpha_bar) / noise_var)
 
         # scale_factor_prime = torch.sqrt((1 - t_alpha_bar) / noise_var)
         # scale_factor = scale_factor_prime / torch.sqrt(t_alpha_bar)
@@ -126,7 +127,7 @@ class Denoising(VAMP):
 
 
 class Inpainting(VAMP):
-    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, kept_ones, missing_ones, K=5):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, kept_ones, missing_ones, K=1):
         super().__init__(model, betas, alphas_cumprod, max_iters, K, x_T)
         self.kept_ones = kept_ones
         self.missing_ones = missing_ones
