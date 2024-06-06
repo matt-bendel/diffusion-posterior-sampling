@@ -178,7 +178,8 @@ class GaussianDiffusion:
                       measurement_cond_fn,
                       record,
                       save_root,
-                      mask=None):
+                      mask=None,
+                      noise_sig=0.001):
         """
         The function used for sampling from noise.
         """
@@ -193,7 +194,7 @@ class GaussianDiffusion:
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
 
-            img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model)['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
+            img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig)['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
             img = img.detach()
 
             if record:
@@ -203,7 +204,7 @@ class GaussianDiffusion:
 
         return img
 
-    def denoise(self, model, x, t, y, cond, vamp):
+    def denoise(self, model, x, t, y, cond, vamp, noise_sig):
         raise NotImplementedError
 
     def p_mean_variance(self, model, x, t):
@@ -359,11 +360,11 @@ class _WrappedModel:
 
 @register_sampler(name='ddpm')
 class DDPM(SpacedDiffusion):
-    def denoise(self, model, x, t, y, cond, vamp):
+    def denoise(self, model, x, t, y, cond, vamp, noise_sig):
         if not cond:
             pred_xstart = self.p_mean_variance(model, x, t)
         else:
-            pred_xstart = vamp.run_vamp(x, y, t, noise_sig=torch.tensor(0.05).to(x.device), use_damping=True)
+            pred_xstart = vamp.run_vamp(x, y, t, noise_sig=torch.tensor(noise_sig).to(x.device), use_damping=True)
 
         return {'pred_xstart': pred_xstart}
 
