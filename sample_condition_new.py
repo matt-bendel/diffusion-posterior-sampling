@@ -97,8 +97,8 @@ def main():
     for k in range(1):
         base_im_count = 0
         for i, data in enumerate(test_loader):
-            # if i <= 4:
-            #     continue
+            if i <= 7:
+                continue
 
             logger.info(f"Inference for image {i}")
             y, x, mask, mean, std = data[0]
@@ -112,9 +112,9 @@ def main():
 
             ref_img = x.to(device)
 
-            # mask = mask.to(device)
-            mask = torch.ones(mask.shape).to(device)
-            mask[:, :, 64:192, 64:192] = 0
+            mask = mask.to(device)
+            # mask = torch.ones(mask.shape).to(device)
+            # mask[:, :, 64:192, 64:192] = 0
 
             measurement_cond_fn = partial(cond_method.conditioning, mask=mask)
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
