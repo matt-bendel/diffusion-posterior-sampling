@@ -20,11 +20,11 @@ class VAMP:
         raise NotImplementedError()
 
     def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar):
-        # diff = torch.abs(noise_var - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device))).to(noisy_im.device)
-        # nearest_indices = torch.argmin(diff, dim=1)
+        diff = torch.abs(noise_var - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device))).to(noisy_im.device)
+        nearest_indices = torch.argmin(diff, dim=1)
 
-        # t = nearest_indices.repeat(noisy_im.shape[0])
-        # t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, noisy_im)[0, 0, 0, 0]
+        t = nearest_indices.repeat(noisy_im.shape[0])
+        t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, noisy_im)[0, 0, 0, 0]
 
         # scale_factor_prime = torch.sqrt((1 - t_alpha_bar) / noise_var)
         # scale_factor = scale_factor_prime / torch.sqrt(t_alpha_bar)
@@ -38,7 +38,7 @@ class VAMP:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
         # x_0_scaled = (scaled_noisy_im / torch.sqrt(t_alpha_bar) - torch.sqrt(noise_var) * noise_predict)
-        x_0_scaled = (scaled_noisy_im - torch.sqrt(noise_var * t_alpha_bar) * noise_predict) / torch.sqrt(t_alpha_bar)
+        x_0_scaled = (scaled_noisy_im - torch.sqrt(noise_var) * noise_predict) / torch.sqrt(t_alpha_bar)
 
         return x_0_scaled
 
