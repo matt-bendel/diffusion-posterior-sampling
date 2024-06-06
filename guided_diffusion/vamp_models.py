@@ -28,6 +28,7 @@ class VAMP:
         nearest_indices = torch.argmin(diff, dim=1)
 
         t = nearest_indices.repeat(noisy_im.shape[0])
+        print(f't = {t[0]}')
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, noisy_im)[0, 0, 0, 0]
 
         scale_factor_prime = torch.sqrt((1 - t_alpha_bar) / noise_var)
@@ -68,7 +69,7 @@ class VAMP:
         gamma_1 = eta_2 - gamma_2
         r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None, None, None]
 
-        return r_1, gamma_1, eta_2, mu_2
+        return r_1, torch.abs(gamma_1), eta_2, mu_2
 
     def run_vamp(self, x_t, y, t, noise_sig, use_damping=False):
         mu_2 = None  # needs to exist outside of for loop scope for return
