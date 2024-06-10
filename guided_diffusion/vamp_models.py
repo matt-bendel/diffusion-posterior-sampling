@@ -27,7 +27,6 @@ class VAMP:
         print(noise_var[0])
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, noisy_im)[0, 0, 0, 0]
         print((1 - t_alpha_bar) / t_alpha_bar)
-        exit()
 
         # scale_factor_prime = torch.sqrt((1 - t_alpha_bar) / noise_var)
         # scale_factor = scale_factor_prime / torch.sqrt(t_alpha_bar)
