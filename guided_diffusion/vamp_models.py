@@ -67,7 +67,7 @@ class VAMP:
         gamma_1 = eta_2 - gamma_2
         r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None, None, None]
 
-        return r_1, torch.abs(gamma_1), eta_2, mu_2
+        return r_1, gamma_1, eta_2, mu_2
 
     def run_vamp(self, x_t, y, t, noise_sig, use_damping=False):
         mu_2 = None  # needs to exist outside of for loop scope for return
@@ -76,11 +76,6 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         for i in range(self.max_iters):
-            # Keep history for damping
-            old_r_1 = r_1
-
-            old_gamma_1 = gamma_1
-
             r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig, t_alpha_bar, noise_sig)
             r_1, gamma_1, eta_2, mu_2 = self.denoising(r_2, gamma_2, t, t_alpha_bar)
 
@@ -89,14 +84,7 @@ class VAMP:
             if torch.isnan(gamma_2) or torch.isnan(gamma_1):
                 exit()
 
-            # Damping - damp both gammas and both rs
-            if use_damping and t[0] < 999:
-                r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
-
-                gamma_1 = (self.damping_factor * torch.abs(gamma_1) ** (-1 / 2) + (1 - self.damping_factor) * (
-                    old_gamma_1) ** (-1 / 2)) ** -2
-
-        self.gamma_1 = gamma_1
+        self.gamma_1 = 0.1 * gamma_1
         self.r_1 = r_1
 
         return mu_2
