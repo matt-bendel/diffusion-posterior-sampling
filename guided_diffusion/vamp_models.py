@@ -38,7 +38,7 @@ class VAMP:
         if noise_predict.shape[1] == 2 * noisy_im.shape[1]:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
-        x_0 = noisy_im - torch.sqrt(noise_var) * noise_predict
+        x_0 = (scaled_noisy_im - torch.sqrt(1 - t_alpha_bar) * noise_predict) / torch.sqrt(t_alpha_bar)
         # x_0 = scaled_noisy_im / torch.sqrt(t_alpha_bar) - torch.sqrt(noise_var) * noise_predict
         # x_0_scaled = (scaled_noisy_im - torch.sqrt(noise_var * t_alpha_bar) * noise_predict) / torch.sqrt(t_alpha_bar)
 
@@ -76,7 +76,7 @@ class VAMP:
         r_1 = self.r_1
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        for i in range(2):
+        for i in range(self.max_iters):
             r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig, t_alpha_bar, noise_sig)
             r_1, gamma_1, eta_2, mu_2 = self.denoising(r_2, gamma_2, t, t_alpha_bar)
 
