@@ -48,7 +48,10 @@ class VAMP:
     def denoiser_tr_approx(self, r_2, gamma_2, mu_2, t, t_alpha_bar):
         tr_out = torch.zeros(mu_2.shape[0], 1).to(mu_2.device)
         for k in range(self.K):
-            probe = torch.sign(torch.randn_like(mu_2).to(mu_2.device))
+            # probe = torch.sign(torch.randn_like(mu_2).to(mu_2.device))
+            probe = torch.randn_like(mu_2).to(r_2.device)
+            # probe = probe / torch.norm(probe, dim=1, keepdim=True) # unit norm
+            probe = probe / torch.sqrt(torch.mean(probe ** 2, dim=(1, 2, 3))[:, None, None, None])  # isotropic
             mu_2_delta = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), 1 / gamma_2, t, t_alpha_bar)
 
             tr_out += torch.mean((probe * (mu_2_delta - mu_2)).view(mu_2.shape[0], -1), 1, keepdim=True) / self.delta
