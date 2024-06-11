@@ -120,8 +120,8 @@ def main():
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
             # Forward measurement model (Ax + n)
-            y_n = operator.forward(ref_img, mask=mask)
-            # y_n = ref_img
+            # y_n = operator.forward(ref_img, mask=mask)
+            y_n = ref_img
             y_n = noiser(y_n)
 
             for k in range(2):
