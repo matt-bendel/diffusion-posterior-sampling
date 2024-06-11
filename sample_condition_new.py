@@ -114,7 +114,7 @@ def main():
 
             # mask = mask.to(device)
             mask = torch.ones(mask.shape).to(device)
-            mask[:, :, 104:144, 80:120] = 0
+            mask[:, :, 104:184, 80:160] = 0
 
             measurement_cond_fn = partial(cond_method.conditioning, mask=mask)
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
