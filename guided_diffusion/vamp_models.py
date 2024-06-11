@@ -30,7 +30,7 @@ class VAMP:
         # scale_factor = scale_factor_prime / torch.sqrt(t_alpha_bar)
         # t_alpha_bar = (1 - t_alpha_bar) / noise_var
 
-        scaled_noisy_im = noisy_im * torch.sqrt(t_alpha_bar)
+        scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var))
 
         noise_predict = self.model(scaled_noisy_im, t)
 
