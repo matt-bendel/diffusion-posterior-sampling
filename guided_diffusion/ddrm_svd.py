@@ -135,6 +135,8 @@ class Inpainting(H_functions):
     def Vt(self, vec):
         temp = vec.clone().reshape(vec.shape[0], self.channels, -1).permute(0, 2, 1).reshape(vec.shape[0], -1)
         out = torch.zeros_like(temp)
+        print(out.shape)
+        exit()
         out[:, :self.kept_indices.shape[0]] = temp[:, self.kept_indices]
         out[:, self.kept_indices.shape[0]:] = temp[:, self.missing_indices]
         return out
