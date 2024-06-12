@@ -137,7 +137,7 @@ class Inpainting(H_functions):
         out = torch.zeros_like(temp)
         out[:, :self.kept_indices.shape[0]] = temp[:, self.kept_indices]
         out[:, self.kept_indices.shape[0]:] = temp[:, self.missing_indices]
-        return out.reshape(vec.shape[0], -1, self.channels).permute(0, 2, 1).reshape(vec.shape[0], -1)
+        return out
 
     def U(self, vec):
         return vec.clone().reshape(vec.shape[0], -1)
