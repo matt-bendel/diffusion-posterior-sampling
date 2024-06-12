@@ -74,6 +74,10 @@ class VAMP:
     def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(gamma_1, t_alpha_bar, noise_sig)
+
+        print(mu_1.shape)
+        print(eta_1.shape)
+        exit()
         gamma_2 = eta_1 - gamma_1
         r_2 = (eta_1[:, 0, None, None, None] * mu_1 - gamma_1[:, 0, None, None, None] * r_1) / gamma_2[:, 0, None, None, None]
 
