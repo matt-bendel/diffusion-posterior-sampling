@@ -120,7 +120,7 @@ def main():
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
             # Forward measurement model (Ax + n)
-            H = Deblurring(torch.Tensor([1/9] * 9).to(self.device), 3, 256, self.device)
+            H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
             y_n = operator.forward(ref_img, mask=mask)
             # y_n = ref_img
             y_n = noiser(y_n)
