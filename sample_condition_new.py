@@ -129,7 +129,7 @@ def main():
 
             H = Inpainting(3, 256, missing, device)
             # y_n = operator.forward(ref_img, mask=mask)
-            y_n = H.Ht(H.H(ref_img)).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
+            y_n = H.H(ref_img)
             # y_n = ref_img
             y_n = noiser(y_n)
 
@@ -143,6 +143,10 @@ def main():
                 # sample = ref_img * mask + (1 - mask) * sample
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
                 # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
+
+                y_n = H.Ht(H.H(ref_img)).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
+                # y_n = ref_img
+                y_n = noiser(y_n)
                 for j in range(sample.shape[0]):
                     if j == 0:
                         plt.imsave(f'test_recon_{k}.png', clear_color(sample[j].unsqueeze(0)))
