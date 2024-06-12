@@ -121,13 +121,14 @@ def main():
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
             # Forward measurement model (Ax + n)
-            # H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
             missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
             missing_g = missing_r + 1
             missing_b = missing_g + 1
             missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
 
             H = Inpainting(3, 256, missing, device)
+            # H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
+
             # y_n = operator.forward(ref_img, mask=mask)
             y_n = H.H(ref_img)
             # y_n = ref_img
