@@ -64,7 +64,7 @@ class H_functions:
         temp = self.Vt(vec)
         evals = self.add_zeros((self.singulars() / sig_y) ** 2).T
         print(evals.shape)
-        ptiny(gamma_1.shape)
+        print(gamma_1[:, 0].shape)
         print(temp.shape)
         exit()
         temp = ((evals + sig_ddpm ** 2 + gamma_1[:, 0]) ** -1) * temp
