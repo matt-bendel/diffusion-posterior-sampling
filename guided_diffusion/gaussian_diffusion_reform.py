@@ -204,7 +204,7 @@ class GaussianDiffusion:
             svd = Inpainting(x_start.shape[1], x_start.shape[2], missing, x_start.device)
         elif meas_type == 'blur_uni':
             svd = Deblurring(torch.Tensor([1 / 9] * 9).to(x_start.device), x_start.shape[1], x_start.shape[2], x_start.device)
-        elif measure_config['operator']['name'] == 'blur_gauss':
+        elif meas_type == 'blur_gauss':
             sigma = 10
             pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
             kernel = torch.Tensor([pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2)]).to(x_start.device)
