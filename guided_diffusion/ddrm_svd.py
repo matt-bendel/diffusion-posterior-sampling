@@ -62,10 +62,7 @@ class H_functions:
 
     def vamp_mu_1(self, vec, sig_y, sig_ddpm, gamma_1):
         temp = self.Vt(vec)
-        if len(self.singular().shape) == 1:
-            evals = self.add_zeros((self.singulars().unsqueeze(0).repeat(vec.shape[0], 1) / sig_y) ** 2).T
-        else:
-            evals = self.add_zeros((self.singulars() / sig_y) ** 2).T.repeate(vec.shape[0], 1)
+        evals = self.add_zeros((self.singulars().unsqueeze(0).repeat(vec.shape[0], 1) / sig_y) ** 2)
         temp = ((evals + sig_ddpm ** 2 + gamma_1[:, 0, None]) ** -1) * temp
         return self.V(temp)
 
