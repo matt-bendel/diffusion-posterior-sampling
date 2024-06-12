@@ -58,13 +58,13 @@ class H_functions:
         """
         temp = self.Ut(vec)
         singulars = self.singulars()
-        print(singulars.shape)
-        exit()
         return self.V(self.add_zeros(singulars * temp[:, :singulars.shape[0]]))
 
     def vamp_mu_1(self, vec, sig_y, sig_ddpm, gamma_1):
         temp = self.Vt(vec)
-        singulars = self.singulars()
+        evals = self.add_zeros((self.singulars() / sig_y) ** 2)
+        inv_mult = (evals[None, :] + sig_ddpm ** 2 + gamma_1[:, 0]) ** -1
+        return self.V(inv_mult * temp)
 
     def H_pinv(self, vec):
         """
