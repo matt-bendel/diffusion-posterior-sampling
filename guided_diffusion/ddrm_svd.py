@@ -62,6 +62,9 @@ class H_functions:
 
     def vamp_mu_1(self, vec, sig_y, sig_ddpm, gamma_1):
         temp = self.Vt(vec)
+        print(temp.shape)
+        print(self.singulars().shape)
+        exit()
         evals = self.add_zeros((self.singulars() / sig_y) ** 2).T
         temp = ((evals + sig_ddpm ** 2 + gamma_1[:, 0, None]) ** -1) * temp
         return self.V(temp)
