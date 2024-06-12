@@ -64,7 +64,7 @@ class H_functions:
         temp = self.Vt(vec)
         evals = self.add_zeros((self.singulars().unsqueeze(0).repeat(vec.shape[0], 1) / sig_y) ** 2)
         temp = ((evals + sig_ddpm ** 2 + gamma_1[:, 0, None]) ** -1) * temp
-        return self.V(temp)
+        return self.V(self.add_zeros(singulars * temp[:, :singulars.shape[0]]))
 
     def H_pinv(self, vec):
         """
@@ -137,7 +137,7 @@ class Inpainting(H_functions):
         out = torch.zeros_like(temp)
         out[:, :self.kept_indices.shape[0]] = temp[:, self.kept_indices]
         out[:, self.kept_indices.shape[0]:] = temp[:, self.missing_indices]
-        return out
+        return out.reshape(vec.shape[0], -1, self.channels).permute(0, 2, 1).reshape(vec.shape[0], -1)
 
     def U(self, vec):
         return vec.clone().reshape(vec.shape[0], -1)

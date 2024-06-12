@@ -20,6 +20,7 @@ from data.FFHQDataModule import FFHQDataModule
 from pytorch_lightning import seed_everything
 from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising
 
+
 def load_object(dct):
     return types.SimpleNamespace(**dct)
 
@@ -121,7 +122,11 @@ def main():
 
             # Forward measurement model (Ax + n)
             # H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
-            missing = torch.nonzero(mask[0].repeat(3, 1, 1).reshape(3, -1).permute(1, 0).reshape(-1) == 0).long().reshape(-1)
+            missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
+            missing_g = missing_r + 1
+            missing_b = missing_g + 1
+            missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
+
             H = Inpainting(3, 256, missing, device)
             # y_n = operator.forward(ref_img, mask=mask)
             y_n = H.Ht(H.H(ref_img)).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
@@ -132,7 +137,8 @@ def main():
                 # Sampling
                 with torch.no_grad():
                     x_start = torch.randn(ref_img.shape, device=device)
-                    sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask, noise_sig=measure_config['noise']['sigma'])
+                    sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
+                                       noise_sig=measure_config['noise']['sigma'])
 
                 # sample = ref_img * mask + (1 - mask) * sample
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
