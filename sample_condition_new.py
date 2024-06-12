@@ -149,13 +149,13 @@ def main():
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
                 # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
 
-                y_n = H.Ht(H.H(ref_img)).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
+                y = H.Ht(H.H(ref_img)).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
                 # y_n = ref_img
-                y_n = noiser(y_n)
+                y = noiser(y)
                 for j in range(sample.shape[0]):
                     if j == 0:
                         plt.imsave(f'test_recon_{k}.png', clear_color(sample[j].unsqueeze(0)))
-                        plt.imsave(f'test_y_{k}.png', clear_color(y_n[j].unsqueeze(0)))
+                        plt.imsave(f'test_y_{k}.png', clear_color(y[j].unsqueeze(0)))
                         plt.imsave(f'test_x_{k}.png', clear_color(ref_img[j].unsqueeze(0)))
 
                         if k > 14:
