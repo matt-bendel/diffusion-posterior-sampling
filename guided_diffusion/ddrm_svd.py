@@ -118,13 +118,16 @@ class GeneralH(H_functions):
 # Inpainting
 class Inpainting(H_functions):
     def __init__(self, channels, img_dim, missing_indices, device):
+        print(missing_indices.shape)
         self.channels = channels
         self.img_dim = img_dim
         self._singulars = torch.ones(channels * img_dim ** 2 - missing_indices.shape[0]).to(device)
         self.missing_indices = missing_indices
         self.kept_indices = torch.Tensor([i for i in range(channels * img_dim ** 2) if i not in missing_indices]).to(
             device).long()
+        print(self.missing_indices.shape)
         print(self.kept_indices.shape)
+        exit()
 
     def V(self, vec):
         temp = vec.clone().reshape(vec.shape[0], -1)

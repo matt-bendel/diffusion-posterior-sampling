@@ -125,6 +125,7 @@ def main():
             missing_g = missing_r + 1
             missing_b = missing_g + 1
             missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
+            print(missing_r)
             H = Inpainting(3, 256, missing, device)
             # y_n = operator.forward(ref_img, mask=mask)
             y_n = H.H(ref_img).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
