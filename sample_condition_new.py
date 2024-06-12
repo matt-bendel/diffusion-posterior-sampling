@@ -64,7 +64,7 @@ def main():
 
     # Prepare Operator and noise
     measure_config = task_config['measurement']
-    operator = get_operator(device=device, **measure_config['operator'])
+    # operator = get_operator(device=device, **measure_config['operator'])
     noiser = get_noise(**measure_config['noise'])
     logger.info(f"Operation: {measure_config['operator']['name']} / Noise: {measure_config['noise']['name']}")
 
