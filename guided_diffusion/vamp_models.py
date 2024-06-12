@@ -3,7 +3,7 @@ from guided_diffusion.ddrm_svd import Deblurring
 
 
 class VAMP:
-    def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
         self.max_iters = max_iters
@@ -11,6 +11,7 @@ class VAMP:
         self.delta = 1e-4
         self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
         self.svd = svd
+        self.inpainting = inpainting
 
         self.betas = torch.tensor(betas).to(x_T.device)
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
@@ -88,6 +89,9 @@ class VAMP:
         return r_1, gamma_1, eta_2, mu_2
 
     def run_vamp(self, x_t, y, t, noise_sig, use_damping=False):
+        if self.inpainting:
+            noise_sig = noise_sig * t[0]
+            print(noise_sig)
         mu_2 = None  # needs to exist outside of for loop scope for return
         gamma_1 = self.gamma_1
         r_1 = self.r_1

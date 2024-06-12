@@ -193,19 +193,26 @@ class GaussianDiffusion:
         # ones = torch.ones(x_start.shape).to(x_start.device)
         # vamp_model = Inpainting(model, self.betas, self.alphas_cumprod, 1, x_start, ones * mask, ones * (1 - mask))
         # vamp_model = Deblur(model, self.betas, self.alphas_cumprod, 1, x_start, torch.Tensor([1/9] * 9).to(x_start.device))
-        missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
-        missing_g = missing_r + 1
-        missing_b = missing_g + 1
-        missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
+        inpainting = False
         # self.deblur_svd = Deblurring(kernel, x_T.shape[1], x_T.shape[2], x_T.device)
         if meas_type == 'inpainting':
+            inpainting = True
+            missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
+            missing_g = missing_r + 1
+            missing_b = missing_g + 1
+            missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
             svd = Inpainting(x_start.shape[1], x_start.shape[2], missing, x_start.device)
         elif meas_type == 'blur_uni':
             svd = Deblurring(torch.Tensor([1 / 9] * 9).to(x_start.device), x_start.shape[1], x_start.shape[2], x_start.device)
+        elif measure_config['operator']['name'] == 'blur_gauss':
+            sigma = 10
+            pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
+            kernel = torch.Tensor([pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2)]).to(x_start.device)
+            svd = Deblurring(kernel / kernel.sum(), 3, 256, x_start.device)
         else:
             svd = Denoising(x_start.shape[1], x_start.shape[2], x_start.device)
 
-        vamp_model = VAMP(model, self.betas, self.alphas_cumprod, 1, 1, x_start, svd)
+        vamp_model = VAMP(model, self.betas, self.alphas_cumprod, 1, 1, x_start, svd, inpainting=inpainting)
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         for idx in pbar:

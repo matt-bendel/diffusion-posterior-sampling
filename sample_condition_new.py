@@ -130,6 +130,11 @@ def main():
                 H = Inpainting(3, 256, missing, device)
             elif measure_config['operator']['name'] == 'blur_uni':
                 H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
+            elif measure_config['operator']['name'] == 'blur_gauss':
+                sigma = 10
+                pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
+                kernel = torch.Tensor([pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2)]).to(device)
+                H = Deblurring(kernel / kernel.sum(), 3, 256, device)
             else:
                 H = Denoising(3, 256, device)
 
@@ -154,9 +159,9 @@ def main():
                 y = noiser(y)
                 for j in range(sample.shape[0]):
                     if j == 0:
-                        plt.imsave(f'test_recon_{k}.png', clear_color(sample[j].unsqueeze(0)))
-                        plt.imsave(f'test_y_{k}.png', clear_color(y[j].unsqueeze(0)))
-                        plt.imsave(f'test_x_{k}.png', clear_color(ref_img[j].unsqueeze(0)))
+                        plt.imsave(f'{measure_config["operator"]["name"]}/test_recon_{k}.png', clear_color(sample[j].unsqueeze(0)))
+                        plt.imsave(f'{measure_config["operator"]["name"]}/test_y_{k}.png', clear_color(y[j].unsqueeze(0)))
+                        plt.imsave(f'{measure_config["operator"]["name"]}/test_x_{k}.png', clear_color(ref_img[j].unsqueeze(0)))
 
                         if k > 14:
                             exit()
