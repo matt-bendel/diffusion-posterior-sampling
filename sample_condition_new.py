@@ -121,7 +121,7 @@ def main():
 
             # Forward measurement model (Ax + n)
             # H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
-            print(mask[0].shape)
+            print(mask.shape)
             missing = torch.nonzero(mask[0].reshape(3, -1).reshape(-1) == 0).long().reshape(-1)
             H = Inpainting(3, 256, missing, device)
             # y_n = operator.forward(ref_img, mask=mask)
