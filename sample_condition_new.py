@@ -134,6 +134,7 @@ def main():
                     x_start = torch.randn(ref_img.shape, device=device)
                     sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask, noise_sig=measure_config['noise']['sigma'])
 
+                print(sample[0, 0])
                 # sample = ref_img * mask + (1 - mask) * sample
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
                 # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
