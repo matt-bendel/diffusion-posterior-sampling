@@ -122,7 +122,7 @@ def main():
             # Forward measurement model (Ax + n)
             H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
             # y_n = operator.forward(ref_img, mask=mask)
-            y_n = H.H(ref_img)
+            y_n = H.H(ref_img).view(ref_img.shape[0], ref_img.shape[1], ref_img.shap[2], ref_img.shape[3])
             # y_n = ref_img
             print(y_n.shape)
             exit()
