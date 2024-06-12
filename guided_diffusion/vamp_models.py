@@ -3,23 +3,36 @@ from guided_diffusion.ddrm_svd import Deblurring
 
 
 class VAMP:
-    def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
         self.max_iters = max_iters
         self.K = K
         self.delta = 1e-4
         self.damping_factor = 0.1 # Factor for damping (per Saurav's suggestion)
+        self.svd = svd
 
         self.betas = torch.tensor(betas).to(x_T.device)
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
         self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
-        raise NotImplementedError()
+        r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
+        right_term = r_sig_inv * x_t
+        right_term += 1 / noise_sig * self.svd.Ht(y).view(y.shape[0], y.shape[1], y.shape[2], y.shape[3])
+        right_term += gamma_1[:, 0, None, None, None] * r_1
+
+        return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1).view(y.shape[0], y.shape[1],
+                                                                                         y.shape[2], y.shape[3])
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
-        raise NotImplementedError()
+        r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
+
+        singulars = self.svd.add_zeros(self.svd.singulars())
+        eta = torch.mean(((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1[None, :, 0]) ** -1, dim=0,
+                         keepdim=True) ** -1
+
+        return eta
 
     def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar):
         diff = torch.abs(noise_var - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))

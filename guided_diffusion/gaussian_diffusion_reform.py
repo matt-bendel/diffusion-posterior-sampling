@@ -6,7 +6,9 @@ import numpy as np
 import torch
 from tqdm.auto import tqdm
 
-from guided_diffusion.vamp_models import Denoising, Inpainting, Deblur
+# from guided_diffusion.vamp_models import Denoising, Inpainting, Deblur, VAMP
+from guided_diffusion.vamp_models import VAMP
+from guided_diffusion.ddrm_svd import Denoising, Inpainting, Deblurring
 from util.img_utils import clear_color
 from .posterior_mean_variance import get_mean_processor, get_var_processor
 
@@ -189,7 +191,10 @@ class GaussianDiffusion:
         # vamp_model = Denoising(model, self.betas, self.alphas_cumprod, 1, x_start)
         # ones = torch.ones(x_start.shape).to(x_start.device)
         # vamp_model = Inpainting(model, self.betas, self.alphas_cumprod, 1, x_start, ones * mask, ones * (1 - mask))
-        vamp_model = Deblur(model, self.betas, self.alphas_cumprod, 1, x_start, torch.Tensor([1/9] * 9).to(x_start.device))
+        # vamp_model = Deblur(model, self.betas, self.alphas_cumprod, 1, x_start, torch.Tensor([1/9] * 9).to(x_start.device))
+        missing_inds = torch.nonzero(mask[0] == 0).long().reshape(-1)
+        svd = Inpainting(x_start.shape[1], x_start.shape[2], missing_inds, x_start.device)
+        vamp_model = VAMP(model, self.betas, self.alphas_cumprod, 1, 1, x_start, svd)
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         for idx in pbar:

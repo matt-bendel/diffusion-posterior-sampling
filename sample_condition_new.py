@@ -18,7 +18,7 @@ from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
 from data.FFHQDataModule import FFHQDataModule
 from pytorch_lightning import seed_everything
-from guided_diffusion.ddrm_svd import Deblurring
+from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising
 
 def load_object(dct):
     return types.SimpleNamespace(**dct)
@@ -120,7 +120,8 @@ def main():
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
             # Forward measurement model (Ax + n)
-            H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
+            # H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
+            H = Inpainting(3, 256, torch.nonzero(mask[0] == 0).long().reshape(-1), device)
             # y_n = operator.forward(ref_img, mask=mask)
             y_n = H.H(ref_img).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
             # y_n = ref_img
@@ -130,14 +131,15 @@ def main():
                 # Sampling
                 with torch.no_grad():
                     x_start = torch.randn(ref_img.shape, device=device)
-                    sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask, noise_sig=measure_config['noise']['sigma'])
+                    # sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask, noise_sig=measure_config['noise']['sigma'])
 
+                sample = x_start
                 # sample = ref_img * mask + (1 - mask) * sample
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
                 # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
                 for j in range(sample.shape[0]):
                     if j == 0:
-                        plt.imsave(f'test_recon_{k}.png', clear_color(sample[j].unsqueeze(0)))
+                        # plt.imsave(f'test_recon_{k}.png', clear_color(sample[j].unsqueeze(0)))
                         plt.imsave(f'test_y_{k}.png', clear_color(y_n[j].unsqueeze(0)))
                         plt.imsave(f'test_x_{k}.png', clear_color(ref_img[j].unsqueeze(0)))
 
