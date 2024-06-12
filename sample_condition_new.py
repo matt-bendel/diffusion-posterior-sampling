@@ -130,10 +130,8 @@ def main():
                 # Sampling
                 with torch.no_grad():
                     x_start = torch.randn(ref_img.shape, device=device)
-                    # sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask, noise_sig=measure_config['noise']['sigma'])
+                    sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask, noise_sig=measure_config['noise']['sigma'])
 
-                sample = x_start
-                print(sample.shape)
                 # sample = ref_img * mask + (1 - mask) * sample
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
                 # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
