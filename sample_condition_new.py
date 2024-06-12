@@ -126,8 +126,12 @@ def main():
             missing_b = missing_g + 1
             missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
 
-            H = Inpainting(3, 256, missing, device)
-            # H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
+            if measure_config['operator']['name'] == 'inpainting':
+                H = Inpainting(3, 256, missing, device)
+            elif measure_config['operator']['name'] == 'blur_uni':
+                H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
+            else:
+                H = Denoising(3, 256, device)
 
             # y_n = operator.forward(ref_img, mask=mask)
             y_n = H.H(ref_img)
@@ -139,7 +143,7 @@ def main():
                 with torch.no_grad():
                     x_start = torch.randn(ref_img.shape, device=device)
                     sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
-                                       noise_sig=measure_config['noise']['sigma'])
+                                       noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'])
 
                 # sample = ref_img * mask + (1 - mask) * sample
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
