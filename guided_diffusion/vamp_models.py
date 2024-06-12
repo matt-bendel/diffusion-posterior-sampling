@@ -154,7 +154,7 @@ class Deblur(VAMP):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         right_term = r_sig_inv * x_t
         right_term += 1 / noise_sig * self.deblur_svd.Ht(y).view(y.shape[0], y.shape[1], y.shape[2], y.shape[3])
-        right_term += right_term + gamma_1[:, 0, None, None, None] * r_1
+        right_term += gamma_1[:, 0, None, None, None] * r_1
 
         return self.deblur_svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1).view(y.shape[0], y.shape[1], y.shape[2], y.shape[3])
 
