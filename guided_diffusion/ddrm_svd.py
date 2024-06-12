@@ -118,6 +118,7 @@ class GeneralH(H_functions):
 # Inpainting
 class Inpainting(H_functions):
     def __init__(self, channels, img_dim, missing_indices, device):
+        print(missing_indices.shape)
         self.channels = channels
         self.img_dim = img_dim
         self._singulars = torch.ones(channels * img_dim ** 2 - missing_indices.shape[0]).to(device)
