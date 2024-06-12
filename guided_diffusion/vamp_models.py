@@ -29,7 +29,8 @@ class VAMP:
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
-        eta = torch.mean(((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1[None, :, 0]) ** -1, dim=1,
+        print(singulars.shape)
+        eta = torch.mean(((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1[:, None, 0]) ** -1, dim=1,
                          keepdim=True) ** -1
         print(eta.shape)
         exit()
