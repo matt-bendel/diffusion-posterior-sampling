@@ -121,7 +121,7 @@ def main():
 
             # Forward measurement model (Ax + n)
             # H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
-            missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1)
+            missing_r = torch.nonzero(mask[0].permute(2, 0, 1).reshape(3, -1).view(-1) == 0).long().reshape(-1)
             missing_g = missing_r + 1
             missing_b = missing_g + 1
             missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
