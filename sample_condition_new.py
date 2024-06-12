@@ -71,8 +71,8 @@ def main():
     # Prepare conditioning method
     cond_config = task_config['conditioning']
     cond_config['params']['scale'] = 2.0
-    cond_method = get_conditioning_method(cond_config['method'], operator, noiser, **cond_config['params'])
-    measurement_cond_fn = cond_method.conditioning
+    # cond_method = get_conditioning_method(cond_config['method'], operator, noiser, **cond_config['params'])
+    # measurement_cond_fn = cond_method.conditioning
     logger.info(f"Conditioning method : {task_config['conditioning']['method']}")
 
     # Load diffusion sampler
@@ -117,7 +117,7 @@ def main():
             mask = torch.ones(mask.shape).to(device)
             mask[:, :, 104:184, 80:160] = 0
 
-            measurement_cond_fn = partial(cond_method.conditioning, mask=mask)
+            measurement_cond_fn = None #partial(cond_method.conditioning, mask=mask)
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
             # Forward measurement model (Ax + n)
