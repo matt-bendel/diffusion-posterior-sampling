@@ -161,8 +161,9 @@ class Deblur(VAMP):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
         singulars = self.deblur_svd.singulars()
+        eta = torch.mean(((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1) ** -1, dim=1) ** -1
 
-        return singulars # TODO
+        return eta
 
 
 def extract_and_expand(array, time, target):

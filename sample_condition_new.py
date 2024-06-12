@@ -121,28 +121,30 @@ def main():
 
             # Forward measurement model (Ax + n)
             H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
-            y_n = operator.forward(ref_img, mask=mask)
+            # y_n = operator.forward(ref_img, mask=mask)
+            y_n = H.H(ref_img)
             # y_n = ref_img
             y_n = noiser(y_n)
 
-            for k in range(16):
+            for k in range(1):
                 # Sampling
                 with torch.no_grad():
                     x_start = torch.randn(ref_img.shape, device=device)
-                    sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask, noise_sig=measure_config['noise']['sigma'])
+                    # sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask, noise_sig=measure_config['noise']['sigma'])
 
+                sample = x_start
                 print(sample.shape)
-                sample = ref_img * mask + (1 - mask) * sample
+                # sample = ref_img * mask + (1 - mask) * sample
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
                 # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
                 for j in range(sample.shape[0]):
                     if j == 0:
-                        plt.imsave(f'test_recon_{k}.png', clear_color(sample[j].unsqueeze(0)))
+                        # plt.imsave(f'test_recon_{k}.png', clear_color(sample[j].unsqueeze(0)))
                         plt.imsave(f'test_y_{k}.png', clear_color(y_n[j].unsqueeze(0)))
                         plt.imsave(f'test_x_{k}.png', clear_color(ref_img[j].unsqueeze(0)))
 
-                        if k > 14:
-                            exit()
+                        # if k > 14:
+                        exit()
 
             base_im_count += sample.shape[0]
 
