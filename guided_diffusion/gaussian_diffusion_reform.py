@@ -181,7 +181,8 @@ class GaussianDiffusion:
                       record,
                       save_root,
                       mask=None,
-                      noise_sig=0.001):
+                      noise_sig=0.001,
+                      meas_type=None):
         """
         The function used for sampling from noise.
         """
@@ -197,7 +198,13 @@ class GaussianDiffusion:
         missing_b = missing_g + 1
         missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
         # self.deblur_svd = Deblurring(kernel, x_T.shape[1], x_T.shape[2], x_T.device)
-        svd = Inpainting(x_start.shape[1], x_start.shape[2], missing, x_start.device)
+        if meas_type == 'inpainting':
+            svd = Inpainting(x_start.shape[1], x_start.shape[2], missing, x_start.device)
+        elif meas_type == 'blur_uni':
+            svd = Deblurring(torch.Tensor([1 / 9] * 9).to(x_start.device), x_start.shape[1], x_start.shape[2], x_start.device)
+        else:
+            svd = Denoising(x_start.shape[1], x_start.shape[2], x_start.device)
+
         vamp_model = VAMP(model, self.betas, self.alphas_cumprod, 1, 1, x_start, svd)
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
