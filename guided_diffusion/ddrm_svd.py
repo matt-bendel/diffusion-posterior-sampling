@@ -118,7 +118,6 @@ class GeneralH(H_functions):
 # Inpainting
 class Inpainting(H_functions):
     def __init__(self, channels, img_dim, missing_indices, device):
-        print(missing_indices.shape)
         self.channels = channels
         self.img_dim = img_dim
         self._singulars = torch.ones(channels * img_dim ** 2 - missing_indices.shape[0]).to(device)
@@ -136,6 +135,7 @@ class Inpainting(H_functions):
     def Vt(self, vec):
         temp = vec.clone().reshape(vec.shape[0], self.channels, -1).permute(0, 2, 1).reshape(vec.shape[0], -1)
         out = torch.zeros_like(temp)
+        print(out.shape)
         out[:, :self.kept_indices.shape[0]] = temp[:, self.kept_indices]
         out[:, self.kept_indices.shape[0]:] = temp[:, self.missing_indices]
         return out
