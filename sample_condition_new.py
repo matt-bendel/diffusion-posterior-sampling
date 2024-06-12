@@ -18,7 +18,7 @@ from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
 from data.FFHQDataModule import FFHQDataModule
 from pytorch_lightning import seed_everything
-
+from guided_diffusion.ddrm_svd import Deblurring
 
 def load_object(dct):
     return types.SimpleNamespace(**dct)
@@ -120,6 +120,7 @@ def main():
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
             # Forward measurement model (Ax + n)
+            H = Deblurring(torch.Tensor([1/9] * 9).to(self.device), 3, 256, self.device)
             y_n = operator.forward(ref_img, mask=mask)
             # y_n = ref_img
             y_n = noiser(y_n)

@@ -1,4 +1,6 @@
 import torch
+from guided_diffusion.ddrm_svd import Deblurring
+
 
 class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T):
@@ -141,6 +143,26 @@ class Inpainting(VAMP):
         sum_2 = total_kept[:, None] * ((1 / (noise_sig ** 2) + r_sig_inv ** 2 + gamma_1) ** -1)
 
         return ((sum_1 + sum_2) / (total_kept[:, None] + total_missing[:, None])) ** -1
+
+
+class Deblur(VAMP):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, kernel, K=1):
+        super().__init__(model, betas, alphas_cumprod, max_iters, K, x_T)
+        self.deblur_svd = Deblurring(kernel, x_T.shape[1], x_T.shape[2], x_T.device)
+
+    def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
+        r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
+
+        right_term = r_sig_inv * x_t + 1 / noise_sig * self.deblur_svd.Ht(y) + gamma_1[:, 0, None, None, None] * r_1
+
+        return self.deblur_svd.vamp_mu_1(right, noise_sig, r_sig_inv, gamma_1)
+
+    def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
+        r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
+
+        singulars = self.deblur_svd.singulars()
+
+        return singulars # TODO
 
 
 def extract_and_expand(array, time, target):
