@@ -90,7 +90,7 @@ class VAMP:
 
     def run_vamp(self, x_t, y, t, noise_sig, use_damping=False):
         if self.inpainting:
-            noise_sig = noise_sig * t[0]
+            noise_sig = noise_sig * (t[0] + 1)
             print(noise_sig)
         mu_2 = None  # needs to exist outside of for loop scope for return
         gamma_1 = self.gamma_1
