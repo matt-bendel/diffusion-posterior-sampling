@@ -140,7 +140,7 @@ def main():
                         plt.imsave(f'test_y_{k}.png', clear_color(y_n[j].unsqueeze(0)))
                         plt.imsave(f'test_x_{k}.png', clear_color(ref_img[j].unsqueeze(0)))
 
-                        if k > 0:
+                        if k > 14:
                             exit()
 
             base_im_count += sample.shape[0]
