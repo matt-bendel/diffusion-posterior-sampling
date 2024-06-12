@@ -138,7 +138,7 @@ def main():
             # y_n = ref_img
             y_n = noiser(y_n)
 
-            for k in range(1):
+            for k in range(15):
                 # Sampling
                 with torch.no_grad():
                     x_start = torch.randn(ref_img.shape, device=device)
@@ -158,8 +158,8 @@ def main():
                         plt.imsave(f'test_y_{k}.png', clear_color(y_n[j].unsqueeze(0)))
                         plt.imsave(f'test_x_{k}.png', clear_color(ref_img[j].unsqueeze(0)))
 
-                        # if k > 14:
-                        exit()
+                        if k > 14:
+                            exit()
 
             base_im_count += sample.shape[0]
 
