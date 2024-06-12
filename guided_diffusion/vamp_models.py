@@ -115,7 +115,7 @@ class VAMP:
             if torch.isnan(gamma_2) or torch.isnan(gamma_1):
                 exit()
 
-        self.gamma_1 = gamma_1 if use_damping else 0.2 * gamma_1
+        self.gamma_1 = gamma_1 if use_damping and self.damping_factor < 1 else 0.2 * gamma_1
         self.r_1 = r_1
 
         return mu_2
