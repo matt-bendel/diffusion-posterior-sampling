@@ -124,6 +124,8 @@ def main():
             # y_n = operator.forward(ref_img, mask=mask)
             y_n = H.H(ref_img)
             # y_n = ref_img
+            print(y_n.shape)
+            exit()
             y_n = noiser(y_n)
 
             for k in range(1):
