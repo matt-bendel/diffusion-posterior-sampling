@@ -137,7 +137,7 @@ def main():
                 # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
                 for j in range(sample.shape[0]):
                     if j == 0:
-                        # plt.imsave(f'test_recon_{k}.png', clear_color(sample[j].unsqueeze(0)))
+                        plt.imsave(f'test_recon_{k}.png', clear_color(sample[j].unsqueeze(0)))
                         plt.imsave(f'test_y_{k}.png', clear_color(y_n[j].unsqueeze(0)))
                         plt.imsave(f'test_x_{k}.png', clear_color(ref_img[j].unsqueeze(0)))
 
