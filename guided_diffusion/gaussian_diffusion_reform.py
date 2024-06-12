@@ -192,7 +192,7 @@ class GaussianDiffusion:
         # ones = torch.ones(x_start.shape).to(x_start.device)
         # vamp_model = Inpainting(model, self.betas, self.alphas_cumprod, 1, x_start, ones * mask, ones * (1 - mask))
         # vamp_model = Deblur(model, self.betas, self.alphas_cumprod, 1, x_start, torch.Tensor([1/9] * 9).to(x_start.device))
-        missing_r = torch.nonzero(mask[0, 0] == 0).long().reshape(-1)
+        missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1)
         missing_g = missing_r + 1
         missing_b = missing_g + 1
         missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
