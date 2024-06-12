@@ -60,7 +60,10 @@ class VAMP:
 
     def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
+        print(mu_1.shape)
         eta_1 = self.eta_1(gamma_1, t_alpha_bar, noise_sig)
+        print(eta_1.shape)
+        exit()
         gamma_2 = eta_1 - gamma_1
         r_2 = (eta_1[:, 0, None, None, None] * mu_1 - gamma_1[:, 0, None, None, None] * r_1) / gamma_2[:, 0, None, None, None]
 
@@ -156,13 +159,14 @@ class Deblur(VAMP):
         right_term += 1 / noise_sig * self.deblur_svd.Ht(y).view(y.shape[0], y.shape[1], y.shape[2], y.shape[3])
         right_term += right_term + gamma_1[:, 0, None, None, None] * r_1
 
+        print(right_term.shape)
         return self.deblur_svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1).view(y.shape[0], y.shape[1], y.shape[2], y.shape[3])
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
         singulars = self.deblur_svd.add_zeros(self.deblur_svd.singulars())
-        eta = torch.mean(((singulars[None, :] / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1) ** -1, dim=1, keepdim=True) ** -1
+        eta = torch.mean(((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1[None, :, 0]) ** -1, dim=0, keepdim=True) ** -1
 
         return eta
 
