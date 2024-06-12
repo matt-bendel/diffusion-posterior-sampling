@@ -124,9 +124,6 @@ class Inpainting(H_functions):
         self.missing_indices = missing_indices
         self.kept_indices = torch.Tensor([i for i in range(channels * img_dim ** 2) if i not in missing_indices]).to(
             device).long()
-        print(self.missing_indices.shape)
-        print(self.kept_indices.shape)
-        exit()
 
     def V(self, vec):
         temp = vec.clone().reshape(vec.shape[0], -1)
