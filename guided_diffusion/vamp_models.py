@@ -19,11 +19,10 @@ class VAMP:
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         right_term = r_sig_inv * x_t
-        right_term += 1 / noise_sig * self.svd.Ht(y).reshape(x_t.shape[0], x_t.shape[2], x_t.shape[3], x_t.shape[1]).permute(0, 3, 1, 2)
+        right_term += 1 / noise_sig * self.svd.Ht(y).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3])
         right_term += gamma_1[:, 0, None, None, None] * r_1
 
-        return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1).reshape(x_t.shape[0], x_t.shape[2],
-                                                                                         x_t.shape[3], x_t.shape[1]).permute(0, 3, 1, 2)
+        return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3])
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
