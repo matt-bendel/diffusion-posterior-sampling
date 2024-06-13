@@ -70,7 +70,7 @@ class GaussianDiffusion:
 
         # use float64 for accuracy.
         betas = np.array(betas, dtype=np.float64)
-        self.betas = betas_model
+        self.betas = betas
         self.betas_model = betas_model
         assert self.betas.ndim == 1, "betas must be 1-D"
         assert (0 < self.betas).all() and (self.betas <= 1).all(), "betas must be in (0..1]"
@@ -250,7 +250,6 @@ class GaussianDiffusion:
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
-            print(f'beta: {self.betas[time[0]]}')
 
             img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig)['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
             img = img.detach()
