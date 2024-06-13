@@ -80,6 +80,8 @@ class GaussianDiffusion:
 
         alphas = 1.0 - self.betas
         alphas_model = 1.0 - self.betas_model
+        print(betas[0:10])
+        print(betas_model[0:10])
         self.alphas_cumprod_model = np.cumprod(alphas_model, axis=0)
         self.alphas_cumprod = np.cumprod(alphas, axis=0)
         self.alphas_cumprod_prev = np.append(1.0, self.alphas_cumprod[:-1])
