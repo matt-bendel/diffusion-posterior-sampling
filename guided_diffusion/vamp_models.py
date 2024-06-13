@@ -44,7 +44,7 @@ class VAMP:
         delta[delta > 1] = 1.
         noise_var[delta < 1] = v_min
 
-        print(delta)
+        print(f'{delta[0]};{nearest_indices[0]};{noise_var[0]}')
 
         t = nearest_indices
         scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var[:, 0, None, None, None]))
