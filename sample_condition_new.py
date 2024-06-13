@@ -141,7 +141,7 @@ def main():
                 inpainting = True
             elif measure_config['operator']['name'][:10] == 'sr_bicubic':
                 sr = True
-                factor = int(deg[10:])
+                factor = int(measure_config['operator']['name'][10:])
                 blur_by = factor
                 def bicubic_kernel(x, a=-0.5):
                     if abs(x) <= 1:
