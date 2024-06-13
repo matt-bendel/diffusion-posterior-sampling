@@ -39,6 +39,8 @@ class VAMP:
         nearest_indices = torch.argmin(diff, dim=1)
 
         t = nearest_indices
+        print(noise_var.shape)
+        exit()
         scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var))
 
         noise_predict = self.model(scaled_noisy_im, t)
