@@ -122,6 +122,8 @@ def main():
 
             # Forward measurement model (Ax + n)
             inpainting = False
+            sr = False
+            blur_by = 1
 
             if measure_config['operator']['name'] == 'inpainting':
                 missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
@@ -175,7 +177,7 @@ def main():
                 if inpainting:
                     y = H.Ht(y).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
                 else:
-                    y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
+                    y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2] if not sr else ref_img.shape[2] // blur_by, ref_img.shape[3] if not sr else ref_img.shape[2] // blur_by)
 
                 # y_n = ref_img
                 y = noiser(y)
