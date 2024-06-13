@@ -44,8 +44,6 @@ class VAMP:
         delta[delta > 1] = 1.
         noise_var[delta < 1] = v_min
 
-        print(f'{delta[0]};{nearest_indices[0]};{noise_var[0]}')
-
         t = nearest_indices
         scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var[:, 0, None, None, None]))
 
@@ -92,9 +90,6 @@ class VAMP:
         return r_1, gamma_1, eta_2, mu_2
 
     def run_vamp(self, x_t, y, t, noise_sig, use_damping=False):
-        # if self.inpainting:
-        #     noise_sig = noise_sig * (t[0] + 1)
-        #     print(noise_sig)
         mu_2 = None  # needs to exist outside of for loop scope for return
         gamma_1 = self.gamma_1
         r_1 = self.r_1
