@@ -9,7 +9,7 @@ class VAMP:
         self.max_iters = max_iters
         self.K = K
         self.delta = 1e-4
-        self.damping_factor = 0.8 # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.05 # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
 
