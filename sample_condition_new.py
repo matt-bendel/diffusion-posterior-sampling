@@ -18,7 +18,7 @@ from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
 from data.FFHQDataModule import FFHQDataModule
 from pytorch_lightning import seed_everything
-from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising, Deblurring2D
+from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising, Deblurring2D, Colorization
 
 
 def load_object(dct):
@@ -146,6 +146,8 @@ def main():
                     device)
                 H = Deblurring2D(kernel1 / kernel1.sum(), kernel2 / kernel2.sum(), 3,
                                        256, device)
+            elif deg == 'color':
+                H = Colorization(256, device)
             else:
                 H = Denoising(3, 256, device)
 
