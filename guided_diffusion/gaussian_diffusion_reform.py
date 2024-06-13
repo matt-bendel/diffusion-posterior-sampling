@@ -8,7 +8,7 @@ from tqdm.auto import tqdm
 
 # from guided_diffusion.vamp_models import Denoising, Inpainting, Deblur, VAMP
 from guided_diffusion.vamp_models import VAMP
-from guided_diffusion.ddrm_svd import Denoising, Inpainting, Deblurring
+from guided_diffusion.ddrm_svd import Denoising, Inpainting, Deblurring, Deblurring2D
 from util.img_utils import clear_color
 from .posterior_mean_variance import get_mean_processor, get_var_processor
 
@@ -189,12 +189,7 @@ class GaussianDiffusion:
         img = x_start
         device = x_start.device
 
-        # vamp_model = Denoising(model, self.betas, self.alphas_cumprod, 1, x_start)
-        # ones = torch.ones(x_start.shape).to(x_start.device)
-        # vamp_model = Inpainting(model, self.betas, self.alphas_cumprod, 1, x_start, ones * mask, ones * (1 - mask))
-        # vamp_model = Deblur(model, self.betas, self.alphas_cumprod, 1, x_start, torch.Tensor([1/9] * 9).to(x_start.device))
         inpainting = False
-        # self.deblur_svd = Deblurring(kernel, x_T.shape[1], x_T.shape[2], x_T.device)
         if meas_type == 'inpainting':
             inpainting = True
             missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
@@ -209,6 +204,17 @@ class GaussianDiffusion:
             pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
             kernel = torch.Tensor([pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2)]).to(x_start.device)
             svd = Deblurring(kernel / kernel.sum(), 3, 256, x_start.device)
+        elif meas_type == 'blur_aniso':
+            sigma = 20
+            pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
+            kernel2 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
+                self.device)
+            sigma = 1
+            pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
+            kernel1 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
+                self.device)
+            svd = Deblurring2D(kernel1 / kernel1.sum(), kernel2 / kernel2.sum(), config.data.channels,
+                             self.config.data.image_size, self.device)
         else:
             svd = Denoising(x_start.shape[1], x_start.shape[2], x_start.device)
 

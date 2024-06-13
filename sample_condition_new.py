@@ -18,7 +18,7 @@ from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
 from data.FFHQDataModule import FFHQDataModule
 from pytorch_lightning import seed_everything
-from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising
+from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising, Deblurring2D
 
 
 def load_object(dct):
@@ -135,6 +135,17 @@ def main():
                 pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
                 kernel = torch.Tensor([pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2)]).to(device)
                 H = Deblurring(kernel / kernel.sum(), 3, 256, device)
+            elif measure_config['operator']['name'] == 'blur_aniso':
+                sigma = 20
+                pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
+                kernel2 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
+                    self.device)
+                sigma = 1
+                pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
+                kernel1 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
+                    self.device)
+                H = Deblurring2D(kernel1 / kernel1.sum(), kernel2 / kernel2.sum(), config.data.channels,
+                                       self.config.data.image_size, self.device)
             else:
                 H = Denoising(3, 256, device)
 
@@ -163,7 +174,7 @@ def main():
                         plt.imsave(f'{measure_config["operator"]["name"]}/test_y_{k}.png', clear_color(y[j].unsqueeze(0)))
                         plt.imsave(f'{measure_config["operator"]["name"]}/test_x_{k}.png', clear_color(ref_img[j].unsqueeze(0)))
 
-                        if k > 14:
+                        if k > 3:
                             exit()
 
             base_im_count += sample.shape[0]
