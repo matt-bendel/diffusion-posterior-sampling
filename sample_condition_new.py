@@ -95,10 +95,17 @@ def main():
 
     # Do Inference
     print(len(test_loader))
-    for k in range(1):
+
+    operators = ['inpainting', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'denoising']
+    noise_levels = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 1]
+
+    for l in range(len(operators)):
+        measure_config['noise']['sigma'] = noise_levels[l]
+        measure_config['operator']['name'] = operators[l]
+
         base_im_count = 0
         for i, data in enumerate(test_loader):
-            if i <= 17:
+            if i <= 4:
                 continue
 
             logger.info(f"Inference for image {i}")
@@ -183,10 +190,10 @@ def main():
                 # y_n = ref_img
                 y = noiser(y)
                 for j in range(sample.shape[0]):
-                    plt.imsave(f'{measure_config["operator"]["name"]}/test_recon_{i}_{k}.png', clear_color(sample[j].unsqueeze(0)))
+                    plt.imsave(f'{measure_config["operator"]["name"]}/test_recon_{i + j}_{k}.png', clear_color(sample[j].unsqueeze(0)))
                     if k == 0:
-                        plt.imsave(f'{measure_config["operator"]["name"]}/test_y_{i}.png', clear_color(y[j].unsqueeze(0)))
-                        plt.imsave(f'{measure_config["operator"]["name"]}/test_x_{i}.png', clear_color(ref_img[j].unsqueeze(0)))
+                        plt.imsave(f'{measure_config["operator"]["name"]}/test_y_{i + j}.png', clear_color(y[j].unsqueeze(0)))
+                        plt.imsave(f'{measure_config["operator"]["name"]}/test_x_{i + j}.png', clear_color(ref_img[j].unsqueeze(0)))
 
             base_im_count += sample.shape[0]
 
