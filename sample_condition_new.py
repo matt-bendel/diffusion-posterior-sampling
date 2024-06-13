@@ -156,7 +156,7 @@ def main():
                     x = (1 / factor) * (i - np.floor(factor * 4 / 2) + 0.5)
                     k[i] = bicubic_kernel(x)
                 k = k / np.sum(k)
-                kernel = torch.from_numpy(k).float().to(self.device)
+                kernel = torch.from_numpy(k).float().to(device)
                 H = SRConv(kernel / kernel.sum(), 3, 256, device, stride=factor)
             elif measure_config['operator']['name'] == 'blur_uni':
                 H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
