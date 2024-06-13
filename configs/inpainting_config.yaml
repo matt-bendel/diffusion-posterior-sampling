@@ -7,7 +7,7 @@ image_size: 256
 conditioning:
   method: ps
   params:
-    scale: 0.5
+    scale: 0.001
 
 data:
   name: ffhq
@@ -15,7 +15,7 @@ data:
 
 measurement:
   operator:
-    name: sr4
+    name: inpainting
   mask_opt:
     mask_type: random
     # mask_len_range: !!python/tuple [128, 129]  # for box
