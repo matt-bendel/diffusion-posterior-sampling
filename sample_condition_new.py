@@ -148,6 +148,9 @@ def main():
                                        256, device)
             elif measure_config['operator']['name'] == 'color':
                 H = Colorization(256, device)
+            elif measure_config['operator']['name'][:2] == 'sr':
+                blur_by = int(measure_config['operator']['name'][2:])
+                H = SuperResolution(3, 256, blur_by, device)
             else:
                 H = Denoising(3, 256, device)
 

@@ -15,7 +15,7 @@ data:
 
 measurement:
   operator:
-    name: color
+    name: sr4
   mask_opt:
     mask_type: random
     # mask_len_range: !!python/tuple [128, 129]  # for box
@@ -25,4 +25,4 @@ measurement:
 
   noise:
     name: gaussian
-    sigma: 0.9
+    sigma: 0.05
