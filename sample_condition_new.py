@@ -137,6 +137,7 @@ def main():
             # Forward measurement model (Ax + n)
             inpainting = False
             sr = False
+            coloring = False
             blur_by = 1
 
             if measure_config['operator']['name'] == 'inpainting':
@@ -184,6 +185,7 @@ def main():
                 H = Deblurring2D(kernel1 / kernel1.sum(), kernel2 / kernel2.sum(), 3,
                                        256, device)
             elif measure_config['operator']['name'] == 'color':
+                coloring = True
                 H = Colorization(256, device)
             elif measure_config['operator']['name'][:2] == 'sr':
                 sr = True
@@ -208,7 +210,7 @@ def main():
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
                 # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
                 y = H.H(ref_img)
-                if inpainting:
+                if inpainting or coloring:
                     y = H.Ht(y).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
                 else:
                     y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2] if not sr else ref_img.shape[2] // blur_by, ref_img.shape[3] if not sr else ref_img.shape[2] // blur_by)
