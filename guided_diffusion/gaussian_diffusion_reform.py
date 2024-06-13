@@ -214,7 +214,7 @@ class GaussianDiffusion:
             kernel1 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
                 x_start.device)
             svd = Deblurring2D(kernel1 / kernel1.sum(), kernel2 / kernel2.sum(), x_start.shape[1], x_start.shape[2], x_start.device)
-        elif deg == 'color':
+        elif meas_type == 'color':
             svd = Colorization(256, x_start.device)
         else:
             svd = Denoising(x_start.shape[1], x_start.shape[2], x_start.device)
