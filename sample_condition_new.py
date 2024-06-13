@@ -112,7 +112,7 @@ def main():
 
         base_im_count = 0
         for i, data in enumerate(test_loader):
-            if i <= 3:
+            if i <= 17: #i <= 3:
                 continue
 
             logger.info(f"Inference for image {i}")
