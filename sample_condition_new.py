@@ -18,7 +18,7 @@ from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
 from data.FFHQDataModule import FFHQDataModule
 from pytorch_lightning import seed_everything
-from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising, Deblurring2D, Colorization
+from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising, Deblurring2D, Colorization, SuperResolution, SRConv
 
 
 def load_object(dct):
