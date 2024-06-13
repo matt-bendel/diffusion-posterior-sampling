@@ -80,8 +80,6 @@ class GaussianDiffusion:
 
         alphas = 1.0 - self.betas
         alphas_model = 1.0 - self.betas_model
-        print(betas[0:10])
-        print(betas_model[0:10])
         self.alphas_cumprod_model = np.cumprod(alphas_model, axis=0)
         self.alphas_cumprod = np.cumprod(alphas, axis=0)
         self.alphas_cumprod_prev = np.append(1.0, self.alphas_cumprod[:-1])
@@ -252,6 +250,7 @@ class GaussianDiffusion:
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
+            print(self.betas[time[0]])
 
             img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig)['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
             img = img.detach()
