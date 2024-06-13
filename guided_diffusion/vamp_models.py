@@ -38,7 +38,10 @@ class VAMP:
         diff = torch.abs(noise_var[:, 0, None] - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))
         nearest_indices = torch.argmin(diff, dim=1)
 
-        v_min = ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))[0]
+        v_min = ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))[0].float()
+        print(v_min)
+        print(1 - (1 - 1e-8) / (1 - 1e-8))
+        exit()
 
         delta = noise_var.clone() / v_min
         delta[delta > 1] = 1.
