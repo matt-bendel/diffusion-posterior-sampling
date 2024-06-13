@@ -102,12 +102,12 @@ def main():
     operators = ['sr_bicubic4', 'sr_bicubic8', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'denoising']
     noise_levels = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1]
 
-    operators = ['sr_bicubic8', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8',
-                 'denoising']
-    noise_levels = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1]
-
-    operators = ['blur_uni', 'blur_gauss', 'blur_aniso']
-    noise_levels = [0.01, 0.01, 0.01]
+    # operators = ['sr_bicubic8', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8',
+    #              'denoising']
+    # noise_levels = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1]
+    #
+    # operators = ['blur_uni', 'blur_gauss', 'blur_aniso']
+    # noise_levels = [0.01, 0.01, 0.01]
 
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
@@ -115,7 +115,7 @@ def main():
 
         base_im_count = 0
         for i, data in enumerate(test_loader):
-            if i <= 4:
+            if i <= 3:
                 continue
 
             logger.info(f"Inference for image {i}")
