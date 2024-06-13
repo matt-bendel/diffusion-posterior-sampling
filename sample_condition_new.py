@@ -121,13 +121,15 @@ def main():
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
             # Forward measurement model (Ax + n)
-            missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
-            missing_g = missing_r + 1
-            missing_b = missing_g + 1
-            missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
+            inpainting = False
 
             if measure_config['operator']['name'] == 'inpainting':
+                missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
+                missing_g = missing_r + 1
+                missing_b = missing_g + 1
+                missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
                 H = Inpainting(3, 256, missing, device)
+                inpainting = True
             elif measure_config['operator']['name'] == 'blur_uni':
                 H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
             elif measure_config['operator']['name'] == 'blur_gauss':
@@ -159,7 +161,7 @@ def main():
             # y_n = ref_img
             y_n = noiser(y_n)
 
-            for k in range(16):
+            for k in range(4):
                 # Sampling
                 with torch.no_grad():
                     x_start = torch.randn(ref_img.shape, device=device)
@@ -169,21 +171,25 @@ def main():
                 # sample = ref_img * mask + (1 - mask) * sample
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
                 # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
+                y = H.H(ref_img)
+                if inpainting:
+                    y = H.Ht(y).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
+                else:
+                    y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
 
-                y = H.Ht(H.H(ref_img)).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
                 # y_n = ref_img
                 y = noiser(y)
                 for j in range(sample.shape[0]):
                     if j == 0:
-                        plt.imsave(f'{measure_config["operator"]["name"]}/test_recon_{k}.png', clear_color(sample[j].unsqueeze(0)))
-                        plt.imsave(f'{measure_config["operator"]["name"]}/test_y_{k}.png', clear_color(y[j].unsqueeze(0)))
-                        plt.imsave(f'{measure_config["operator"]["name"]}/test_x_{k}.png', clear_color(ref_img[j].unsqueeze(0)))
-
-                        if k > 3:
-                            exit()
+                        plt.imsave(f'{measure_config["operator"]["name"]}/test_recon_{i}_{k}.png', clear_color(sample[j].unsqueeze(0)))
+                        if k == 0:
+                            plt.imsave(f'{measure_config["operator"]["name"]}/test_y_{i}.png', clear_color(y[j].unsqueeze(0)))
+                            plt.imsave(f'{measure_config["operator"]["name"]}/test_x_{i}.png', clear_color(ref_img[j].unsqueeze(0)))
 
             base_im_count += sample.shape[0]
 
+            if base_im_count == 4:
+                exit()
 
 if __name__ == '__main__':
     main()
