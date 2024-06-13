@@ -9,7 +9,7 @@ class VAMP:
         self.max_iters = max_iters
         self.K = K
         self.delta = 1e-4
-        self.damping_factor = 0.1 # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 1 # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
 
@@ -43,6 +43,8 @@ class VAMP:
         delta = noise_var.clone() / v_min
         delta[delta > 1] = 1.
         noise_var[delta < 1] = v_min
+
+        print(delta)
 
         t = nearest_indices
         scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var[:, 0, None, None, None]))
