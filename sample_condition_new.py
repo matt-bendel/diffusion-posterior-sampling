@@ -146,7 +146,7 @@ def main():
                     device)
                 H = Deblurring2D(kernel1 / kernel1.sum(), kernel2 / kernel2.sum(), 3,
                                        256, device)
-            elif deg == 'color':
+            elif measure_config['operator']['name'] == 'color':
                 H = Colorization(256, device)
             else:
                 H = Denoising(3, 256, device)
