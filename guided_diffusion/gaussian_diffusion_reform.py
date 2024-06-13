@@ -208,13 +208,12 @@ class GaussianDiffusion:
             sigma = 20
             pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
             kernel2 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
-                self.device)
+                x_start.device)
             sigma = 1
             pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
             kernel1 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
-                self.device)
-            svd = Deblurring2D(kernel1 / kernel1.sum(), kernel2 / kernel2.sum(), config.data.channels,
-                             self.config.data.image_size, self.device)
+                x_start.device)
+            H = Deblurring2D(kernel1 / kernel1.sum(), kernel2 / kernel2.sum(), x_start.shape[1], x_start.shape[2], x_start.device)
         else:
             svd = Denoising(x_start.shape[1], x_start.shape[2], x_start.device)
 
