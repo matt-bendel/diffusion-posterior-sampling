@@ -183,11 +183,10 @@ def main():
                 # y_n = ref_img
                 y = noiser(y)
                 for j in range(sample.shape[0]):
-                    if j == 0:
-                        plt.imsave(f'{measure_config["operator"]["name"]}/test_recon_{i}_{k}.png', clear_color(sample[j].unsqueeze(0)))
-                        if k == 0:
-                            plt.imsave(f'{measure_config["operator"]["name"]}/test_y_{i}.png', clear_color(y[j].unsqueeze(0)))
-                            plt.imsave(f'{measure_config["operator"]["name"]}/test_x_{i}.png', clear_color(ref_img[j].unsqueeze(0)))
+                    plt.imsave(f'{measure_config["operator"]["name"]}/test_recon_{i}_{k}.png', clear_color(sample[j].unsqueeze(0)))
+                    if k == 0:
+                        plt.imsave(f'{measure_config["operator"]["name"]}/test_y_{i}.png', clear_color(y[j].unsqueeze(0)))
+                        plt.imsave(f'{measure_config["operator"]["name"]}/test_x_{i}.png', clear_color(ref_img[j].unsqueeze(0)))
 
             base_im_count += sample.shape[0]
 
