@@ -197,6 +197,23 @@ class GaussianDiffusion:
             missing_b = missing_g + 1
             missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
             svd = Inpainting(x_start.shape[1], x_start.shape[2], missing, x_start.device)
+        elif meas_type[:10] == 'sr_bicubic':
+            factor = int(meas_type[10:])
+            def bicubic_kernel(x, a=-0.5):
+                if abs(x) <= 1:
+                    return (a + 2) * abs(x) ** 3 - (a + 3) * abs(x) ** 2 + 1
+                elif 1 < abs(x) and abs(x) < 2:
+                    return a * abs(x) ** 3 - 5 * a * abs(x) ** 2 + 8 * a * abs(x) - 4 * a
+                else:
+                    return 0
+
+            k = np.zeros((factor * 4))
+            for i in range(factor * 4):
+                x = (1 / factor) * (i - np.floor(factor * 4 / 2) + 0.5)
+                k[i] = bicubic_kernel(x)
+            k = k / np.sum(k)
+            kernel = torch.from_numpy(k).float().to(x_start.device)
+            svd = SRConv(kernel / kernel.sum(), x_start.shape[1], x_start.shape[2], x_start.device, stride=factor)
         elif meas_type == 'blur_uni':
             svd = Deblurring(torch.Tensor([1 / 9] * 9).to(x_start.device), x_start.shape[1], x_start.shape[2], x_start.device)
         elif meas_type == 'blur_gauss':

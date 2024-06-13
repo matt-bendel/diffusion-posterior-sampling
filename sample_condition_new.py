@@ -96,8 +96,8 @@ def main():
     # Do Inference
     print(len(test_loader))
 
-    operators = ['blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'denoising']
-    noise_levels = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 1]
+    operators = ['sr_bicubic4', 'sr_bicubic8', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'denoising']
+    noise_levels = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 1]
 
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
@@ -139,6 +139,25 @@ def main():
                 missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
                 H = Inpainting(3, 256, missing, device)
                 inpainting = True
+            elif measure_config['operator']['name'][:10] == 'sr_bicubic':
+                sr = True
+                factor = int(deg[10:])
+                blur_by = factor
+                def bicubic_kernel(x, a=-0.5):
+                    if abs(x) <= 1:
+                        return (a + 2) * abs(x) ** 3 - (a + 3) * abs(x) ** 2 + 1
+                    elif 1 < abs(x) and abs(x) < 2:
+                        return a * abs(x) ** 3 - 5 * a * abs(x) ** 2 + 8 * a * abs(x) - 4 * a
+                    else:
+                        return 0
+
+                k = np.zeros((factor * 4))
+                for i in range(factor * 4):
+                    x = (1 / factor) * (i - np.floor(factor * 4 / 2) + 0.5)
+                    k[i] = bicubic_kernel(x)
+                k = k / np.sum(k)
+                kernel = torch.from_numpy(k).float().to(self.device)
+                H = SRConv(kernel / kernel.sum(), 3, 256, device, stride=factor)
             elif measure_config['operator']['name'] == 'blur_uni':
                 H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
             elif measure_config['operator']['name'] == 'blur_gauss':
