@@ -223,6 +223,8 @@ def main():
                         plt.imsave(f'{measure_config["operator"]["name"]}/test_y_{i + j}.png', clear_color(y[j].unsqueeze(0)))
                         plt.imsave(f'{measure_config["operator"]["name"]}/test_x_{i + j}.png', clear_color(ref_img[j].unsqueeze(0)))
 
+                exit()
+
             base_im_count += sample.shape[0]
 
             if base_im_count == 4:
