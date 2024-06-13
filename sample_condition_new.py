@@ -96,8 +96,8 @@ def main():
     # Do Inference
     print(len(test_loader))
 
-    operators = ['inpainting', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'denoising']
-    noise_levels = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 1]
+    operators = ['blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'denoising']
+    noise_levels = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 1]
 
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
