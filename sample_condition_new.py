@@ -61,7 +61,7 @@ def main():
 
     # Load model
     model = create_model(**model_config)
-    model = model.to(device)
+    model = model.to(device).double()
     model.eval()
 
     # Prepare Operator and noise
