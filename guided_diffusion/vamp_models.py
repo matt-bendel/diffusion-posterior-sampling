@@ -47,8 +47,8 @@ class VAMP:
 
         print(f'{noise_var[0].cpu().numpy()};{delta[0].cpu().numpy()};{t[0]}')
         scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var_clip[:, 0, None, None, None]))
-        print(type(scaled_noisy_im))
-        print(type(t))
+        print(scaled_noisy_im.dtype)
+        print(t.dtype)
         exit()
 
         noise_predict = self.model(scaled_noisy_im, t)
