@@ -45,6 +45,9 @@ class VAMP:
         delta = torch.minimum(noise_var / self.v_min, ones)
         noise_var_clip = torch.maximum(noise_var, ones * self.v_min)
 
+        new_noise = torch.sqrt((1 - delta) * self.v_min)[:, 0, None, None, None] * torch.randn_like(noisy_im)
+        noisy_im[delta[:, 0] < 1] = noisy_im[delta[:, 0] < 1] + new_noise[delta[:, 0]<1]
+
         # print(f'{noise_var[0].cpu().numpy()};{delta[0].cpu().numpy()};{t[0]}')
         scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var_clip[:, 0, None, None, None]))
 
