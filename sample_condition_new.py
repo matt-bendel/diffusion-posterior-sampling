@@ -105,7 +105,7 @@ def main():
     noise_levels = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 1]
 
     operators = ['inpainting']
-    noise_levels = [0.01]
+    noise_levels = [0.001]
 
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
