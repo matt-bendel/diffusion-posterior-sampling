@@ -489,10 +489,10 @@ def get_named_beta_schedule(schedule_name, num_diffusion_timesteps):
             lambda t: math.cos((t + 0.008) / 1.008 * math.pi / 2) ** 2,
         )
     elif schedule_name == "poly_4":
-        p = 2
+        p = 4
         beta_start = 1e-8
         beta_end = 0.02
-        return np.linspace(beta_start ** 0.25, beta_end ** 0.25, num_diffusion_timesteps, dtype=np.float64) ** 4
+        return beta_start + (beta_end-beta_start) * np.linspace(0,1,T)**p
     else:
         raise NotImplementedError(f"unknown beta schedule: {schedule_name}")
 

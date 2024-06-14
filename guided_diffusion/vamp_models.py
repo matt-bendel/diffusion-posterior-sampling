@@ -9,9 +9,11 @@ class VAMP:
         self.max_iters = max_iters
         self.K = K
         self.delta = 1e-4
+        self.power = 0.25
         self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
+        self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
 
         self.betas = torch.tensor(betas).to(x_T.device)
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
@@ -36,26 +38,23 @@ class VAMP:
 
     def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar):
         diff = torch.abs(noise_var[:, 0, None] - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))
-        nearest_indices = torch.argmin(diff, dim=1)
+        t = torch.argmin(diff, dim=1)
 
-        v_min = ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))[0].float()
+        ones = torch.ones(noise_var.shape, device=noise_var.device)
 
-        delta = noise_var.clone() / v_min
-        delta[delta > 1] = 1.
-        noise_var[delta < 1] = v_min
-        q = 0.5
+        delta = torch.minimum(noise_var / self.v_min, ones)
+        noise_var_clip = torch.maximum(noise_var, ones * self.v_min)
 
-        t = nearest_indices
         print(f'{noise_var[0].cpu().numpy()};{delta[0].cpu().numpy()};{t[0]}')
-        scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var[:, 0, None, None, None]))
+        scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var_clip[:, 0, None, None, None]))
 
         noise_predict = self.model(scaled_noisy_im, t)
 
         if noise_predict.shape[1] == 2 * noisy_im.shape[1]:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
-        noise_to_remove = ((delta ** q) * torch.sqrt(noise_var))[:, 0, None, None, None] * noise_predict
-        x_0 = noisy_im - noise_to_remove
+        noise_est = torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
+        x_0 = (1 - delta ** self.power)[:, 0, None, None, None] * noisy_im + (delta ** self.power)[:, 0, None, None, None] * (noisy_im - noise_est)
         # x_0 = noisy_im - torch.sqrt(noise_var)[:, 0, None, None, None] * noise_predict
 
         return x_0
@@ -114,7 +113,7 @@ class VAMP:
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
                 exit()
 
-        self.gamma_1 = gamma_1 if use_damping and self.damping_factor < 1 else 0.2 * gamma_1
+        self.gamma_1 = 0.1 * gamma_1
         self.r_1 = r_1
 
         return mu_2
