@@ -57,8 +57,8 @@ class VAMP:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
         noise_est = torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
-        x_0 = (1 - delta ** self.power)[:, 0, None, None, None] * noisy_im + (delta ** self.power)[:, 0, None, None, None] * (noisy_im - noise_est)
-        # x_0 = noisy_im - torch.sqrt(noise_var)[:, 0, None, None, None] * noise_predict
+        # x_0 = (1 - delta ** self.power)[:, 0, None, None, None] * noisy_im + (delta ** self.power)[:, 0, None, None, None] * (noisy_im - noise_est)
+        x_0 = noisy_im - torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
 
         return x_0
 
