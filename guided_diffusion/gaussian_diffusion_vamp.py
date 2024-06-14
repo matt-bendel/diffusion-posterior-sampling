@@ -71,7 +71,7 @@ class GaussianDiffusion:
         # use float64 for accuracy.
         betas = np.array(betas, dtype=np.float64)
         betas_model = np.array(betas_model, dtype=np.float64)
-        self.betas = betas_model # TODO
+        self.betas = betas # TODO
         self.betas_model = betas_model
         assert self.betas.ndim == 1, "betas must be 1-D"
         assert (0 < self.betas).all() and (self.betas <= 1).all(), "betas must be in (0..1]"
@@ -489,7 +489,7 @@ def get_named_beta_schedule(schedule_name, num_diffusion_timesteps):
             lambda t: math.cos((t + 0.008) / 1.008 * math.pi / 2) ** 2,
         )
     elif schedule_name == "poly_4":
-        p = 4
+        p = 2
         beta_start = 1e-8
         beta_end = 0.02
         return beta_start + (beta_end-beta_start) * np.linspace(0,1,num_diffusion_timesteps)**p
