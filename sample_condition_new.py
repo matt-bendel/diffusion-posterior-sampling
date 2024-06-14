@@ -104,7 +104,7 @@ def main():
     operators = ['sr_bicubic4', 'sr_bicubic8', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'denoising']
     noise_levels = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 1]
 
-    operators = ['inpainting']
+    operators = ['srbicubic_8']
     noise_levels = [0.001]
 
     for l in range(len(operators)):
@@ -220,6 +220,7 @@ def main():
                 # y_n = ref_img
                 y = noiser(y)
                 for j in range(sample.shape[0]):
+                    # plt.imsave(f'{measure_config["operator"]["name"]}/test.png', clear_color((sample[j] * mask[j]).unsqueeze(0)))
                     plt.imsave(f'{measure_config["operator"]["name"]}/test_recon_{i + j}_{k}.png', clear_color(sample[j].unsqueeze(0)))
                     if k == 0:
                         plt.imsave(f'{measure_config["operator"]["name"]}/test_y_{i + j}.png', clear_color(y[j].unsqueeze(0)))
