@@ -38,7 +38,7 @@ class VAMP:
 
     def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar):
         diff = torch.abs(noise_var[:, 0, None] - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))
-        t = torch.argmin(diff, dim=1)
+        t = torch.argmin(diff, dim=1).double()
 
         ones = torch.ones(noise_var.shape, device=noise_var.device)
 
@@ -47,9 +47,6 @@ class VAMP:
 
         print(f'{noise_var[0].cpu().numpy()};{delta[0].cpu().numpy()};{t[0]}')
         scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var_clip[:, 0, None, None, None]))
-        print(scaled_noisy_im.dtype)
-        print(t.dtype)
-        exit()
 
         noise_predict = self.model(scaled_noisy_im, t)
 
