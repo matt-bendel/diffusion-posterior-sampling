@@ -10,7 +10,7 @@ class VAMP:
         self.K = K
         self.delta = 1e-4
         self.power = 0.25
-        self.damping_factor = 0.05 # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -113,7 +113,7 @@ class VAMP:
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
                 exit()
 
-        self.gamma_1 = 0.1 * gamma_1
+        self.gamma_1 = gamma_1
         self.r_1 = r_1
 
         return mu_2
