@@ -43,7 +43,7 @@ class VAMP:
         delta = noise_var.clone() / v_min
         delta[delta > 1] = 1.
         noise_var[delta < 1] = v_min
-        q = 0.5
+        q = 0.05
 
         t = nearest_indices
         print(t)
