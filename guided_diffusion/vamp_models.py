@@ -43,9 +43,10 @@ class VAMP:
         delta = noise_var.clone() / v_min
         delta[delta > 1] = 1.
         noise_var[delta < 1] = v_min
-        q = 0.75
+        q = 0.5
 
         t = nearest_indices
+        print(t)
         scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var[:, 0, None, None, None]))
 
         noise_predict = self.model(scaled_noisy_im, t)
