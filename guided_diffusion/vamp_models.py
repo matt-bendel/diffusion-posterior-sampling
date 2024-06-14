@@ -45,10 +45,10 @@ class VAMP:
         delta = torch.minimum(noise_var / self.v_min, ones)
         noise_var_clip = torch.maximum(noise_var, ones * self.v_min)
 
-        new_noise = torch.sqrt((1 - delta) * self.v_min)[:, 0, None, None, None] * torch.randn_like(noisy_im)
-        noisy_im[delta[:, 0] < 1] = noisy_im[delta[:, 0] < 1] + new_noise[delta[:, 0]<1]
+        # new_noise = torch.sqrt((1 - delta) * self.v_min)[:, 0, None, None, None] * torch.randn_like(noisy_im)
+        # noisy_im[delta[:, 0] < 1] = noisy_im[delta[:, 0] < 1] + new_noise[delta[:, 0]<1]
 
-        # print(f'{noise_var[0].cpu().numpy()};{delta[0].cpu().numpy()};{t[0]}')
+        print(f'{noise_var[0].cpu().numpy()};{delta[0].cpu().numpy()};{t[0]}')
         scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var_clip[:, 0, None, None, None]))
 
         noise_predict = self.model(scaled_noisy_im, t)
@@ -57,8 +57,8 @@ class VAMP:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
         noise_est = torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
-        # x_0 = (1 - delta ** self.power)[:, 0, None, None, None] * noisy_im + (delta ** self.power)[:, 0, None, None, None] * (noisy_im - noise_est)
-        x_0 = noisy_im - torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
+        x_0 = (1 - delta ** self.power)[:, 0, None, None, None] * noisy_im + (delta ** self.power)[:, 0, None, None, None] * (noisy_im - noise_est)
+        # x_0 = noisy_im - torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
 
         return x_0
 
@@ -111,7 +111,7 @@ class VAMP:
                 gamma_1 = (self.damping_factor * torch.abs(gamma_1) ** (-1 / 2) + (1 - self.damping_factor) * (
                     old_gamma_1) ** (-1 / 2)) ** -2
 
-            print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
+            # print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
 
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
                 exit()
