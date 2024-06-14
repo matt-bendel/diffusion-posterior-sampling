@@ -56,8 +56,6 @@ class VAMP:
 
         noise_to_remove = ((delta ** q) * torch.sqrt(noise_var))[:, 0, None, None, None] * noise_predict
         x_0 = noisy_im - noise_to_remove
-        if delta[0] < 0.1:
-            return noisy_im
         # x_0 = noisy_im - torch.sqrt(noise_var)[:, 0, None, None, None] * noise_predict
 
         return x_0
