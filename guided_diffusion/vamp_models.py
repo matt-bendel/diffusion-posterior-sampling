@@ -40,10 +40,10 @@ class VAMP:
 
         v_min = ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))[0].float()
 
-        delta = noise_var.clone() / v_min
-        delta[delta > 1] = 1.
-        noise_var[delta < 1] = v_min
-        q = 0
+        # delta = noise_var.clone() / v_min
+        # delta[delta > 1] = 1.
+        # noise_var[delta < 1] = v_min
+        # q = 0.5
 
         t = nearest_indices
         print(f'{noise_var[0]};{t[0]}')
@@ -54,9 +54,9 @@ class VAMP:
         if noise_predict.shape[1] == 2 * noisy_im.shape[1]:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
-        noise_to_remove = ((delta ** q) * torch.sqrt(noise_var))[:, 0, None, None, None] * noise_predict
-        x_0 = noisy_im - noise_to_remove
-        # x_0 = noisy_im - torch.sqrt(noise_var)[:, 0, None, None, None] * noise_predict
+        # noise_to_remove = ((delta ** q) * torch.sqrt(noise_var))[:, 0, None, None, None] * noise_predict
+        # x_0 = noisy_im - noise_to_remove
+        x_0 = noisy_im - 10 * torch.sqrt(noise_var)[:, 0, None, None, None] * noise_predict
 
         return x_0
 
