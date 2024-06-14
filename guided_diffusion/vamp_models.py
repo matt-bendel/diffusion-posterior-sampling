@@ -38,7 +38,7 @@ class VAMP:
 
     def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar):
         diff = torch.abs(noise_var[:, 0, None] - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))
-        t = torch.argmin(diff, dim=1).double()
+        t = torch.argmin(diff, dim=1)
 
         ones = torch.ones(noise_var.shape, device=noise_var.device)
 

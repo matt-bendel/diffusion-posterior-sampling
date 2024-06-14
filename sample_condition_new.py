@@ -32,7 +32,7 @@ def load_yaml(file_path: str) -> dict:
 
 
 def main():
-    torch.set_default_dtype(torch.float64)
+    # torch.set_default_dtype(torch.float64)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_config', type=str)
@@ -61,7 +61,7 @@ def main():
 
     # Load model
     model = create_model(**model_config)
-    model = model.to(device).double()
+    model = model.to(device)
     model.eval()
 
     # Prepare Operator and noise
