@@ -106,6 +106,8 @@ class VAMP:
             gamma_2_mult += gamma_2[:, q, None, None, None] * self.mask[q, None, :, :, :]
 
         noise_var = (gamma_2_mult ** -1).reshape(gamma_2.shape[0], -1).mean(-1)
+        print(noise_var.shape)
+        exit()
         mu_2 = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
         eta_2 = 1 / self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
         gamma_1 = eta_2 - gamma_2
