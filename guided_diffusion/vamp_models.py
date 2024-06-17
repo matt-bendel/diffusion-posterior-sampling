@@ -16,6 +16,7 @@ class VAMP:
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask
         self.Q = mask.shape[0]
+        print(self.Q)
 
         self.betas = torch.tensor(betas).to(x_T.device)
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], self.Q, device=x_T.device)
