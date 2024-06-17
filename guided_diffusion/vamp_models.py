@@ -42,6 +42,10 @@ class VAMP:
 
         # TODO: Handle case when V is not identity...
         print(singulars[0, 0, 102:106, 78:82])
+        import matplotlib.pyplot as plt
+        plt.imshow(singulars[0].permute(1, 2, 0).cpu().numpy())
+        plst.savefig('tmp.png')
+        exit()
 
         diag_mat_inv = ((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1) ** -1
         # print(diag_mat_inv[0, 0, 102:106, 78:82])
