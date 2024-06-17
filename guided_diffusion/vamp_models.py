@@ -25,12 +25,8 @@ class VAMP:
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         gamma_1_mult = torch.zeros(r_1.shape).to(y.device)
         for q in range(self.Q):
-            nonzero_mask = self.mask[q].nonzero()
-            print(nonzero_mask.shape)
-            exit()
-            gamma_1_mult[:, self.mask[q].nonzero()] = gamma_1[:, q, None, None, None]
+            gamma_1_mult += gamma_1[:, q, None, None, None] * self.mask[q, None, :, :, :]
 
-        print(self.mask[0].nonzero().shape)
         print(gamma_1_mult.shape)
         exit()
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
@@ -46,16 +42,13 @@ class VAMP:
         reshape_gam_1 = gamma_1.clone().reshape(gamma_1.shape[0], self.r_1.shape[1], -1).permute(0, 2, 1).reshape(gamma_1.shape[0], -1)
 
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
-        # eta = torch.mean(((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1[:, 0, None]) ** -1, dim=1,
-        #                  keepdim=True) ** -1
 
         # TODO: Handle case when V is not identity...
         diag_mat_inv = ((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + reshape_gam_1) ** -1
-        print(diag_mat_inv.shape)
-        exit()
+        diag_mat_inv = diag_mat_inv.reshape(diag_mat_inv.shape[0], -1, 3).permute(0, 2, 1).view(gamma_1.shape[0], 3, 256, 256) # TODO: Generalize
         eta = torch.zeros(gamma_1.shape).to(gamma_1.device)
         for q in range(self.Q):
-            eta[:, q] = diag_mat_inv[:, self.mask[q].nonzero()].mean(-1)
+            eta[:, q] += (diag_mat_inv * self.mask[q, None, :, :, :]).view(eta.shape[0], -1).sum(-1) / torch.count_nonzero(self.mask[q])
 
         return 1/eta
 
@@ -93,7 +86,8 @@ class VAMP:
             probed_diff = probe * (mu_2_delta - mu_2)
 
             for q in range(self.Q):
-                eta[:, q] += torch.mean(probed_diff[:, self.mask[q].nonzero()], dim=1) / (self.delta * gamma_2[:, q])
+                masked_probe_diff = probed_diff * self.mask[q, None, :, :, :]
+                eta[:, q] += masked_probe_diff.reshape(probed_diff.shape[0], -1).sum(-1) / (self.delta * gamma_2[:, q] * torch.count_nonzero(masked_probe_diff))
 
         return eta / self.K
 
@@ -104,21 +98,22 @@ class VAMP:
         gamma_2 = eta_1 - gamma_1
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
         for q in range(self.Q):
-            r_2[:, self.mask[q].nonzero()] = ((eta_1[:, q, None, None, None] * mu_1 - gamma_1[:, q, None, None, None] * r_1) / gamma_2[:, q, None, None, None])[:, self.mask[q].nonzero()]
+            r_2 += ((eta_1[:, q, None, None, None] * mu_1 - gamma_1[:, q, None, None, None] * r_1) / gamma_2[:, q, None, None, None]) * self.mask[q, None, :, :, :]
 
         return r_2, gamma_2, eta_1
 
     def denoising(self, r_2, gamma_2, t, t_alpha_bar):
-        noise_var = 0
+        gamma_2_mult = torch.zeros(r_2.shape).to(r_2.device)
+        for q in range(self.Q):
+            gamma_2_mult += gamma_2[:, q, None, None, None] * self.mask[q, None, :, :, :]
+
+        noise_var = (gamma_2_mult ** -1).reshape(gamma_2.shape[0], -1).mean(-1)
         mu_2 = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
         eta_2 = 1 / self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_1.shape).to(mu_1.device)
         for q in range(self.Q):
-            r_1[:, self.mask[q].nonzero()] = ((eta_2[:, q, None, None, None] * mu_2 - gamma_2[:, q, None, None,
-                                                                                      None] * r_2) / gamma_1[:, q, None,
-                                                                                                     None, None])[:,
-                                             self.mask[q].nonzero()]
+            r_1 = ((eta_2[:, q, None, None, None] * mu_2 - gamma_2[:, q, None, None, None] * r_2) / gamma_1[:, q, None, None, None]) * self.mask[q, None, :, :, :]
 
         return r_1, gamma_1, eta_2, mu_2
 
