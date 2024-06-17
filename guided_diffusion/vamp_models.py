@@ -47,8 +47,9 @@ class VAMP:
 
 
         print(1/eta[0])
-        print(((1 / noise_sig ** 2) + r_sig_inv ** 2 + gam1[0]) ** -1)
-        print((r_sig_inv ** 2 + gam1[0]) ** -1)
+        print((1 / noise_sig ** 2) + r_sig_inv ** 2 + gam1[0])
+        print(r_sig_inv ** 2 + gam1[0])
+        print(gam1[0])
 
         exit()
 
