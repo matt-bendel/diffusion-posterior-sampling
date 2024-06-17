@@ -20,7 +20,6 @@ class VAMP:
 
         self.betas = torch.tensor(betas).to(x_T.device)
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], self.Q, device=x_T.device)
-        self.gamma_1[:, 1] = 3
         self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
@@ -37,14 +36,14 @@ class VAMP:
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig, gam1):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
-        print(gamma_1[0, 0, 102:106, 78:82])
-        print(self.mask[0, 0, 102:106, 78:82])
-        print(self.mask[1, 0, 102:106, 78:82])
 
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
         singulars = singulars.reshape(gamma_1.shape[0], 3, -1).permute(0, 2, 1).reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
+
         # TODO: Handle case when V is not identity...
         diag_mat_inv = ((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1) ** -1
+        print(diag_mat_inv[0, 0, 102:106, 78:82])
+
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
         for q in range(self.Q):
             eta[:, q] += (diag_mat_inv * self.mask[q, None, :, :, :]).reshape(eta.shape[0], -1).sum(-1) / torch.count_nonzero(self.mask[q])
