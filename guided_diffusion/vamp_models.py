@@ -34,7 +34,7 @@ class VAMP:
 
         return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1_mult).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]), gamma_1_mult
 
-    def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
+    def eta_1(self, gamma_1, t_alpha_bar, noise_sig, gam1):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
         reshape_gam_1 = gamma_1.clone().reshape(gamma_1.shape[0], self.r_1.shape[1], -1).permute(0, 2, 1).reshape(gamma_1.shape[0], -1)
@@ -50,8 +50,8 @@ class VAMP:
 
 
         print(1/eta[0])
-        print(((1 / noise_sig ** 2) + r_sig_inv ** 2 + gamma_1[0, 0]) ** -1)
-        print((r_sig_inv ** 2 + gamma_1[0, 1]) ** -1)
+        print(((1 / noise_sig ** 2) + r_sig_inv ** 2 + gam1[0, 0]) ** -1)
+        print((r_sig_inv ** 2 + gam1[0, 1]) ** -1)
 
         exit()
 
@@ -98,7 +98,7 @@ class VAMP:
 
     def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         mu_1, gamma_1_mult = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
-        eta_1 = self.eta_1(gamma_1_mult, t_alpha_bar, noise_sig)
+        eta_1 = self.eta_1(gamma_1_mult, t_alpha_bar, noise_sig, gamma_1)
 
         gamma_2 = eta_1 - gamma_1
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
