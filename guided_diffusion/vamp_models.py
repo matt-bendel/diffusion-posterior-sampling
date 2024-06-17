@@ -10,7 +10,7 @@ class VAMP:
         self.K = K
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.1 # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -59,7 +59,7 @@ class VAMP:
         delta = torch.minimum(noise_var / self.v_min, ones)
         noise_var_clip = torch.maximum(noise_var, ones * self.v_min)
 
-        # print(f'{noise_var[0].cpu().numpy()};{delta[0].cpu().numpy()};{t[0]}')
+        print(f'{noise_var[0].cpu().numpy()};{delta[0].cpu().numpy()};{t[0]}')
         scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var_clip[:, 0, None, None, None]))
 
         noise_predict = self.model(scaled_noisy_im, t)
@@ -104,6 +104,9 @@ class VAMP:
         gamma_2_mult = torch.zeros(r_2.shape).to(r_2.device)
         for q in range(self.Q):
             gamma_2_mult += gamma_2[:, q, None, None, None] * self.mask[q, None, :, :, :]
+
+        print(gamma_2_mult[0, 0, 0:5, 0:5])
+        exit()
 
         noise_var = (gamma_2_mult ** -1).reshape(gamma_2.shape[0], -1).mean(-1).unsqueeze(1)
         mu_2 = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
