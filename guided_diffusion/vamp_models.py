@@ -37,13 +37,10 @@ class VAMP:
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig, gam1):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
-        reshape_gam_1 = gamma_1.clone().reshape(gamma_1.shape[0], self.r_1.shape[1], -1).permute(0, 2, 1).reshape(gamma_1.shape[0], -1)
-
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
-
+        singulars = singulars.reshape(vec.shape[0], -1, self.channels).permute(0, 2, 1).reshape(vec.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
         # TODO: Handle case when V is not identity...
-        diag_mat_inv = ((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + reshape_gam_1) ** -1
-        diag_mat_inv = diag_mat_inv.reshape(diag_mat_inv.shape[0], -1, 3).permute(0, 2, 1).view(gamma_1.shape[0], 3, 256, 256) # TODO: Generalize
+        diag_mat_inv = ((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1) ** -1
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
         for q in range(self.Q):
             eta[:, q] += (diag_mat_inv * self.mask[q, None, :, :, :]).reshape(eta.shape[0], -1).sum(-1) / torch.count_nonzero(self.mask[q])
