@@ -15,7 +15,7 @@ class VAMP:
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask
-        self.Q = mask.shape[0]
+        self.Q = self.mask.shape[0]
         print(self.Q)
 
         self.betas = torch.tensor(betas).to(x_T.device)
