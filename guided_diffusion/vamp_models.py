@@ -3,7 +3,7 @@ from guided_diffusion.ddrm_svd import Deblurring
 
 
 class VAMP:
-    def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, mask, inpainting=False):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
         self.max_iters = max_iters
@@ -14,27 +14,47 @@ class VAMP:
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
+        self.mask = mask
+        self.Q = mask.shape[0]
 
         self.betas = torch.tensor(betas).to(x_T.device)
-        self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], 1, device=x_T.device)
+        self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], self.Q, device=x_T.device)
         self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
+        gamma_1_mult = torch.zeros(r_1.shape).to(y.device)
+        for q in range(self.Q):
+            nonzero_mask = self.mask[q].nonzero()
+            gamma_1_mult[:, self.mask[q].nonzero()] = gamma_1[:, q, None, None, None]
+
+        print(self.mask[0].nonzero().shape)
+        print(gamma_1_mult.shape)
+        exit()
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         right_term = r_sig_inv * x_t
         right_term += 1 / noise_sig * self.svd.Ht(y).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3])
-        right_term += gamma_1[:, 0, None, None, None] * r_1
+        right_term += gamma_1_mult * r_1
 
-        return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3])
+        return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1_mult).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]), gamma_1_mult
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
-        singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
-        eta = torch.mean(((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1[:, 0, None]) ** -1, dim=1,
-                         keepdim=True) ** -1
+        reshape_gam_1 = gamma_1.clone().reshape(gamma_1.shape[0], self.r_1.shape[1], -1).permute(0, 2, 1).reshape(gamma_1.shape[0], -1)
 
-        return eta
+        singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
+        # eta = torch.mean(((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1[:, 0, None]) ** -1, dim=1,
+        #                  keepdim=True) ** -1
+
+        # TODO: Handle case when V is not identity...
+        diag_mat_inv = ((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + reshape_gam_1) ** -1
+        print(diag_mat_inv.shape)
+        exit()
+        eta = torch.zeros(gamma_1.shape).to(gamma_1.device)
+        for q in range(self.Q):
+            eta[:, q] = diag_mat_inv[:, self.mask[q].nonzero()].mean(-1)
+
+        return 1/eta
 
     def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar):
         diff = torch.abs(noise_var[:, 0, None] - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))
@@ -44,9 +64,6 @@ class VAMP:
 
         delta = torch.minimum(noise_var / self.v_min, ones)
         noise_var_clip = torch.maximum(noise_var, ones * self.v_min)
-
-        # new_noise = torch.sqrt((1 - delta) * self.v_min)[:, 0, None, None, None] * torch.randn_like(noisy_im)
-        # noisy_im[delta[:, 0] < 1] = noisy_im[delta[:, 0] < 1] + new_noise[delta[:, 0]<1]
 
         print(f'{noise_var[0].cpu().numpy()};{delta[0].cpu().numpy()};{t[0]}')
         scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var_clip[:, 0, None, None, None]))
@@ -62,33 +79,43 @@ class VAMP:
 
         return x_0
 
-    def denoiser_tr_approx(self, r_2, gamma_2, mu_2, t, t_alpha_bar):
-        tr_out = torch.zeros(mu_2.shape[0], 1).to(mu_2.device)
+    def denoiser_tr_approx(self, r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var):
+        eta = torch.zeros(gamma_2.shape).to(gamma_2.device)
         for k in range(self.K):
             # probe = torch.sign(torch.randn_like(mu_2).to(mu_2.device))
             probe = torch.randn_like(mu_2).to(r_2.device)
             # probe = probe / torch.norm(probe, dim=1, keepdim=True) # unit norm
             probe = probe / torch.sqrt(torch.mean(probe ** 2, dim=(1, 2, 3))[:, None, None, None])  # isotropic
-            mu_2_delta = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), 1 / gamma_2, t, t_alpha_bar)
+            mu_2_delta = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), noise_var, t, t_alpha_bar)
+            probed_diff = probe * (mu_2_delta - mu_2)
 
-            tr_out += torch.mean((probe * (mu_2_delta - mu_2)).reshape(mu_2.shape[0], -1), 1, keepdim=True) / self.delta
+            for q in range(self.Q):
+                eta[:, q] += torch.mean(probed_diff[:, self.mask[q].nonzero()], dim=1) / (self.delta * gamma_2[:, q])
 
-        return tr_out / self.K
+        return eta / self.K
 
     def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
-        mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
-        eta_1 = self.eta_1(gamma_1, t_alpha_bar, noise_sig)
+        mu_1, gamma_1_mult = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
+        eta_1 = self.eta_1(gamma_1_mult, t_alpha_bar, noise_sig)
 
         gamma_2 = eta_1 - gamma_1
-        r_2 = (eta_1[:, 0, None, None, None] * mu_1 - gamma_1[:, 0, None, None, None] * r_1) / gamma_2[:, 0, None, None, None]
+        r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
+        for q in range(self.Q):
+            r_2[:, self.mask[q].nonzero()] = ((eta_1[:, q, None, None, None] * mu_1 - gamma_1[:, q, None, None, None] * r_1) / gamma_2[:, q, None, None, None])[:, self.mask[q].nonzero()]
 
         return r_2, gamma_2, eta_1
 
     def denoising(self, r_2, gamma_2, t, t_alpha_bar):
-        mu_2 = self.uncond_denoiser_function(r_2.float(), 1 / gamma_2, t, t_alpha_bar)
-        eta_2 = gamma_2 / self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar)
+        noise_var = 0
+        mu_2 = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
+        eta_2 = 1 / self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
         gamma_1 = eta_2 - gamma_2
-        r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None, None, None]
+        r_1 = torch.zeros(mu_1.shape).to(mu_1.device)
+        for q in range(self.Q):
+            r_1[:, self.mask[q].nonzero()] = ((eta_2[:, q, None, None, None] * mu_2 - gamma_2[:, q, None, None,
+                                                                                      None] * r_2) / gamma_1[:, q, None,
+                                                                                                     None, None])[:,
+                                             self.mask[q].nonzero()]
 
         return r_1, gamma_1, eta_2, mu_2
 
