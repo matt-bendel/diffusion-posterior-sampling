@@ -36,6 +36,7 @@ class VAMP:
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig, gam1):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
+        print(gamma_1[0, 0, 102:106, 78:82])
 
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
         singulars = singulars.reshape(gamma_1.shape[0], -1, 3).permute(0, 2, 1).reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
