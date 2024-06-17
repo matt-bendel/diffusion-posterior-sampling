@@ -86,6 +86,7 @@ class VAMP:
             for q in range(self.Q):
                 masked_probe_diff = probed_diff * self.mask[q, None, :, :, :]
                 eta[:, q] += masked_probe_diff.reshape(probed_diff.shape[0], -1).sum(-1) / (self.delta * gamma_2[:, q] * torch.count_nonzero(self.mask[q]))
+                print(self.delta * gamma_2[:, q] * torch.count_nonzero(self.mask[q]))
 
         return eta / self.K
 
