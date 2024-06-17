@@ -25,7 +25,7 @@ class VAMP:
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         gamma_1_mult = torch.zeros(r_1.shape).to(y.device)
         for q in range(self.Q):
-            gamma_1_mult += gamma_1[:, q, None, None, None] * self.mask[q, None, :, :, :]
+            gamma_1_mult += gamma_1[:, q, None, None, None] * self.mask[q, :, :, :]
 
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         right_term = r_sig_inv * x_t
@@ -37,9 +37,11 @@ class VAMP:
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig, gam1):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         print(gamma_1[0, 0, 102:106, 78:82])
+        print(self.mask[0, 0, 102:106, 78:82])
+        print(self.mask[1, 0, 102:106, 78:82])
 
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
-        singulars = singulars.reshape(gamma_1.shape[0], -1, 3).permute(0, 2, 1).reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
+        singulars = singulars.reshape(gamma_1.shape[0], 3, -1).permute(0, 2, 1).reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
         # TODO: Handle case when V is not identity...
         diag_mat_inv = ((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1) ** -1
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
