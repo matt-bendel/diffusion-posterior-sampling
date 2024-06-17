@@ -46,7 +46,7 @@ class VAMP:
         diag_mat_inv = diag_mat_inv.reshape(diag_mat_inv.shape[0], -1, 3).permute(0, 2, 1).view(gamma_1.shape[0], 3, 256, 256) # TODO: Generalize
         eta = torch.zeros(gamma_1.shape).to(gamma_1.device)
         for q in range(self.Q):
-            eta[:, q] += (diag_mat_inv * self.mask[q, None, :, :, :]).view(eta.shape[0], -1).sum(-1) / torch.count_nonzero(self.mask[q])
+            eta[:, q] += (diag_mat_inv * self.mask[q, None, :, :, :]).reshape(eta.shape[0], -1).sum(-1) / torch.count_nonzero(self.mask[q])
 
         return 1/eta
 
