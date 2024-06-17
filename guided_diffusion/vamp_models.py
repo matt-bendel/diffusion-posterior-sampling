@@ -86,7 +86,6 @@ class VAMP:
             for q in range(self.Q):
                 masked_probe_diff = probed_diff * self.mask[q, None, :, :, :]
                 eta[:, q] += masked_probe_diff.reshape(probed_diff.shape[0], -1).sum(-1) / (self.delta * gamma_2[:, q] * torch.count_nonzero(self.mask[q]))
-                print(self.delta * gamma_2[:, q] * torch.count_nonzero(self.mask[q]))
 
         return eta / self.K
 
@@ -108,7 +107,9 @@ class VAMP:
 
         noise_var = (gamma_2_mult ** -1).reshape(gamma_2.shape[0], -1).mean(-1).unsqueeze(1)
         mu_2 = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
-        eta_2 = 1 / self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
+        tr = self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
+        print(tr[0])
+        eta_2 = 1 / tr
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
         for q in range(self.Q):
