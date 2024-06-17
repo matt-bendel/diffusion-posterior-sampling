@@ -203,7 +203,7 @@ class GaussianDiffusion:
             missing_g = missing_r + 1
             missing_b = missing_g + 1
             missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
-            svd = Inpainting(x_start.shape[1], x_start.shape[2], missing, x_start.device)
+            svd = Inpainting(x_start.shape[1], x_start.shape[2], missing, mask, x_start.device)
         elif meas_type[:10] == 'sr_bicubic':
             factor = int(meas_type[10:])
             def bicubic_kernel(x, a=-0.5):

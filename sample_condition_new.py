@@ -147,7 +147,7 @@ def main():
                 missing_g = missing_r + 1
                 missing_b = missing_g + 1
                 missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
-                H = Inpainting(3, 256, missing, device)
+                H = Inpainting(3, 256, missing, mask, device)
                 inpainting = True
             elif measure_config['operator']['name'][:10] == 'sr_bicubic':
                 sr = True

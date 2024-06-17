@@ -118,13 +118,18 @@ class GeneralH(H_functions):
 
 # Inpainting
 class Inpainting(H_functions):
-    def __init__(self, channels, img_dim, missing_indices, device):
+    def __init__(self, channels, img_dim, missing_indices, inpaint_mask, device):
         self.channels = channels
         self.img_dim = img_dim
         self._singulars = torch.ones(channels * img_dim ** 2 - missing_indices.shape[0]).to(device)
         self.missing_indices = missing_indices
         self.kept_indices = torch.Tensor([i for i in range(channels * img_dim ** 2) if i not in missing_indices]).to(
             device).long()
+        print(inpaint_mask.shape)
+        exit()
+        self.mask = torch.zeros(2, channels, img_dim, img_dim)
+        self.mask[0] = inpaint_mask[0]
+        self.mask[1] = 1 - inpaint_mask[0]
 
     def V(self, vec):
         temp = vec.clone().reshape(vec.shape[0], -1)
@@ -159,6 +164,7 @@ class Inpainting(H_functions):
 # Denoising
 class Denoising(H_functions):
     def __init__(self, channels, img_dim, device):
+        self.mask = torch.ones(1, channels, img_dim, img_dim)
         self._singulars = torch.ones(channels * img_dim ** 2, device=device)
 
     def V(self, vec):
@@ -191,6 +197,7 @@ class SuperResolution(H_functions):
         H = torch.Tensor([[1 / ratio ** 2] * ratio ** 2]).to(device)
         self.U_small, self.singulars_small, self.V_small = torch.svd(H, some=False)
         self.Vt_small = self.V_small.transpose(0, 1)
+        self.mask = torch.ones(1, channels, img_dim, img_dim)
 
     def V(self, vec):
         # reorder the vector back into patches (because singulars are ordered descendingly)
@@ -254,6 +261,7 @@ class Colorization(H_functions):
         H = torch.Tensor([[0.3333, 0.3334, 0.3333]]).to(device)
         self.U_small, self.singulars_small, self.V_small = torch.svd(H, some=False)
         self.Vt_small = self.V_small.transpose(0, 1)
+        self.mask = torch.ones(1, channels, img_dim, img_dim)
 
     def V(self, vec):
         # get the needles
@@ -311,6 +319,7 @@ class WalshHadamardCS(H_functions):
         self.ratio = ratio
         self.perm = perm
         self._singulars = torch.ones(channels * img_dim ** 2 // ratio, device=device)
+        self.mask = torch.ones(1, channels, img_dim, img_dim)
 
     def V(self, vec):
         temp = torch.zeros(vec.shape[0], self.channels, self.img_dim ** 2, device=vec.device)
@@ -349,6 +358,7 @@ class SRConv(H_functions):
         self.img_dim = img_dim
         self.channels = channels
         self.ratio = stride
+        self.mask = torch.ones(1, channels, img_dim, img_dim)
         small_dim = img_dim // stride
         self.small_dim = small_dim
         # build 1D conv matrix
@@ -436,6 +446,7 @@ class Deblurring(H_functions):
     def __init__(self, kernel, channels, img_dim, device, ZERO=3e-2):
         self.img_dim = img_dim
         self.channels = channels
+        self.mask = torch.ones(1, channels, img_dim, img_dim)
         # build 1D conv matrix
         H_small = torch.zeros(img_dim, img_dim, device=device)
         for i in range(img_dim):
@@ -508,6 +519,8 @@ class Deblurring2D(H_functions):
     def __init__(self, kernel1, kernel2, channels, img_dim, device):
         self.img_dim = img_dim
         self.channels = channels
+        self.mask = torch.ones(1, channels, img_dim, img_dim)
+
         # build 1D conv matrix - kernel1
         H_small1 = torch.zeros(img_dim, img_dim, device=device)
         for i in range(img_dim):

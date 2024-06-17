@@ -3,7 +3,7 @@ from guided_diffusion.ddrm_svd import Deblurring
 
 
 class VAMP:
-    def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, mask, inpainting=False):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
         self.max_iters = max_iters
@@ -14,7 +14,7 @@ class VAMP:
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
-        self.mask = mask
+        self.mask = svd.mask
         self.Q = mask.shape[0]
 
         self.betas = torch.tensor(betas).to(x_T.device)
