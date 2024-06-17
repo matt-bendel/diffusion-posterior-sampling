@@ -91,7 +91,10 @@ class VAMP:
 
     def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         mu_1, gamma_1_mult = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
+        print(mu_1.shape)
         eta_1 = self.eta_1(gamma_1_mult, t_alpha_bar, noise_sig)
+        print(eta_1.shape)
+        exit()
 
         gamma_2 = eta_1 - gamma_1
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
