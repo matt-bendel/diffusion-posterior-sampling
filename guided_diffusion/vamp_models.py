@@ -26,6 +26,8 @@ class VAMP:
         gamma_1_mult = torch.zeros(r_1.shape).to(y.device)
         for q in range(self.Q):
             nonzero_mask = self.mask[q].nonzero()
+            print(nonzero_mask.shape)
+            exit()
             gamma_1_mult[:, self.mask[q].nonzero()] = gamma_1[:, q, None, None, None]
 
         print(self.mask[0].nonzero().shape)
