@@ -27,8 +27,6 @@ class VAMP:
         for q in range(self.Q):
             gamma_1_mult += gamma_1[:, q, None, None, None] * self.mask[q, None, :, :, :]
 
-        print(gamma_1_mult.shape)
-        exit()
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         right_term = r_sig_inv * x_t
         right_term += 1 / noise_sig * self.svd.Ht(y).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3])
