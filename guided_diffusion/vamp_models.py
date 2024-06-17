@@ -38,7 +38,7 @@ class VAMP:
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
-        singulars = singulars.reshape(gamma_1.shape[0], -1, 3).permute(0, 2, 1).reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
+        singulars = singulars.reshape(gamma_1.shape[0], 3, -1).permute(0, 2, 1).reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
 
         # TODO: Handle case when V is not identity...
         print(singulars[0, 0, 102:106, 78:82])
