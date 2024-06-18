@@ -1,6 +1,8 @@
 import torch
+import numpy as np
 from guided_diffusion.ddrm_svd import Deblurring
 
+# TODO: Different noise level in inpainted region
 
 class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
@@ -15,6 +17,7 @@ class VAMP:
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask.to(x_T.device)
+        self.noise_sig_schedule = np.linspace(1.5, 0.01, 1000)
         self.Q = self.mask.shape[0]
         print(self.Q)
 
@@ -121,6 +124,10 @@ class VAMP:
         mu_2 = None  # needs to exist outside of for loop scope for return
         gamma_1 = self.gamma_1
         r_1 = self.r_1
+
+        noise_sig = self.noise_sig_schedule[t[0].cpu().numpy()]
+        print(noise_sig)
+        exit()
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
