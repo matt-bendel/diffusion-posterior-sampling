@@ -248,9 +248,8 @@ class GaussianDiffusion:
 
         vamp_model = VAMP(model, self.betas_model, self.alphas_cumprod_model, 1, 1, x_start, svd, inpainting=inpainting)
 
-        pbar = list(range(self.num_timesteps))[::-1]
+        pbar = tqdm(list(range(self.num_timesteps))[::-1])
         for idx in pbar:
-            print(idx)
             time = torch.tensor([idx] * img.shape[0], device=device)
 
             img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig)['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
