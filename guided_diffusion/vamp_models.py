@@ -48,8 +48,6 @@ class VAMP:
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
         for q in range(self.Q):
             eta[:, q] += (diag_mat_inv * self.mask[q, None, :, :, :]).reshape(eta.shape[0], -1).sum(-1) / torch.count_nonzero(self.mask[q])
-            print((diag_mat_inv * self.mask[q, None, :, :, :])[0, 0, 102:106, 78:82])
-
 
         return 1/eta
 
