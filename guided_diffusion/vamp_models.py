@@ -39,7 +39,7 @@ class VAMP:
             new_sum[:, :self.svd.singulars().shape[0]] = new_sum[:, :self.svd.singulars().shape[0]] + gamma_1[:, 0, None]
             new_sum[:, self.svd.singulars().shape[0]:] = new_sum[:, self.svd.singulars().shape[0]:] + gamma_1[:, 1, None]
             temp = (new_sum ** -1) * temp
-            return self.V(temp)
+            return self.svd.V(temp)
         else:
             return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1_mult).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]), gamma_1_mult
 
