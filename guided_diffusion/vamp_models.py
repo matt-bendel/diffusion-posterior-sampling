@@ -51,13 +51,6 @@ class VAMP:
             print((diag_mat_inv * self.mask[q, None, :, :, :])[0, 0, 102:106, 78:82])
 
 
-        print(1/eta[0])
-        print((1 / noise_sig ** 2) + r_sig_inv ** 2 + gam1[0])
-        print(r_sig_inv ** 2 + gam1[0])
-        print(gam1[0])
-
-        exit()
-
         return 1/eta
 
     def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar):
