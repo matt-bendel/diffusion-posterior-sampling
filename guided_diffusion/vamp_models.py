@@ -34,7 +34,7 @@ class VAMP:
 
         if self.Q > 1:
             temp = self.svd.Vt(right_term)
-            evals = self.svd.add_zeros((self.svd.singulars().unsqueeze(0).repeat(vec.shape[0], 1) / noise_sig) ** 2)
+            evals = self.svd.add_zeros((self.svd.singulars().unsqueeze(0).repeat(right_term.shape[0], 1) / noise_sig) ** 2)
             new_sum = evals + r_sig_inv ** 2
             new_sum[:, :self.svd.singulars().shape[0]] = new_sum[:, :self.svd.singulars().shape[0]] + gamma_1[:, 0, None]
             new_sum[:, self.svd.singulars().shape[0]:] = new_sum[:, self.svd.singulars().shape[0]:] + gamma_1[:, 1, None]
