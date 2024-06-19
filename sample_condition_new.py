@@ -129,9 +129,9 @@ def main():
 
             ref_img = x.to(device)
 
-            # mask = mask.to(device)
-            mask = torch.ones(mask.shape).to(device)
-            mask[:, :, 104:144, 80:120] = 0
+            mask = mask.to(device)
+            # mask = torch.ones(mask.shape).to(device)
+            # mask[:, :, 104:184, 80:120] = 0
 
             measurement_cond_fn = None #partial(cond_method.conditioning, mask=mask)
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
