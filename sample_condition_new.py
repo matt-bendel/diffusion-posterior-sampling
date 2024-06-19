@@ -201,7 +201,7 @@ def main():
             # y_n = ref_img
             y_n = noiser(y_n)
 
-            for k in range(4):
+            for k in range(8):
                 # Sampling
                 with torch.no_grad():
                     x_start = torch.randn(ref_img.shape, device=device)
