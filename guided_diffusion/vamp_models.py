@@ -36,16 +36,19 @@ class VAMP:
         right_term += gamma_1_mult * r_1
 
         if self.Q > 1:
-            temp = self.svd.Vt(right_term)
             evals = (self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1) / noise_sig) ** 2
-            tmp_inv_val = ((evals + r_sig_inv ** 2 + gamma_1_mult) ** -1).reshape(right_term.shape[0], self.svd.channels, -1).permute(0, 2, 1).reshape(right_term.shape[0], -1)
+            inv_val = (evals + r_sig_inv ** 2 + gamma_1_mult) ** -1
+            return inv_val * right_term, gamma_1_mult
 
-            inv_val = torch.zeros_like(tmp_inv_val)
-            inv_val[:, :self.svd.kept_indices.shape[0]] = tmp_inv_val[:, self.svd.kept_indices]
-            inv_val[:, self.svd.kept_indices.shape[0]:] = tmp_inv_val[:, self.svd.missing_indices]
-
-            temp = inv_val * temp
-            return self.svd.V(temp).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]), gamma_1_mult
+            # temp = self.svd.Vt(right_term)
+            # tmp_inv_val = ((evals + r_sig_inv ** 2 + gamma_1_mult) ** -1).reshape(right_term.shape[0], self.svd.channels, -1).permute(0, 2, 1).reshape(right_term.shape[0], -1)
+            #
+            # inv_val = torch.zeros_like(tmp_inv_val)
+            # inv_val[:, :self.svd.kept_indices.shape[0]] = tmp_inv_val[:, self.svd.kept_indices]
+            # inv_val[:, self.svd.kept_indices.shape[0]:] = tmp_inv_val[:, self.svd.missing_indices]
+            #
+            # temp = inv_val * temp
+            # return self.svd.V(temp).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]), gamma_1_mult
         else:
             return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1_mult).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]), gamma_1_mult
 
@@ -110,9 +113,6 @@ class VAMP:
         eta_1 = self.eta_1(gamma_1_mult, t_alpha_bar, noise_sig, gamma_1)
 
         gamma_2 = eta_1 - gamma_1
-        print(eta_1)
-        print(gamma_1)
-        exit()
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
         for q in range(self.Q):
             r_2 += ((eta_1[:, q, None, None, None] * mu_1 - gamma_1[:, q, None, None, None] * r_1) / gamma_2[:, q, None, None, None]) * self.mask[q, None, :, :, :]
