@@ -45,7 +45,7 @@ class VAMP:
             inv_val[:, self.svd.kept_indices.shape[0]:] = tmp_inv_val[:, self.svd.missing_indices]
 
             temp = inv_val * temp
-            return self.V(temp)
+            return self.svd.V(temp)
         else:
             return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1_mult).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]), gamma_1_mult
 
