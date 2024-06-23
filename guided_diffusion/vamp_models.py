@@ -118,6 +118,8 @@ class VAMP:
 
     def denoising(self, r_2, gamma_2, t, t_alpha_bar):
         noise_var, _ = torch.max(1/gamma_2, dim=1, keepdim=True)
+        print(1/gamma_2)
+        print(noise_var)
 
         mu_2 = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
         tr = self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
