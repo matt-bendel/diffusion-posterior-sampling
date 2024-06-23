@@ -12,7 +12,7 @@ class VAMP:
         self.K = K
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.5 # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -105,6 +105,8 @@ class VAMP:
         return r_2, gamma_2, eta_1
 
     def denoising(self, r_2, gamma_2, t, t_alpha_bar):
+        print(gamma_2.shape)
+        exit()
         noise_var, _ = torch.max(1/gamma_2, dim=1, keepdim=True)
         print(noise_var)
 
