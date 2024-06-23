@@ -38,7 +38,7 @@ class VAMP:
         if self.Q > 1:
             temp = self.svd.Vt(right_term)
             evals = (self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1) / noise_sig) ** 2
-            tmp_inv_val = ((evals + sig_ddpm ** 2 + gamma_1_mult) ** -1).reshape(vec.shape[0], self.channels, -1).permute(0, 2, 1).reshape(vec.shape[0], -1)
+            tmp_inv_val = ((evals + r_sig_inv ** 2 + gamma_1_mult) ** -1).reshape(right_term.shape[0], self.svd.channels, -1).permute(0, 2, 1).reshape(right_term.shape[0], -1)
 
             inv_val = torch.zeros_like(tmp_inv_val)
             inv_val[:, :self.svd.kept_indices.shape[0]] = tmp_inv_val[:, self.svd.kept_indices]
