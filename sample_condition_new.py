@@ -129,9 +129,9 @@ def main():
 
             ref_img = x.to(device)
 
-            mask = mask.to(device)
-            # mask = torch.ones(mask.shape).to(device)
-            # mask[:, :, 104:184, 80:120] = 0
+            # mask = mask.to(device)
+            mask = torch.ones(mask.shape).to(device)
+            mask[:, :, 104:184, 80:120] = 0
 
             measurement_cond_fn = None #partial(cond_method.conditioning, mask=mask)
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
@@ -208,8 +208,8 @@ def main():
                     sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
                                        noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'])
 
-                if inpainting:
-                    sample = ref_img * mask + (1 - mask) * sample
+                # if inpainting:
+                #     sample = ref_img * mask + (1 - mask) * sample
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
                 # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
                 y = H.H(ref_img)
