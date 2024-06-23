@@ -12,7 +12,7 @@ class VAMP:
         self.K = K
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.1 # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -35,7 +35,19 @@ class VAMP:
         right_term += 1 / noise_sig * self.svd.Ht(y).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3])
         right_term += gamma_1_mult * r_1
 
-        return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1_mult).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]), gamma_1_mult
+        if self.Q > 1:
+            temp = self.svd.Vt(right_term)
+            evals = (self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1) / noise_sig) ** 2
+            tmp_inv_val = ((evals + sig_ddpm ** 2 + gamma_1_mult) ** -1).reshape(vec.shape[0], self.channels, -1).permute(0, 2, 1).reshape(vec.shape[0], -1)
+
+            inv_val = torch.zeros_like(tmp_inv_val)
+            inv_val[:, :self.svd.kept_indices.shape[0]] = tmp_inv_val[:, self.svd.kept_indices]
+            inv_val[:, self.svd.kept_indices.shape[0]:] = tmp_inv_val[:, self.svd.missing_indices]
+
+            temp = inv_val * temp
+            return self.V(temp)
+        else:
+            return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1_mult).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]), gamma_1_mult
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig, gam1):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
