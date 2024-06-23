@@ -110,6 +110,9 @@ class VAMP:
         eta_1 = self.eta_1(gamma_1_mult, t_alpha_bar, noise_sig, gamma_1)
 
         gamma_2 = eta_1 - gamma_1
+        print(eta_1)
+        print(gamma_1)
+        exit()
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
         for q in range(self.Q):
             r_2 += ((eta_1[:, q, None, None, None] * mu_1 - gamma_1[:, q, None, None, None] * r_1) / gamma_2[:, q, None, None, None]) * self.mask[q, None, :, :, :]
@@ -118,9 +121,6 @@ class VAMP:
 
     def denoising(self, r_2, gamma_2, t, t_alpha_bar):
         noise_var, _ = torch.max(1/gamma_2, dim=1, keepdim=True)
-        print(1/gamma_2)
-        print(noise_var)
-        exit()
 
         mu_2 = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
         tr = self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
