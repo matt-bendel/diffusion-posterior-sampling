@@ -138,7 +138,7 @@ class VAMP:
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        for i in range(1):
+        for i in range(2):
             old_gamma_1 = gamma_1
             old_r_1 = r_1
 
