@@ -12,7 +12,7 @@ class VAMP:
         self.K = K
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.99 # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -120,6 +120,7 @@ class VAMP:
         noise_var, _ = torch.max(1/gamma_2, dim=1, keepdim=True)
         print(1/gamma_2)
         print(noise_var)
+        exit()
 
         mu_2 = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
         tr = self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
