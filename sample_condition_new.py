@@ -132,7 +132,7 @@ def main():
 
             mask = mask.to(device)
             mask = torch.ones(mask.shape).to(device)
-            mask[:, :, 30:226, 30:226] = 0
+            mask[:, :, 128-32:128+32, 128-32:128+32] = 0
 
             # mask_creator = MaskCreator()
 
