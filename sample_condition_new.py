@@ -220,7 +220,7 @@ def main():
                 with torch.no_grad():
                     x_start = torch.randn(ref_img.shape, device=device)
                     sample, g1_min, g1_max, g2_min, g2_max, e1_min, e1_max, e2_min, e2_max, mse_1, mse_2 = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
-                                       noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'])
+                                       noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img)
 
                 x_axis = np.arange(1000)
                 plt.semilogy(x_axis, 1/np.array(g1_min))
