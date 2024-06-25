@@ -8,7 +8,7 @@ class VAMP:
         self.model = model
         self.alphas_cumprod = alphas_cumprod
         self.max_iters = max_iters
-        self.K = K
+        self.K = 5
         self.delta = 1e-4
         self.power = 0.5
         self.damping_factor = 0.99  # Factor for damping (per Saurav's suggestion)
