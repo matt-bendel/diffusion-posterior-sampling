@@ -133,6 +133,18 @@ def main():
             mask = torch.ones(mask.shape).to(device)
             mask[:, :, 104:200, 80:200] = 0
 
+            mask1 = dm.mask_creator.stroke_mask(dm.args.image_size, dm.args.image_size,
+                                                  max_length=dm.args.image_size // 2)
+            mask2 = dm.mask_creator.rectangle_mask(dm.args.image_size, dm.args.image_size,
+                                                     dm.args.image_size // 4, dm.args.image_size // 2)
+
+            mask = mask1 + mask2
+            mask = mask > 0
+            mask = mask.astype(np.float)
+            mask = torch.from_numpy(1 - mask).unsqueeze(0).unsqueeze(0).repeat(ref_img.shape[0], 1, 1, 1).to(device)
+            print(mask.shape)
+            exit()
+
             measurement_cond_fn = None #partial(cond_method.conditioning, mask=mask)
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
 
