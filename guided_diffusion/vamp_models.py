@@ -129,7 +129,7 @@ class VAMP:
         noise_var = torch.zeros(gamma_2.shape[0], 1).to(gamma_2.device)
         total_count = 0
         for q in range(self.Q):
-            total_count += torch.count_nonzeroself.mask[q]
+            total_count += torch.count_nonzero(self.mask[q])
             noise_var += torch.count_nonzero(self.mask[q]) / gamma_2[:, q]
 
         noise_var = noise_var / total_count
