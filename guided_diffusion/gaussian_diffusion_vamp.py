@@ -273,8 +273,8 @@ class GaussianDiffusion:
             eta_1 = denoise_obj['eta_1']
             eta_2 = denoise_obj['eta_2']
 
-            mse_1.append(denoise_obj['mse_1'][0].cpu().numpy())
-            mse_2.append(denoise_obj['mse_2'][0].cpu().numpy())
+            mse_1.append(denoise_obj['mse_1'].cpu().numpy())
+            mse_2.append(denoise_obj['mse_2'].cpu().numpy())
 
             gamma_1_min.append(gamma_1[0].min().cpu().numpy())
             gamma_1_max.append(gamma_1[0].max().cpu().numpy())
