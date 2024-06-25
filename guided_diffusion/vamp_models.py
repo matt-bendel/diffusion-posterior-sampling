@@ -122,8 +122,19 @@ class VAMP:
         return r_2, gamma_2, eta_1
 
     def denoising(self, r_2, gamma_2, t, t_alpha_bar):
+        # Max var
         noise_var, _ = torch.max(1 / gamma_2, dim=1, keepdim=True)
 
+        # Avg inv trace
+        noise_var = torch.zeros(gamma_2.shape[0], 1).to(gamma_2.device)
+        total_count = 0
+        for q in range(self.Q):
+            total_count += torch.count_nonzeroself.mask[q]
+            noise_var += torch.count_nonzero(self.mask[q]) / gamma_2[:, q]
+
+        noise_var = noise_var / total_count
+
+        # Denoise
         mu_2 = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
         tr = self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
         eta_2 = 1 / tr
