@@ -132,20 +132,20 @@ def main():
 
             mask = mask.to(device)
             mask = torch.ones(mask.shape).to(device)
-            mask[:, :, 104:200, 80:200] = 0
+            mask[:, :, 64:192, 64:192] = 0
 
-            mask_creator = MaskCreator()
+            # mask_creator = MaskCreator()
 
-            for z in range(2):
-                mask1 = mask_creator.stroke_mask(dm.args.image_size, dm.args.image_size,
-                                                      max_length=dm.args.image_size // 2)
-                mask2 = mask_creator.rectangle_mask(dm.args.image_size, dm.args.image_size,
-                                                         dm.args.image_size // 4, dm.args.image_size // 2)
-
-                mask = mask1 + mask2
-                mask = mask > 0
-                mask = mask.astype(np.float)
-                mask = torch.from_numpy(1 - mask).unsqueeze(0).unsqueeze(0).repeat(ref_img.shape[0], 1, 1, 1).to(device)
+            # for z in range(2):
+            #     mask1 = mask_creator.stroke_mask(dm.args.image_size, dm.args.image_size,
+            #                                           max_length=dm.args.image_size // 2)
+            #     mask2 = mask_creator.rectangle_mask(dm.args.image_size, dm.args.image_size,
+            #                                              dm.args.image_size // 4, dm.args.image_size // 2)
+            #
+                # mask = mask1 + mask2
+                # mask = mask > 0
+                # mask = mask.astype(np.float)
+                # mask = torch.from_numpy(1 - mask).unsqueeze(0).unsqueeze(0).repeat(ref_img.shape[0], 1, 1, 1).to(device)
 
             measurement_cond_fn = None #partial(cond_method.conditioning, mask=mask)
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
