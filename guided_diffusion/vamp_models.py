@@ -143,7 +143,7 @@ class VAMP:
         gamma_1 = self.gamma_1
         r_1 = self.r_1
 
-        # noise_sig = self.noise_sig_schedule[t[0].cpu().numpy()]
+        noise_sig = self.noise_sig_schedule[t[0].cpu().numpy()]
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
