@@ -201,12 +201,20 @@ def main():
             # y_n = ref_img
             y_n = noiser(y_n)
 
-            for k in range(2):
+            for k in range(1):
                 # Sampling
                 with torch.no_grad():
                     x_start = torch.randn(ref_img.shape, device=device)
-                    sample = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
+                    sample, g1_min, g1_max, g2_min, g2_max = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
                                        noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'])
+
+                x_axis = np.array(list(range(self.num_timesteps))[::-1])
+                plt.semilogy(x_axis, 1/np.array(g1_min))
+                plt.semilogy(x_axis, 1 / np.array(g1_max))
+                plt.semilogy(x_axis, 1 / np.array(g2_min))
+                plt.semilogy(x_axis, 1 / np.array(g2_max))
+                plt.legend(['1/min{g1}', '1/max{g1}', '1/min{g2}', '1/max{g2}'])
+                plt.savefig('vamp_trajectories.png')
 
                 # if inpainting:
                 #     sample = ref_img * mask + (1 - mask) * sample

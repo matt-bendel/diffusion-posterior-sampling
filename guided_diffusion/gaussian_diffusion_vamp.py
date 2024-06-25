@@ -249,10 +249,25 @@ class GaussianDiffusion:
         vamp_model = VAMP(model, self.betas_model, self.alphas_cumprod_model, 1, 1, x_start, svd, inpainting=inpainting)
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
+
+        gamma_1_min = []
+        gamma_1_max = []
+        gamma_2_min = []
+        gamma_2_max = []
+
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
 
-            img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig)['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
+            denoise_obj = self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig)
+            gamma_1 = denoise_obj['gamma_1']
+            gamma_2 = denoise_obj['gamma_2']
+
+            gamma_1_min.append(gamma_1[0].min().cpu().numpy())
+            gamma_1_max.append(gamma_1[0].max().cpu().numpy())
+            gamma_2_min.append(gamma_2[0].min().cpu().numpy())
+            gamma_2_max.append(gamma_2[0].max().cpu().numpy())
+
+            img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * denoise_obj['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
             img = img.detach()
 
             if record:
@@ -260,7 +275,7 @@ class GaussianDiffusion:
                     file_path = f"/storage/matt_models/inpainting/dps/x_{str(idx).zfill(4)}.png"
                     plt.imsave(file_path, clear_color(img[0]))
 
-        return img
+        return img, gamma_1_min, gamma_1_max, gamma_2_min, gamma_2_max
 
     def denoise(self, model, x, t, y, cond, vamp, noise_sig):
         raise NotImplementedError
@@ -420,11 +435,13 @@ class _WrappedModel:
 class DDPM(SpacedDiffusion):
     def denoise(self, model, x, t, y, cond, vamp, noise_sig):
         if not cond:
+            gamma_1 = None
+            gamma_2 = None
             pred_xstart = self.p_mean_variance(model, x, t)
         else:
-            pred_xstart = vamp.run_vamp(x, y, t, noise_sig=torch.tensor(noise_sig).to(x.device), use_damping=True)
+            pred_xstart, gamma_1, gamma_2 = vamp.run_vamp(x, y, t, noise_sig=torch.tensor(noise_sig).to(x.device), use_damping=True)
 
-        return {'pred_xstart': pred_xstart}
+        return {'pred_xstart': pred_xstart, 'gamma_1': gamma_1, 'gamma_2': gamma_2}
 
 
 
