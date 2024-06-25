@@ -36,20 +36,10 @@ class VAMP:
         right_term += self.svd.Ht(y).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]) / noise_sig
         right_term += gamma_1_mult * r_1
 
-        if self.Q == 2:
+        if self.Q == 2:  # Inpainting
             evals = (self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1) / noise_sig) ** 2
             inv_val = (evals + r_sig_inv ** 2 + gamma_1_mult) ** -1
             return inv_val * right_term, gamma_1_mult
-
-            # temp = self.svd.Vt(right_term)
-            # tmp_inv_val = ((evals + r_sig_inv ** 2 + gamma_1_mult) ** -1).reshape(right_term.shape[0], self.svd.channels, -1).permute(0, 2, 1).reshape(right_term.shape[0], -1)
-            #
-            # inv_val = torch.zeros_like(tmp_inv_val)
-            # inv_val[:, :self.svd.kept_indices.shape[0]] = tmp_inv_val[:, self.svd.kept_indices]
-            # inv_val[:, self.svd.kept_indices.shape[0]:] = tmp_inv_val[:, self.svd.missing_indices]
-            #
-            # temp = inv_val * temp
-            # return self.svd.V(temp).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]), gamma_1_mult
         else:
             return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1_mult).view(x_t.shape[0], x_t.shape[1],
                                                                                            x_t.shape[2],
@@ -59,7 +49,7 @@ class VAMP:
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
-        if self.Q == 2:
+        if self.Q == 2:  # Inpainting
             singulars = self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1)
         else:
             singulars = singulars.reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
@@ -112,7 +102,7 @@ class VAMP:
             for q in range(self.Q):
                 masked_probe_diff = probed_diff * self.mask[q, None, :, :, :]
                 eta[:, q] += masked_probe_diff.reshape(probed_diff.shape[0], -1).sum(-1) / (
-                            self.delta * gamma_2[:, q] * torch.count_nonzero(self.mask[q]))
+                        self.delta * gamma_2[:, q] * torch.count_nonzero(self.mask[q]))
 
         return eta / self.K
 
@@ -188,7 +178,7 @@ class Denoising(VAMP):
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         return 1 / (1 / (noise_sig ** 2) + (r_sig_inv ** 2) + gamma_1[:, 0, None, None, None]) * (
-                    r_sig_inv * x_t + (1 / (noise_sig)) * y + gamma_1[:, 0, None, None, None] * r_1)
+                r_sig_inv * x_t + (1 / (noise_sig)) * y + gamma_1[:, 0, None, None, None] * r_1)
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
