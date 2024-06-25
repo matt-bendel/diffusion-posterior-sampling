@@ -19,6 +19,7 @@ from util.logger import get_logger
 from data.FFHQDataModule import FFHQDataModule
 from pytorch_lightning import seed_everything
 from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising, Deblurring2D, Colorization, SuperResolution, SRConv
+from util.inpaint.get_mask import MaskCreator
 
 
 def load_object(dct):
@@ -133,9 +134,11 @@ def main():
             mask = torch.ones(mask.shape).to(device)
             mask[:, :, 104:200, 80:200] = 0
 
-            mask1 = dm.mask_creator.stroke_mask(dm.args.image_size, dm.args.image_size,
+            mask_creator = MaskCreator()
+
+            mask1 = mask_creator.stroke_mask(dm.args.image_size, dm.args.image_size,
                                                   max_length=dm.args.image_size // 2)
-            mask2 = dm.mask_creator.rectangle_mask(dm.args.image_size, dm.args.image_size,
+            mask2 = mask_creator.rectangle_mask(dm.args.image_size, dm.args.image_size,
                                                      dm.args.image_size // 4, dm.args.image_size // 2)
 
             mask = mask1 + mask2
