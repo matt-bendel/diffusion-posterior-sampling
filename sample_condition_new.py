@@ -229,12 +229,12 @@ def main():
                 # plt.semilogy(x_axis, 1 / np.array(g2_max))
                 # plt.semilogy(x_axis, 1 / np.array(e1_min))
                 # plt.semilogy(x_axis, 1 / np.array(e1_max))
-                plt.semilogy(x_axis, 1 / np.array(e2_min))
-                plt.semilogy(x_axis, 1 / np.array(e2_max))
-                plt.semilogy(x_axis, mse_1)
-                plt.semilogy(x_axis, mse_2)
+                plt.plot(x_axis, 1 / np.array(e2_min))
+                plt.plot(x_axis, 1 / np.array(e2_max))
+                # plt.semilogy(x_axis, mse_1)
+                plt.plot(x_axis, mse_2)
                 # plt.legend(['1/min{g1}', '1/max{g1}', '1/min{g2}', '1/max{g2}', '1/min{e1}', '1/max{e1}', '1/min{e2}', '1/max{e2}', 'measured mse', 'nonmeasured mse'])
-                plt.legend(['1/min{e2}', '1/max{e2}', 'measured mse', 'nonmeasured mse'])
+                plt.legend(['1/min{e2}', '1/max{e2}', 'nonmeasured mse'])
                 plt.savefig('vamp_trajectories.png')
 
                 # if inpainting:
