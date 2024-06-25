@@ -67,10 +67,6 @@ class VAMP:
         for q in range(self.Q):
             eta[:, q] += (diag_mat_inv * self.mask[q, None, :, :, :]).reshape(eta.shape[0], -1).sum(-1) / torch.count_nonzero(self.mask[q])
 
-        print(eta[0])
-        print(diag_mat_inv[0, 0, 0, 0])
-        exit()
-
         return 1/eta
 
     def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar):
