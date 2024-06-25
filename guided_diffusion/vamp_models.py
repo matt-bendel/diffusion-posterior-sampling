@@ -12,7 +12,7 @@ class VAMP:
         self.K = K
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 1 # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.2 # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -32,7 +32,7 @@ class VAMP:
 
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         right_term = r_sig_inv * x_t
-        right_term += 1 / noise_sig * self.svd.Ht(y).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3])
+        right_term += self.svd.Ht(y).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]) / noise_sig
         right_term += gamma_1_mult * r_1
 
         if self.Q > 1:
@@ -66,6 +66,10 @@ class VAMP:
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
         for q in range(self.Q):
             eta[:, q] += (diag_mat_inv * self.mask[q, None, :, :, :]).reshape(eta.shape[0], -1).sum(-1) / torch.count_nonzero(self.mask[q])
+
+        print(eta[0])
+        print(diag_mat_inv[0, 0, 0, 0])
+        exit()
 
         return 1/eta
 
@@ -149,6 +153,7 @@ class VAMP:
             r_1, gamma_1, eta_2, mu_2 = self.denoising(r_2, gamma_2, t, t_alpha_bar)
 
             if use_damping:
+                print(f"DAMP: {self.damping_factor}")
                 r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
                 gamma_1 = (self.damping_factor * torch.abs(gamma_1) ** (-1 / 2) + (1 - self.damping_factor) * (
                     old_gamma_1) ** (-1 / 2)) ** -2
