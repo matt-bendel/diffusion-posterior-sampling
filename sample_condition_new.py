@@ -208,7 +208,7 @@ def main():
                     sample, g1_min, g1_max, g2_min, g2_max = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
                                        noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'])
 
-                x_axis = np.array(list(range(self.num_timesteps))[::-1])
+                x_axis = np.arange(1000)
                 plt.semilogy(x_axis, 1/np.array(g1_min))
                 plt.semilogy(x_axis, 1 / np.array(g1_max))
                 plt.semilogy(x_axis, 1 / np.array(g2_min))
