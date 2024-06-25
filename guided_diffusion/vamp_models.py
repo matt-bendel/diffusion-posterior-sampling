@@ -3,8 +3,6 @@ import numpy as np
 from guided_diffusion.ddrm_svd import Deblurring
 
 
-# TODO: Different noise level in inpainted region
-
 class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
         self.model = model
@@ -179,7 +177,7 @@ class VAMP:
         self.gamma_1 = gamma_1
         self.r_1 = r_1
 
-        return mu_2, gamma_1, gamma_2
+        return mu_2, gamma_1, gamma_2, eta_1, eta_2
 
 
 class Denoising(VAMP):

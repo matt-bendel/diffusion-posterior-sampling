@@ -189,7 +189,8 @@ class GaussianDiffusion:
                       save_root,
                       mask=None,
                       noise_sig=0.001,
-                      meas_type=None):
+                      meas_type=None,
+                      truth=None):
         """
         The function used for sampling from noise.
         """
@@ -255,17 +256,35 @@ class GaussianDiffusion:
         gamma_2_min = []
         gamma_2_max = []
 
+        eta_1_min = []
+        eta_1_max = []
+        eta_2_min = []
+        eta_2_max = []
+
+        mse_1 = []
+        mse_2 = []
+
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
 
-            denoise_obj = self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig)
+            denoise_obj = self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig, truth=truth)
             gamma_1 = denoise_obj['gamma_1']
             gamma_2 = denoise_obj['gamma_2']
+            eta_1 = denoise_obj['eta_1']
+            eta_2 = denoise_obj['eta_2']
+
+            mse_1.append(denoise_obj['mse_1'][0].cpu().numpy())
+            mse_2.append(denoise_obj['mse_2'][0].cpu().numpy())
 
             gamma_1_min.append(gamma_1[0].min().cpu().numpy())
             gamma_1_max.append(gamma_1[0].max().cpu().numpy())
             gamma_2_min.append(gamma_2[0].min().cpu().numpy())
             gamma_2_max.append(gamma_2[0].max().cpu().numpy())
+
+            eta_1_min.append(eta_1[0].min().cpu().numpy())
+            eta_1_max.append(eta_1[0].max().cpu().numpy())
+            eta_2_min.append(eta_2[0].min().cpu().numpy())
+            eta_2_max.append(eta_2[0].max().cpu().numpy())
 
             img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * denoise_obj['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
             img = img.detach()
@@ -275,9 +294,9 @@ class GaussianDiffusion:
                     file_path = f"/storage/matt_models/inpainting/dps/x_{str(idx).zfill(4)}.png"
                     plt.imsave(file_path, clear_color(img[0]))
 
-        return img, gamma_1_min, gamma_1_max, gamma_2_min, gamma_2_max
+        return img, gamma_1_min, gamma_1_max, gamma_2_min, gamma_2_max, eta_1_min, eta_1_max, eta_2_min, eta_2_max, mse_1, mse_2
 
-    def denoise(self, model, x, t, y, cond, vamp, noise_sig):
+    def denoise(self, model, x, t, y, cond, vamp, noise_sig, truth):
         raise NotImplementedError
 
     def p_mean_variance(self, model, x, t):
@@ -433,15 +452,19 @@ class _WrappedModel:
 
 @register_sampler(name='ddpm')
 class DDPM(SpacedDiffusion):
-    def denoise(self, model, x, t, y, cond, vamp, noise_sig):
+    def denoise(self, model, x, t, y, cond, vamp, noise_sig, truth):
         if not cond:
             gamma_1 = None
             gamma_2 = None
+            eta_1 = None
+            eta_2 = None
             pred_xstart = self.p_mean_variance(model, x, t)
         else:
-            pred_xstart, gamma_1, gamma_2 = vamp.run_vamp(x, y, t, noise_sig=torch.tensor(noise_sig).to(x.device), use_damping=True)
+            pred_xstart, gamma_1, gamma_2, eta_1, eta_2 = vamp.run_vamp(x, y, t, noise_sig=torch.tensor(noise_sig).to(x.device), use_damping=True)
 
-        return {'pred_xstart': pred_xstart, 'gamma_1': gamma_1, 'gamma_2': gamma_2}
+        mse_1 = torch.nn.functional.mse_loss(pred_xstart * vamp.mask, truth * vamp.mask)
+        mse_2 = torch.nn.functional.mse_loss(pred_xstart * (1 - vamp.mask), truth * (1 - vamp.mask))
+        return {'pred_xstart': pred_xstart, 'gamma_1': gamma_1, 'gamma_2': gamma_2, 'eta_1': eta_1, 'eta_2': eta_2, 'mse_1': mse_1, 'mse_2': mse_2}
 
 
 
