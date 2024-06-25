@@ -145,8 +145,6 @@ def main():
             mask = mask > 0
             mask = mask.astype(np.float)
             mask = torch.from_numpy(1 - mask).unsqueeze(0).unsqueeze(0).repeat(ref_img.shape[0], 1, 1, 1).to(device)
-            print(mask.shape)
-            exit()
 
             measurement_cond_fn = None #partial(cond_method.conditioning, mask=mask)
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
