@@ -151,11 +151,11 @@ class VAMP:
 
         # print(noise_var)
         ################
-        # denoise_in = r_2.float()
-        # denoise_out = mu_2
+        denoise_in = r_2.float()
+        denoise_out = mu_2
 
-        # plt.imsave(f'denoise_in.png', clear_color(denoise_in))
-        # plt.imsave(f'denoise_out.png', clear_color(denoise_out))
+        plt.imsave(f'denoise_in.png', clear_color(denoise_in))
+        plt.imsave(f'denoise_out.png', clear_color(denoise_out))
         # exit()
 
         ################
