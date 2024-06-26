@@ -225,7 +225,7 @@ class VAMP:
 
         if gamma_2 is None:
             if self.Q > 1:
-                gamma_2 = torch.tensor([1 / noise_sig, t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
+                gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar), t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
             else:
                 gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
 
