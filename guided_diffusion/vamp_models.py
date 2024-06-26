@@ -23,7 +23,7 @@ class VAMP:
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.2  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.1  # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -118,14 +118,19 @@ class VAMP:
 
         return eta / self.K
 
-    def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
+    def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig, gamma_2_old = None):
         mu_1, gamma_1_mult = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(gamma_1_mult, t_alpha_bar, noise_sig, gamma_1)
 
         gamma_2 = eta_1 - gamma_1
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
+
+        old_gamma_2 = gamma_2
+        if gamma_2_old is not None:
+            old_gamma_2 = gamma_2_old
+
         for q in range(self.Q):
-            r_2 += ((eta_1[:, q, None, None, None] * mu_1 - gamma_1[:, q, None, None, None] * r_1) / gamma_2[:, q, None,
+            r_2 += ((eta_1[:, q, None, None, None] * mu_1 - gamma_1[:, q, None, None, None] * r_1) / old_gamma_2[:, q, None,
                                                                                                      None,
                                                                                                      None]) * self.mask[
                                                                                                               q, None,
@@ -234,7 +239,7 @@ class VAMP:
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig,
-                                                         t_alpha_bar, noise_sig)
+                                                         t_alpha_bar, noise_sig, gamma_2_old=old_gamma_2)
 
             if use_damping:
                 gamma_2_raw = gamma_2
