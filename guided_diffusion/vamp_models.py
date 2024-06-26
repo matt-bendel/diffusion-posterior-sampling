@@ -23,7 +23,7 @@ class VAMP:
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.2  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.99  # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -259,72 +259,6 @@ class VAMP:
         self.r_2 = r_2
 
         return mu_1, gamma_1, gamma_2, eta_1, eta_2
-
-
-class Denoising(VAMP):
-    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, K=1):
-        super().__init__(model, betas, alphas_cumprod, max_iters, K, x_T)
-
-    def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
-        r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
-        return 1 / (1 / (noise_sig ** 2) + (r_sig_inv ** 2) + gamma_1[:, 0, None, None, None]) * (
-                r_sig_inv * x_t + (1 / (noise_sig)) * y + gamma_1[:, 0, None, None, None] * r_1)
-
-    def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
-        r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
-        return r_sig_inv ** 2 + 1 / (noise_sig ** 2) + gamma_1
-
-
-class Inpainting(VAMP):
-    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, kept_ones, missing_ones, K=1):
-        super().__init__(model, betas, alphas_cumprod, max_iters, K, x_T)
-        self.kept_ones = kept_ones
-        self.missing_ones = missing_ones
-
-    def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
-        r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
-
-        right_term = r_sig_inv * x_t + (1 / noise_sig) * y * self.kept_ones + gamma_1[:, 0, None, None, None] * r_1
-
-        kept_ones = 1 / (1 / (noise_sig ** 2) + (r_sig_inv ** 2) + gamma_1[:, 0, None, None, None]) * self.kept_ones
-        missing_ones = 1 / ((r_sig_inv ** 2) + gamma_1[:, 0, None, None, None]) * self.missing_ones
-
-        return right_term * (kept_ones + missing_ones)
-
-    def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
-        r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
-
-        total_missing = torch.count_nonzero(self.missing_ones, dim=(1, 2, 3))
-        total_kept = torch.count_nonzero(self.kept_ones, (1, 2, 3))
-
-        sum_1 = total_missing[:, None] * ((r_sig_inv ** 2 + gamma_1) ** -1)
-        sum_2 = total_kept[:, None] * ((1 / (noise_sig ** 2) + r_sig_inv ** 2 + gamma_1) ** -1)
-
-        return ((sum_1 + sum_2) / (total_kept[:, None] + total_missing[:, None])) ** -1
-
-
-class Deblur(VAMP):
-    def __init__(self, model, betas, alphas_cumprod, max_iters, x_T, kernel, K=1):
-        super().__init__(model, betas, alphas_cumprod, max_iters, K, x_T)
-        self.deblur_svd = Deblurring(kernel, x_T.shape[1], x_T.shape[2], x_T.device)
-
-    def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
-        r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
-        right_term = r_sig_inv * x_t
-        right_term += 1 / noise_sig * self.deblur_svd.Ht(y).reshape(y.shape[0], y.shape[1], y.shape[2], y.shape[3])
-        right_term += gamma_1[:, 0, None, None, None] * r_1
-
-        return self.deblur_svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1).reshape(y.shape[0], y.shape[1],
-                                                                                            y.shape[2], y.shape[3])
-
-    def eta_1(self, gamma_1, t_alpha_bar, noise_sig):
-        r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
-
-        singulars = self.deblur_svd.add_zeros(self.deblur_svd.singulars())
-        eta = torch.mean(((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1[None, :, 0]) ** -1, dim=0,
-                         keepdim=True) ** -1
-
-        return eta
 
 
 def extract_and_expand(array, time, target):
