@@ -229,7 +229,7 @@ class VAMP:
             else:
                 gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
 
-        for i in range(10):
+        for i in range(1):
             old_gamma_2 = gamma_2
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
