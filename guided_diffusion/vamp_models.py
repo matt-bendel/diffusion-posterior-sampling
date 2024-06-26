@@ -258,7 +258,7 @@ class VAMP:
         self.gamma_2 = gamma_2
         self.r_2 = r_2
 
-        return mu_1, gamma_1, gamma_2, eta_1, eta_2
+        return mu_2, gamma_1, gamma_2, eta_1, eta_2
 
 
 def extract_and_expand(array, time, target):
