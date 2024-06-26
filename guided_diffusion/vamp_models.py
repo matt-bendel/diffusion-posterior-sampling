@@ -148,7 +148,7 @@ class VAMP:
         mu_2, true_noise_var = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
 
         ################
-        denoise_in = r_2.float()
+        denoise_in = r_2.float() * self.mask[0][None, :, :, :]
         denoise_out = mu_2
 
         plt.imsave(f'denoise_in.png', clear_color(denoise_in))
