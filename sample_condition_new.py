@@ -132,7 +132,7 @@ def main():
 
             mask = mask.to(device)
             mask = torch.ones(mask.shape).to(device)
-            mask[:, :, 64:192, 64:192] = 0
+            mask[:, :, 96:160, 96:160] = 0
 
             # mask_creator = MaskCreator()
 
@@ -237,8 +237,8 @@ def main():
                 plt.legend(['1/min{e2}', 'measured mse','nonmeasured mse'])
                 plt.savefig('vamp_trajectories.png')
 
-                # if inpainting:
-                #     sample = ref_img * mask + (1 - mask) * sample
+                if inpainting:
+                    sample = ref_img * mask + (1 - mask) * sample
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
                 # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
                 y = H.H(ref_img)

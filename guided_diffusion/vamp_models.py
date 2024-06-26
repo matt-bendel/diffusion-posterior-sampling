@@ -154,8 +154,10 @@ class VAMP:
         denoise_in = r_2.float()
         denoise_out = mu_2
 
-        plt.imsave(f'denoise_in.png', clear_color(denoise_in))
-        plt.imsave(f'denoise_out.png', clear_color(denoise_out))
+        if t[0] % 25 == 0:
+            plt.imsave(f'denoise_in.png', clear_color(denoise_in))
+            plt.imsave(f'denoise_out.png', clear_color(denoise_out))
+
         # exit()
 
         ################
