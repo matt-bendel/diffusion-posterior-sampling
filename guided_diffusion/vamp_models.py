@@ -23,7 +23,7 @@ class VAMP:
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.99  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.2  # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -154,7 +154,7 @@ class VAMP:
         denoise_in = r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 25 == 0:
+        if t[0] % 1 == 0:
             plt.imsave(f'denoise_in.png', clear_color(denoise_in))
             plt.imsave(f'denoise_out.png', clear_color(denoise_out))
 
@@ -221,7 +221,7 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         if r_2 is None:
-            r_2 = x_t / torch.sqrt(1 - t_alpha_bar)
+            r_2 = x_t / torch.sqrt(t_alpha_bar)
 
         if gamma_2 is None:
             if self.Q > 1:
@@ -245,7 +245,7 @@ class VAMP:
                     old_gamma_2) ** (-1 / 2)) ** -2
 
             print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
-
+            exit()
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
                 exit()
 
