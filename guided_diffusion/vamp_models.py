@@ -23,7 +23,7 @@ class VAMP:
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.99  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.2  # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -191,10 +191,13 @@ class VAMP:
             _, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig,
                                                          t_alpha_bar, noise_sig)
 
-            max_g_2, _ = torch.max(1/gamma_2, dim=1)
+            # max_g_2, _ = torch.max(1/gamma_2, dim=1)
 
-            for q in range(self.Q):
-                r_2 += (max_g_2 - 1/gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :] # Noise measured region to missing level...
+            # for q in range(self.Q):
+            #     r_2 += (max_g_2 - 1/gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :] # Noise measured region to missing level...
+
+            # TODO: REMOVE...
+            r_2 += (torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar)) * self.svd.inpaint_mask[None, :, :, :]
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
 
