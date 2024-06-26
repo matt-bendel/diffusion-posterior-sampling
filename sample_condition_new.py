@@ -131,8 +131,8 @@ def main():
             ref_img = x.to(device)
 
             mask = mask.to(device)
-            mask = torch.ones(mask.shape).to(device)
-            mask[:, :, 64:192, 64:192] = 0
+            # mask = torch.ones(mask.shape).to(device)
+            # mask[:, :, 64:192, 64:192] = 0
 
             # mask_creator = MaskCreator()
 
