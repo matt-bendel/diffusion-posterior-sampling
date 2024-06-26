@@ -86,7 +86,7 @@ class VAMP:
         # noise_est = torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
         # x_0 = (1 - delta ** self.power)[:, 0, None, None, None] * noisy_im + (delta ** self.power)[:, 0, None, None,
         #                                                                      None] * (noisy_im - noise_est)
-        x_0 = noisy_im - torch.sqrt((1 - t_alpha_bar) / t_alpha_bar)[:, 0, None, None, None] * noise_predict
+        x_0 = noisy_im - torch.sqrt((1 - t_alpha_bar) / t_alpha_bar) * noise_predict
 
         return x_0,  (1 - t_alpha_bar) / t_alpha_bar
 
