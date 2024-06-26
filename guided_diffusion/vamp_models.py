@@ -154,7 +154,7 @@ class VAMP:
         denoise_in = r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 1 == 0:
+        if t[0] % 25 == 0:
             plt.imsave(f'denoise_in.png', clear_color(denoise_in))
             plt.imsave(f'denoise_out.png', clear_color(denoise_out))
 
@@ -246,19 +246,20 @@ class VAMP:
                     new_r_2 += (r_2 + torch.randn_like(r_2).to(r_2.device) * (
                                 1 / gamma_2[:, q] - 1 / gamma_2_raw[:, q]).abs().sqrt()) * self.mask[q, None, :, :, :]
 
+                r_2 = new_r_2
+
             print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
 
-            plt.imsave(f'mu_1.png', clear_color(mu_1))
-            plt.imsave(f'mu_2.png', clear_color(mu_2))
+            # plt.imsave(f'mu_1.png', clear_color(mu_1))
+            # plt.imsave(f'mu_2.png', clear_color(mu_2))
 
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
                 exit()
 
-        exit()
         self.gamma_2 = gamma_2
         self.r_2 = r_2
 
-        return mu_2, gamma_1, gamma_2, eta_1, eta_2
+        return mu_1, gamma_1, gamma_2, eta_1, eta_2
 
 
 def extract_and_expand(array, time, target):
