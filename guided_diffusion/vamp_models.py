@@ -92,8 +92,8 @@ class VAMP:
         for k in range(self.K):
             # probe = torch.sign(torch.randn_like(mu_2).to(mu_2.device))
             probe = torch.randn_like(mu_2).to(r_2.device)
-            probe = probe / torch.norm(probe, dim=1, keepdim=True) # unit norm
-            # probe = probe / torch.sqrt(torch.mean(probe ** 2, dim=(1, 2, 3))[:, None, None, None])  # isotropic
+            # probe = probe / torch.norm(probe, dim=1, keepdim=True) # unit norm
+            probe = probe / torch.sqrt(torch.mean(probe ** 2, dim=(1, 2, 3))[:, None, None, None])  # isotropic
             mu_2_delta, _ = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), noise_var, t, t_alpha_bar)
             probed_diff = probe * (mu_2_delta - mu_2)
 
