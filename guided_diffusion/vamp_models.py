@@ -124,13 +124,13 @@ class VAMP:
         noise_var, _ = torch.max(1 / gamma_2, dim=1, keepdim=True)
 
         # Avg inv trace
-        # noise_var = torch.zeros(gamma_2.shape[0], 1).to(gamma_2.device)
-        # total_count = 0
-        # for q in range(self.Q):
-        #     total_count += torch.count_nonzero(self.mask[q])
-        #     noise_var += torch.count_nonzero(self.mask[q]) / gamma_2[:, q]
-        #
-        # noise_var = noise_var / total_count
+        noise_var = torch.zeros(gamma_2.shape[0], 1).to(gamma_2.device)
+        total_count = 0
+        for q in range(self.Q):
+            total_count += torch.count_nonzero(self.mask[q])
+            noise_var += torch.count_nonzero(self.mask[q]) / gamma_2[:, q]
+
+        noise_var = noise_var / total_count
 
         # Denoise
         mu_2, true_noise_var = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
@@ -145,7 +145,7 @@ class VAMP:
                                                                                                               q, None,
                                                                                                               :, :, :]
 
-        return r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var
+        return r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var.cpu().numpy()
 
     def run_vamp(self, x_t, y, t, noise_sig, use_damping=False):
         mu_2 = None  # needs to exist outside of for loop scope for return
