@@ -221,7 +221,7 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         if r_2 is None:
-            r_2 = x_t
+            r_2 = x_t / torch.sqrt(1 - t_alpha_bar)
 
         if gamma_2 is None:
             if self.Q > 1:
