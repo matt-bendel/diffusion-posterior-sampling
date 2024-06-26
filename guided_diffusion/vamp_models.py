@@ -247,7 +247,7 @@ class VAMP:
                 new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
                 for q in range(self.Q):
                     new_r_2 += (r_2 + torch.randn_like(r_2).to(r_2.device) * (
-                                1 / gamma_2[:, q] - 1 / gamma_2_raw[:, q]).sqrt()) * self.mask[q, None, :, :, :]
+                                1 / gamma_2_old[:, q] - 1 / gamma_2_raw[:, q]).sqrt()) * self.mask[q, None, :, :, :]
 
                 r_2 = new_r_2
 
