@@ -256,7 +256,7 @@ class VAMP:
 
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
                 exit()
-        exit()
+        # exit()
         self.gamma_2 = gamma_2
         self.r_2 = r_2
 
