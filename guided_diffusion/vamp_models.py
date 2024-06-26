@@ -149,6 +149,7 @@ class VAMP:
         # Denoise
         mu_2, true_noise_var = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
 
+        print(noise_var)
         ################
         denoise_in = r_2.float()
         denoise_out = mu_2
