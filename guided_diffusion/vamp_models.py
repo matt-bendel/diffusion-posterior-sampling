@@ -66,8 +66,6 @@ class VAMP:
             noise_var[:, 0, None] - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
                 self.alphas_cumprod).to(noisy_im.device))
         t = torch.argmin(diff, dim=1)
-        t_alpha_bar = ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
-                self.alphas_cumprod).to(noisy_im.device))[t].float()
 
         ones = torch.ones(noise_var.shape, device=noise_var.device)
 
@@ -75,20 +73,19 @@ class VAMP:
         noise_var_clip = torch.maximum(noise_var, ones * self.v_min)
 
         # print(f'{noise_var[0].cpu().numpy()};{delta[0].cpu().numpy()};{t[0]}')
-        # scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var_clip[:, 0, None, None, None]))
-        scaled_noisy_im = noisy_im * torch.sqrt(t_alpha_bar)
+        scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var_clip[:, 0, None, None, None]))
 
         noise_predict = self.model(scaled_noisy_im, t)
 
         if noise_predict.shape[1] == 2 * noisy_im.shape[1]:
             noise_predict, _ = torch.split(noise_predict, noisy_im.shape[1], dim=1)
 
-        # noise_est = torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
-        # x_0 = (1 - delta ** self.power)[:, 0, None, None, None] * noisy_im + (delta ** self.power)[:, 0, None, None,
-        #                                                                      None] * (noisy_im - noise_est)
-        x_0 = noisy_im - torch.sqrt((1 - t_alpha_bar) / t_alpha_bar) * noise_predict
+        noise_est = torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
+        x_0 = (1 - delta ** self.power)[:, 0, None, None, None] * noisy_im + (delta ** self.power)[:, 0, None, None,
+                                                                             None] * (noisy_im - noise_est)
+        # x_0 = noisy_im - torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
 
-        return x_0,  (1 - t_alpha_bar) / t_alpha_bar
+        return x_0,  ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))[t]
 
     def denoiser_tr_approx(self, r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var):
         eta = torch.zeros(gamma_2.shape).to(gamma_2.device)
@@ -127,13 +124,13 @@ class VAMP:
         noise_var, _ = torch.max(1 / gamma_2, dim=1, keepdim=True)
 
         # Avg inv trace
-        noise_var = torch.zeros(gamma_2.shape[0], 1).to(gamma_2.device)
-        total_count = 0
-        for q in range(self.Q):
-            total_count += torch.count_nonzero(self.mask[q])
-            noise_var += torch.count_nonzero(self.mask[q]) / gamma_2[:, q]
-
-        noise_var = noise_var / total_count
+        # noise_var = torch.zeros(gamma_2.shape[0], 1).to(gamma_2.device)
+        # total_count = 0
+        # for q in range(self.Q):
+        #     total_count += torch.count_nonzero(self.mask[q])
+        #     noise_var += torch.count_nonzero(self.mask[q]) / gamma_2[:, q]
+        #
+        # noise_var = noise_var / total_count
 
         # Denoise
         mu_2, true_noise_var = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
