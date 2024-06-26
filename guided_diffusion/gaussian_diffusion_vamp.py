@@ -462,8 +462,8 @@ class DDPM(SpacedDiffusion):
         else:
             pred_xstart, gamma_1, gamma_2, eta_1, eta_2 = vamp.run_vamp(x, y, t, noise_sig=torch.tensor(noise_sig).to(x.device), use_damping=True)
 
-        mse_1 = torch.nn.functional.mse_loss(pred_xstart * vamp.mask, truth * vamp.mask)
-        mse_2 = torch.nn.functional.mse_loss(pred_xstart * (1 - vamp.mask), truth * (1 - vamp.mask))
+        mse_1 = ((pred_xstart * vamp.mask - truth * vamp.mask) ** 2).sum() / torch.count_nonzero(vamp.mask)
+        mse_2 = ((pred_xstart * (1 - vamp.mask) - truth * (1 - vamp.mask)) ** 2).sum() / torch.count_nonzero(1 - vamp.mask)
         return {'pred_xstart': pred_xstart, 'gamma_1': gamma_1, 'gamma_2': gamma_2, 'eta_1': eta_1, 'eta_2': eta_2, 'mse_1': mse_1, 'mse_2': mse_2}
 
 
