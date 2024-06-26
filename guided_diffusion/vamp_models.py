@@ -85,7 +85,7 @@ class VAMP:
                                                                              None] * (noisy_im - noise_est)
         # x_0 = noisy_im - torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
 
-        return x_0
+        return x_0,  ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))[0, t]
 
     def denoiser_tr_approx(self, r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var):
         eta = torch.zeros(gamma_2.shape).to(gamma_2.device)
@@ -94,7 +94,7 @@ class VAMP:
             probe = torch.randn_like(mu_2).to(r_2.device)
             probe = probe / torch.norm(probe, dim=1, keepdim=True) # unit norm
             # probe = probe / torch.sqrt(torch.mean(probe ** 2, dim=(1, 2, 3))[:, None, None, None])  # isotropic
-            mu_2_delta = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), noise_var, t, t_alpha_bar)
+            mu_2_delta, _ = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), noise_var, t, t_alpha_bar)
             probed_diff = probe * (mu_2_delta - mu_2)
 
             for q in range(self.Q):
@@ -133,7 +133,7 @@ class VAMP:
         # noise_var = noise_var / total_count
 
         # Denoise
-        mu_2 = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
+        mu_2, true_noise_var = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
         tr = self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
         eta_2 = 1 / tr
         gamma_1 = eta_2 - gamma_2
@@ -145,7 +145,7 @@ class VAMP:
                                                                                                               q, None,
                                                                                                               :, :, :]
 
-        return r_1, gamma_1, eta_2, mu_2
+        return r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var
 
     def run_vamp(self, x_t, y, t, noise_sig, use_damping=False):
         mu_2 = None  # needs to exist outside of for loop scope for return
@@ -162,14 +162,17 @@ class VAMP:
 
             r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig,
                                                          t_alpha_bar, noise_sig)
-            r_1, gamma_1, eta_2, mu_2 = self.denoising(r_2, gamma_2, t, t_alpha_bar)
+            r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
 
             if use_damping:
                 r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
                 gamma_1 = (self.damping_factor * torch.abs(gamma_1) ** (-1 / 2) + (1 - self.damping_factor) * (
                     old_gamma_1) ** (-1 / 2)) ** -2
 
-            print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
+            # print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
+
+            if eta_2[0, 1] < 0:
+                print(f'Desired Noise Var: {noise_var[0, 0]}; True Noise Var: {true_noise_var}')
 
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
                 exit()
