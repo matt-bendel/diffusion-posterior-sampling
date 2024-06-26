@@ -23,7 +23,7 @@ class VAMP:
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.001  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.01  # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -154,7 +154,7 @@ class VAMP:
         denoise_in = r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 25 == 0:
+        if t[0] % 1 == 0:
             plt.imsave(f'denoise_in.png', clear_color(denoise_in))
             plt.imsave(f'denoise_out.png', clear_color(denoise_out))
 
@@ -229,7 +229,7 @@ class VAMP:
             else:
                 gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
 
-        for i in range(1):
+        for i in range(20):
             old_gamma_2 = gamma_2
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
@@ -250,12 +250,12 @@ class VAMP:
 
             print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
 
-            # plt.imsave(f'mu_1.png', clear_color(mu_1))
-            # plt.imsave(f'mu_2.png', clear_color(mu_2))
+            plt.imsave(f'mu_1.png', clear_color(mu_1))
+            plt.imsave(f'mu_2.png', clear_color(mu_2))
 
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
                 exit()
-
+        exit()
         self.gamma_2 = gamma_2
         self.r_2 = r_2
 
