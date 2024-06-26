@@ -23,7 +23,7 @@ class VAMP:
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.1  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.2  # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -247,7 +247,7 @@ class VAMP:
                 new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
                 for q in range(self.Q):
                     new_r_2 += (r_2 + torch.randn_like(r_2).to(r_2.device) * (
-                                1 / gamma_2_old[:, q] - 1 / gamma_2_raw[:, q]).sqrt()) * self.mask[q, None, :, :, :]
+                                1 / gamma_2[:, q] - 1 / gamma_2_raw[:, q]).sqrt()) * self.mask[q, None, :, :, :]
 
                 r_2 = new_r_2
 
