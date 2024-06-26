@@ -149,14 +149,14 @@ class VAMP:
         # Denoise
         mu_2, true_noise_var = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
 
-        print(noise_var)
+        # print(noise_var)
         ################
-        denoise_in = r_2.float()
-        denoise_out = mu_2
+        # denoise_in = r_2.float()
+        # denoise_out = mu_2
 
-        plt.imsave(f'denoise_in.png', clear_color(denoise_in))
-        plt.imsave(f'denoise_out.png', clear_color(denoise_out))
-        exit()
+        # plt.imsave(f'denoise_in.png', clear_color(denoise_in))
+        # plt.imsave(f'denoise_out.png', clear_color(denoise_out))
+        # exit()
 
         ################
 
@@ -219,7 +219,10 @@ class VAMP:
             r_2 = x_t
 
         if gamma_2 is None:
-            gamma_2 = torch.tensor([1 / noise_sig, t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
+            if self.Q > 1:
+                gamma_2 = torch.tensor([1 / noise_sig, t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
+            else:
+                gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
 
         for i in range(1):
             old_gamma_2 = gamma_2
