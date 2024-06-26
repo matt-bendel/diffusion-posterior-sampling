@@ -276,15 +276,15 @@ class GaussianDiffusion:
             mse_1.append(denoise_obj['mse_1'].cpu().numpy())
             mse_2.append(denoise_obj['mse_2'].cpu().numpy())
 
-            gamma_1_min.append(gamma_1[0][0].cpu().numpy())
-            gamma_1_max.append(gamma_1[0][1].cpu().numpy())
-            gamma_2_min.append(gamma_2[0][0].cpu().numpy())
-            gamma_2_max.append(gamma_2[0][1].cpu().numpy())
+            gamma_1_min.append(gamma_1[0].min().cpu().numpy())
+            gamma_1_max.append(gamma_1[0].max().cpu().numpy())
+            gamma_2_min.append(gamma_2[0].min().cpu().numpy())
+            gamma_2_max.append(gamma_2[0].max().cpu().numpy())
 
-            eta_1_min.append(eta_1[0][0].cpu().numpy())
-            eta_1_max.append(eta_1[0][1].cpu().numpy())
-            eta_2_min.append(eta_2[0][0].cpu().numpy())
-            eta_2_max.append(eta_2[0][1].cpu().numpy())
+            eta_1_min.append(eta_1[0].min().cpu().numpy())
+            eta_1_max.append(eta_1[0].max().cpu().numpy())
+            eta_2_min.append(eta_2[0].min().cpu().numpy())
+            eta_2_max.append(eta_2[0].max().cpu().numpy())
 
             img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * denoise_obj['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
             img = img.detach()
