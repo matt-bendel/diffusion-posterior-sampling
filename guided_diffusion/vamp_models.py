@@ -35,6 +35,8 @@ class VAMP:
         self.betas = torch.tensor(betas).to(x_T.device)
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], self.Q, device=x_T.device)
         self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
+        self.r_2 = None
+        self.gamma_2 = None
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         gamma_1_mult = torch.zeros(r_1.shape).to(y.device)
@@ -129,7 +131,7 @@ class VAMP:
                                                                                                               q, None,
                                                                                                               :, :, :]
 
-        return r_2, gamma_2, eta_1
+        return mu_1, r_2, gamma_2, eta_1
 
     def denoising(self, r_2, gamma_2, t, t_alpha_bar):
         # Max var
@@ -183,7 +185,7 @@ class VAMP:
             old_gamma_1 = gamma_1
             old_r_1 = r_1
 
-            r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig,
+            _, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig,
                                                          t_alpha_bar, noise_sig)
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
 
@@ -204,6 +206,44 @@ class VAMP:
         self.r_1 = r_1
 
         return mu_2, gamma_1, gamma_2, eta_1, eta_2
+
+    def run_vamp_reverse(self, x_t, y, t, noise_sig, use_damping=False):
+        mu_1 = None  # needs to exist outside of for loop scope for return
+        gamma_2 = self.gamma_2
+        r_2 = self.r_2
+
+        t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
+
+        if r_2 is None:
+            r_2 = x_t
+
+        if gamma_2 is None:
+            gamma_2 = torch.tensor([1 / noise_sig, t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
+
+        for i in range(1):
+            old_gamma_2 = gamma_2
+
+            r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
+            mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig,
+                                                         t_alpha_bar, noise_sig)
+
+            if use_damping:
+                new_r_2 = torch.zeros(r_2.shape)
+                for q in range(self.Q):
+                    new_r_2 += (r_2 + torch.randn_like(r_2) * (1 / old_gamma_2[:, q] - 1 / gamma_2[:, q]).abs().sqrt()) * self.mask[q, None, :, :, :]
+
+                gamma_2 = (self.damping_factor * gamma_2 ** (-1 / 2) + (1 - self.damping_factor) * (
+                    old_gamma_2) ** (-1 / 2)) ** -2
+
+            # print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
+
+            if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
+                exit()
+
+        self.gamma_2 = gamma_2
+        self.r_2 = r_2
+
+        return mu_1, gamma_1, gamma_2, eta_1, eta_2
 
 
 class Denoising(VAMP):
