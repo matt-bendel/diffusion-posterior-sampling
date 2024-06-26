@@ -171,7 +171,7 @@ class VAMP:
 
             # print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
 
-            if eta_2[0, 1] < 0:
+            if eta_2[0, 1] > 0:
                 print(f'Desired Noise Var: {noise_var[0, 0]}; True Noise Var: {true_noise_var}')
 
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
