@@ -48,7 +48,7 @@ class VAMP:
         right_term += self.svd.Ht(y).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]) / noise_sig
         right_term += gamma_1_mult * r_1
 
-        if self.Q == 2:  # Inpainting
+        if self.Q > 1:  # Inpainting
             evals = (self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1) / noise_sig) ** 2
             inv_val = (evals + r_sig_inv ** 2 + gamma_1_mult) ** -1
             return inv_val * right_term, gamma_1_mult
@@ -61,7 +61,7 @@ class VAMP:
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
-        if self.Q == 2:  # Inpainting
+        if self.Q > 1:  # Inpainting
             singulars = self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1)
         else:
             singulars = singulars.reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
