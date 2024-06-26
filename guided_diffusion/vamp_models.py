@@ -23,7 +23,7 @@ class VAMP:
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.5  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.2  # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -241,9 +241,6 @@ class VAMP:
                 gamma_2 = (self.damping_factor * gamma_2_raw ** (-1 / 2) + (1 - self.damping_factor) * (
                     old_gamma_2) ** (-1 / 2)) ** -2
 
-                print(gamma_2)
-                print(gamma_2_raw)
-
                 new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
                 max_g_2, _ = torch.max(1/gamma_2, dim=1, keepdim=True)
                 for q in range(self.Q):
@@ -254,8 +251,8 @@ class VAMP:
 
             # print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
 
-            plt.imsave(f'mu_1.png', clear_color(mu_1))
-            plt.imsave(f'mu_2.png', clear_color(mu_2))
+            # plt.imsave(f'mu_1.png', clear_color(mu_1))
+            # plt.imsave(f'mu_2.png', clear_color(mu_2))
 
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
                 exit()
