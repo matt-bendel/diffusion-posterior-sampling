@@ -2,6 +2,17 @@ import torch
 import numpy as np
 from guided_diffusion.ddrm_svd import Deblurring
 
+def clear_color(x):
+    if torch.is_complex(x):
+        x = torch.abs(x)
+    x = x.detach().cpu().squeeze().numpy()
+    return normalize_np(np.transpose(x, (1, 2, 0)))
+
+def normalize_np(img):
+    """ Normalize img in arbitrary range to [0, 1] """
+    img -= np.min(img)
+    img /= np.max(img)
+    return img
 
 class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
@@ -134,6 +145,15 @@ class VAMP:
 
         # Denoise
         mu_2, true_noise_var = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
+
+        ################
+        denoise_in = r_2.float()
+        denoise_out = mu_2
+
+        plt.imsave(f'denoise_in.png', clear_color(denoise_in))
+        plt.imsave(f'denoise_out.png', clear_color(denoise_out))
+        ################
+
         tr = self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
         eta_2 = 1 / tr
         gamma_1 = eta_2 - gamma_2
