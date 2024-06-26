@@ -197,7 +197,8 @@ class VAMP:
             #     r_2 += (max_g_2 - 1/gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :] # Noise measured region to missing level...
 
             # TODO: REMOVE...
-            r_2 += (torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar)) * self.svd.inpaint_mask[None, :, :, :]
+            r_2 += torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar)
+            gamma_2[:, 0] = t_alpha_bar / (1 - t_alpha_bar)
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
 
