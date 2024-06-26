@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
 from guided_diffusion.ddrm_svd import Deblurring
 
 def clear_color(x):
