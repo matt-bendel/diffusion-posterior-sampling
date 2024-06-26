@@ -67,7 +67,7 @@ class VAMP:
                 self.alphas_cumprod).to(noisy_im.device))
         t = torch.argmin(diff, dim=1)
         t_alpha_bar = ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
-                self.alphas_cumprod).to(noisy_im.device))[t]
+                self.alphas_cumprod).to(noisy_im.device))[t].float()
 
         ones = torch.ones(noise_var.shape, device=noise_var.device)
 
