@@ -232,7 +232,7 @@ class VAMP:
                                                          t_alpha_bar, noise_sig)
 
             if use_damping:
-                new_r_2 = torch.zeros(r_2.shape)
+                new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
                 for q in range(self.Q):
                     new_r_2 += (r_2 + torch.randn_like(r_2).to(r_2.device) * (1 / old_gamma_2[:, q] - 1 / gamma_2[:, q]).abs().sqrt()) * self.mask[q, None, :, :, :]
 
