@@ -460,7 +460,7 @@ class DDPM(SpacedDiffusion):
             eta_2 = None
             pred_xstart = self.p_mean_variance(model, x, t)
         else:
-            pred_xstart, gamma_1, gamma_2, eta_1, eta_2 = vamp.run_vamp_reverse(x, y, t, noise_sig=torch.tensor(noise_sig).to(x.device), use_damping=True)
+            pred_xstart, gamma_1, gamma_2, eta_1, eta_2 = vamp.run_vamp(x, y, t, noise_sig=torch.tensor(noise_sig).to(x.device), use_damping=True)
 
         mse_1 = ((pred_xstart - truth) ** 2).sum() / (3 * 256 * 256)
         mse_2 = ((pred_xstart * (1 - vamp.mask) - truth * (1 - vamp.mask)) ** 2).sum() / torch.count_nonzero(1 - vamp.mask)
