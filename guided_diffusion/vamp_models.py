@@ -154,7 +154,7 @@ class VAMP:
         denoise_in = r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 1 == 0:
+        if t[0] % 25 == 0:
             plt.imsave(f'denoise_in.png', clear_color(denoise_in))
             plt.imsave(f'denoise_out.png', clear_color(denoise_out))
 
@@ -184,17 +184,17 @@ class VAMP:
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        for i in range(2):
+        for i in range(1):
             old_gamma_1 = gamma_1
             old_r_1 = r_1
 
             _, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig,
                                                          t_alpha_bar, noise_sig)
 
-            # max_g_2, _ = torch.max(1/gamma_2, dim=1)
+            max_g_2, _ = torch.max(1/gamma_2, dim=1)
 
-            # for q in range(self.Q):
-            #     r_2 += (max_g_2 - 1/gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :] # Noise measured region to missing level...
+            for q in range(self.Q):
+                r_2 += (max_g_2 - 1/gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :] # Noise measured region to missing level...
 
             # TODO: REMOVE...
             # r_2 += torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar).sqrt()
