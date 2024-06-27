@@ -154,7 +154,7 @@ class VAMP:
         denoise_in = r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 25 == 0:
+        if t[0] % 1 == 0:
             plt.imsave(f'denoise_in.png', clear_color(denoise_in))
             plt.imsave(f'denoise_out.png', clear_color(denoise_out))
 
@@ -223,11 +223,7 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         r_2 = x_t / torch.sqrt(t_alpha_bar)
-
-        if self.Q > 1:
-            gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar), t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
-        else:
-            gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
+        gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]*self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
 
         for i in range(2):
             old_gamma_2 = gamma_2
@@ -245,7 +241,7 @@ class VAMP:
                 max_g_2, _ = torch.max(1/gamma_2, dim=1, keepdim=True)
                 for q in range(self.Q):
                     new_r_2 += (r_2 + torch.randn_like(r_2).to(r_2.device) * (
-                                max_g_2 - 1 / gamma_2_raw[:, q]).sqrt()) * self.mask[q, None, :, :, :]
+                                1/gamma_2[:, q] - 1 / gamma_2_raw[:, q]).sqrt()) * self.mask[q, None, :, :, :]
 
                 r_2 = new_r_2
 
