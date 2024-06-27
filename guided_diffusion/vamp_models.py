@@ -248,10 +248,9 @@ class VAMP:
             print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
             plt.imsave(f'mu_1.png', clear_color(mu_1))
             plt.imsave(f'mu_2.png', clear_color(mu_2))
-            exit()
 
-            # if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
-            #     exit()
+            if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
+                exit()
 
         return mu_1, gamma_1, gamma_2, eta_1, eta_2
 
