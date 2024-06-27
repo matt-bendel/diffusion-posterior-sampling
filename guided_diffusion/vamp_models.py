@@ -239,7 +239,7 @@ class VAMP:
 
                 new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
                 max_g_2, _ = torch.max(1/gamma_2, dim=1, keepdim=True)
-                gam_diff = torch.maximum(1/gamma_2 - 1/gamma_2_raw, torch.zeros(gamma_2.shape))
+                gam_diff = torch.maximum(1/gamma_2 - 1/gamma_2_raw, torch.zeros(gamma_2.shape).to(gamma_2.device))
                 for q in range(self.Q):
                     new_r_2 += (r_2 + torch.randn_like(r_2).to(r_2.device) * gam_diff.sqrt()) * self.mask[q, None, :, :, :]
 
