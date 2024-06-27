@@ -239,7 +239,7 @@ class VAMP:
 
                 print(1/gamma_2)
                 print(1/gamma_2_raw)
-                exit()
+                exit(1/gamma_2 - 1/gamma_2_raw)
 
                 new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
                 max_g_2, _ = torch.max(1/gamma_2, dim=1, keepdim=True)
