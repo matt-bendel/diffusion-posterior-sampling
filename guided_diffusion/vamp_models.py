@@ -197,8 +197,8 @@ class VAMP:
             #     r_2 += (max_g_2 - 1/gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :] # Noise measured region to missing level...
 
             # TODO: REMOVE...
-            r_2 += torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar).sqrt()
-            gamma_2[:, 0] = t_alpha_bar / (1 - t_alpha_bar)
+            # r_2 += torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar).sqrt()
+            # gamma_2[:, 0] = t_alpha_bar / (1 - t_alpha_bar)
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
 
@@ -219,21 +219,17 @@ class VAMP:
 
     def run_vamp_reverse(self, x_t, y, t, noise_sig, use_damping=False):
         mu_1 = None  # needs to exist outside of for loop scope for return
-        gamma_2 = self.gamma_2
-        r_2 = self.r_2
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        if r_2 is None:
-            r_2 = x_t / torch.sqrt(t_alpha_bar)
+        r_2 = x_t / torch.sqrt(t_alpha_bar)
 
-        if gamma_2 is None:
-            if self.Q > 1:
-                gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar), t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
-            else:
-                gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
+        if self.Q > 1:
+            gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar), t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
+        else:
+            gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
 
-        for i in range(1):
+        for i in range(2):
             old_gamma_2 = gamma_2
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
@@ -260,9 +256,6 @@ class VAMP:
 
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
                 exit()
-        # exit()
-        self.gamma_2 = gamma_2
-        self.r_2 = r_2
 
         return mu_1, gamma_1, gamma_2, eta_1, eta_2
 
