@@ -88,10 +88,6 @@ class VAMP:
         return 1 / eta
 
     def uncond_denoiser_function(self, noisy_im, noise_var, gamma_2, noise=False):
-        if noise:
-            for q in range(self.Q):
-                noisy_im += (noise_var - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(noisy_im) * self.mask[q, None, :, :, :]  # Noise measured region to missing level...
-
         diff = torch.abs(
             noise_var[:, 0, None] - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
                 self.alphas_cumprod).to(noisy_im.device))
@@ -152,8 +148,13 @@ class VAMP:
         # Max var
         noise_var, _ = torch.max(1 / gamma_2, dim=1, keepdim=True)
 
+        new_r_2 = r_2.clone()
+        if noise:
+            for q in range(self.Q):
+                new_r_2 += (noise_var - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :]  # Noise measured region to missing level...
+
         # Denoise
-        mu_2, true_noise_var = self.uncond_denoiser_function(r_2.float(), noise_var, gamma_2, noise)
+        mu_2, true_noise_var = self.uncond_denoiser_function(new_r_2.float(), noise_var, gamma_2, noise)
 
         ################
         denoise_in = r_2.float()
@@ -165,7 +166,7 @@ class VAMP:
 
         ################
 
-        tr = self.denoiser_tr_approx(r_2, gamma_2, mu_2, noise_var, noise)
+        tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
         eta_2 = 1 / tr
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
