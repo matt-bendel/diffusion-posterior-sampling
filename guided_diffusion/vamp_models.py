@@ -202,6 +202,10 @@ class VAMP:
                                                             y / noise_sig,
                                                             t_alpha_bar, noise_sig)
 
+            print(r_2[0, :, 0, 0])
+            print(r_2[0, :, 1, 1])
+            exit()
+
             max_g_2, _ = torch.max(1 / gamma_2, dim=1)
 
             for q in range(self.Q):
