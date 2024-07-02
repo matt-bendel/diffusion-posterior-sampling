@@ -64,9 +64,10 @@ class VAMP:
             temp = self.svd.Vt(right_term)
             evals = (self.svd.add_zeros(self.svd.singulars().unsqueeze(0)).repeat(gamma_1.shape[0], 1) / noise_sig) ** 2
 
-            reshape_gam_1 = gamma_1_mult.clone().reshape(temp.shape[0], self.svd.channels, -1)
-            print(reshape_gam_1[0, :, 0])
-            print(reshape_gam_1[0, :, 1])
+            reshape_gam_1 = gamma_1_mult.clone().reshape(temp.shape[0], self.svd.channels, -1).reshape(temp.shape[0], -1)
+            print(reshape_gam_1[0, 0])
+            print(reshape_gam_1[0, 1])
+            print(temp.shape)
             # print(reshape_gam_1[0, 0])
             # print(reshape_gam_1[0, 1])
             # print(reshape_gam_1[0, ])
