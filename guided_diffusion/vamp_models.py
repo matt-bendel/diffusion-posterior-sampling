@@ -151,7 +151,8 @@ class VAMP:
         new_r_2 = r_2.clone()
         if noise:
             for q in range(self.Q):
-                new_r_2 += (noise_var - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :]  # Noise measured region to missing level...
+                print(noise_var[:, 0] - 1 / gamma_2[:, q])
+                new_r_2 += (noise_var[:, 0] - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :]  # Noise measured region to missing level...
 
         # Denoise
         mu_2, true_noise_var = self.uncond_denoiser_function(new_r_2.float(), noise_var, gamma_2, noise)
@@ -222,7 +223,7 @@ class VAMP:
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        r_2 = x_t / torch.sqrt(t_alpha_bar)
+        r_2 = x_t / torch.sqrt(1 - t_alpha_bar)
         gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
 
