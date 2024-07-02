@@ -43,6 +43,11 @@ class VAMP:
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         gamma_1_mult = torch.zeros(r_1.shape).to(y.device)
+        # TODO
+        gamma_1[:, 0] = 1
+        gamma_1[:, 1] = 2
+        gamma_1[:, 2] = 3
+        #####
         for q in range(self.Q):
             gamma_1_mult += gamma_1[:, q, None, None, None] * self.mask[q, :, :, :]
 
