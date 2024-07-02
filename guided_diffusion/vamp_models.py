@@ -71,10 +71,21 @@ class VAMP:
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
+        mult = self.mask.clone()
         if self.Q == 2:  # Inpainting
             singulars = self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1)
         elif self.Q == 3:  # Colorization
             singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1)).view(gamma_1.shape[0], 3, 256, 256)
+            red_mult = self.svd.V_small[:, 0]
+            green_mult = self.svd.V_small[:, 1]
+            blue_mult = self.svd.V_small[:, 2]
+
+            color_mults = [red_mult, green_mult, blue_mult]
+
+            for q in range(self.Q):
+                mult[q, 0, :, :] = color_mults[q][0]
+                mult[q, 1, :, :] = color_mults[q][1]
+                mult[q, 2, :, :] = color_mults[q][2]
         else:
             singulars = singulars.reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
 
@@ -82,7 +93,7 @@ class VAMP:
 
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
         for q in range(self.Q):
-            eta[:, q] += (diag_mat_inv * self.mask[q, None, :, :, :]).reshape(eta.shape[0], -1).sum(
+            eta[:, q] += (mult[q, None, :, :, :] * diag_mat_inv).reshape(eta.shape[0], -1).sum(
                 -1) / torch.count_nonzero(self.mask[q])
 
         return 1 / eta
