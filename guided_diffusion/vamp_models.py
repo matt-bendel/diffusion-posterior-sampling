@@ -58,8 +58,12 @@ class VAMP:
         elif self.Q == 3:  # Colorization
             temp = self.svd.Vt(right_term)
             print(self.svd.singulars().shape)
-            print(self.svd.add_zeros(self.svd.singulars().unsqueeze(0)).shape)
-            print(gamma_1.shape)
+            print(self.svd.add_zeros(self.svd.singulars().unsqueeze(0))[0, 0])
+            print(self.svd.add_zeros(self.svd.singulars().unsqueeze(0))[0, 1])
+            print(self.svd.add_zeros(self.svd.singulars().unsqueeze(0))[0, 65536])
+            print(self.svd.add_zeros(self.svd.singulars().unsqueeze(0))[0, 65537])
+            print(self.svd.add_zeros(self.svd.singulars().unsqueeze(0))[0, 131072])
+            print(self.svd.add_zeros(self.svd.singulars().unsqueeze(0))[0, 131073])
             exit()
             evals = ((self.svd.singulars_small / noise_sig)[None, :] ** 2 + gamma_1 + r_sig_inv ** 2).repeat(self.img_dim ** 2)
 
