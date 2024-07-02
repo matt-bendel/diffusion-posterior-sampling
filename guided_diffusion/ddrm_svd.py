@@ -58,6 +58,8 @@ class H_functions:
         """
         temp = self.Ut(vec)
         singulars = self.singulars()
+        print(singulars.shape)
+        print(temp.shape)
         return self.V(self.add_zeros(singulars * temp[:, :singulars.shape[0]]))
 
     def vamp_mu_1(self, vec, sig_y, sig_ddpm, gamma_1, evals=None):
@@ -263,7 +265,6 @@ class Colorization(H_functions):
         H = torch.Tensor([[0.3333, 0.3334, 0.3333]]).to(device)
         self.U_small, self.singulars_small, self.V_small = torch.svd(H, some=False)
         self.Vt_small = self.V_small.transpose(0, 1)
-        print(self.V_small.shape)
         self.mask = torch.zeros(self.channels, self.channels, img_dim, img_dim)
         self.mask[0, 0, :, :] = 1.
         self.mask[1, 1, :, :] = 1.
