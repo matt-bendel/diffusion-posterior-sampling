@@ -201,7 +201,7 @@ class VAMP:
             old_gamma_1 = gamma_1
             old_r_1 = r_1
 
-            _, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
+            mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                             y / noise_sig,
                                                             t_alpha_bar, noise_sig)
 
@@ -222,6 +222,9 @@ class VAMP:
             # gamma_2[:, 0] = t_alpha_bar / (1 - t_alpha_bar)
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
+
+            plt.imsave(f'mu_1.png', clear_color(mu_1))
+            plt.imsave(f'mu_2.png', clear_color(mu_2))
             exit()
 
             if use_damping:
