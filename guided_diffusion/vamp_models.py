@@ -180,6 +180,7 @@ class VAMP:
             plt.imsave(f'denoise_in.png', clear_color(denoise_in))
             plt.imsave(f'denoise_out.png', clear_color(denoise_out))
 
+            exit()
         ################
 
         tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
