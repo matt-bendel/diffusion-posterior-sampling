@@ -75,9 +75,6 @@ class VAMP:
             singulars = self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1)
         elif self.Q == 3:  # Colorization
             singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1)).view(gamma_1.shape[0], 3, 256, 256)
-            print(singulars[0, :, 0, 0])
-            print(singulars[0, :, 0, 1])
-            exit()
         else:
             singulars = singulars.reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
 
