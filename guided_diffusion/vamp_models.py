@@ -197,7 +197,7 @@ class VAMP:
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        for i in range(1):
+        for i in range(2):
             old_gamma_1 = gamma_1
             old_r_1 = r_1
 
@@ -207,7 +207,6 @@ class VAMP:
 
             print(r_2[0, :, 0, 0])
             print(r_2[0, :, 1, 1])
-            exit()
 
             max_g_2, _ = torch.max(1 / gamma_2, dim=1)
 
@@ -233,6 +232,7 @@ class VAMP:
 
         self.gamma_1 = gamma_1
         self.r_1 = r_1
+        exit()
 
         return mu_2, gamma_1, gamma_2, eta_1, eta_2
 
