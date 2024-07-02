@@ -87,7 +87,12 @@ class VAMP:
 
         return 1 / eta
 
-    def uncond_denoiser_function(self, noisy_im, noise_var, t, t_alpha_bar):
+    def uncond_denoiser_function(self, noisy_im, noise_var, gamma_2):
+        max_g_2, _ = torch.max(1 / gamma_2, dim=1)
+
+        for q in range(self.Q):
+            noisy_im += (noise_var - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(noisy_im) * self.mask[q, None, :, :, :]  # Noise measured region to missing level...
+
         diff = torch.abs(
             noise_var[:, 0, None] - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
                 self.alphas_cumprod).to(noisy_im.device))
@@ -119,7 +124,7 @@ class VAMP:
             probe = torch.randn_like(mu_2).to(r_2.device)
             # probe = probe / torch.norm(probe, dim=1, keepdim=True) # unit norm
             probe = probe / torch.sqrt(torch.mean(probe ** 2, dim=(1, 2, 3))[:, None, None, None])  # isotropic
-            mu_2_delta, _ = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), noise_var, t, t_alpha_bar)
+            mu_2_delta, _ = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), noise_var, gamma_2)
             probed_diff = probe * (mu_2_delta - mu_2)
 
             for q in range(self.Q):
@@ -158,7 +163,7 @@ class VAMP:
         # noise_var = noise_var / total_count
 
         # Denoise
-        mu_2, true_noise_var = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
+        mu_2, true_noise_var = self.uncond_denoiser_function(r_2.float(), noise_var, gamma_2)
 
         ################
         denoise_in = r_2.float()
@@ -192,19 +197,13 @@ class VAMP:
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        for i in range(2):
+        for i in range(1):
             old_gamma_1 = gamma_1
             old_r_1 = r_1
 
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                             y / noise_sig,
                                                             t_alpha_bar, noise_sig)
-
-            max_g_2, _ = torch.max(1 / gamma_2, dim=1)
-
-            for q in range(self.Q):
-                r_2 += (max_g_2 - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :]  # Noise measured region to missing level...
-                gamma_2[:, q] = max_g_2
 
             # TODO: REMOVE...
             # r_2 += torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar).sqrt()
