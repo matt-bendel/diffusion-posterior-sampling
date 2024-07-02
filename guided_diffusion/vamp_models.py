@@ -210,11 +210,14 @@ class VAMP:
             for q in range(self.Q):
                 r_2 += (max_g_2 - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :]  # Noise measured region to missing level...
 
+            print(max_g_2)
+            print(1/gamma_2)
             # TODO: REMOVE...
             # r_2 += torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar).sqrt()
             # gamma_2[:, 0] = t_alpha_bar / (1 - t_alpha_bar)
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
+            exit()
 
             if use_damping:
                 r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
