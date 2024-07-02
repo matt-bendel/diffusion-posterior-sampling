@@ -67,6 +67,11 @@ class VAMP:
             reshape_gam_1 = gamma_1_mult.clone().reshape(temp.shape[0], self.svd.channels, -1).reshape(temp.shape[0], -1)
             print(reshape_gam_1[0, 0])
             print(reshape_gam_1[0, 1])
+            print(reshape_gam_1[0, 65536])
+            print(reshape_gam_1[0, 65537])
+            # print(reshape_gam_1[0, 65537])
+            # print(reshape_gam_1[0, 65537])
+
             print(temp.shape)
             # print(reshape_gam_1[0, 0])
             # print(reshape_gam_1[0, 1])
