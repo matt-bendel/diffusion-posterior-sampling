@@ -76,9 +76,9 @@ class VAMP:
             singulars = self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1)
         elif self.Q == 3:  # Colorization
             singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1)).view(gamma_1.shape[0], 3, 256, 256)
-            red_mult = self.svd.V_small[0, :]
-            green_mult = self.svd.V_small[1, :]
-            blue_mult = self.svd.V_small[2, :]
+            red_mult = self.svd.V_small[0, :] ** 2
+            green_mult = self.svd.V_small[1, :] ** 2
+            blue_mult = self.svd.V_small[2, :] ** 2
 
             color_mults = [red_mult, green_mult, blue_mult]
 
