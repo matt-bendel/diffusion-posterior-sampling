@@ -57,7 +57,8 @@ class VAMP:
             return inv_val * right_term, gamma_1_mult
         elif self.Q == 3:  # Colorization
             temp = self.svd.Vt(right_term)
-            print(self.svd.singulars_small.shape)
+            print(self.svd.singulars().shape)
+            print(self.svd.add_zeros(self.svd.singulars().unsqueeze(0)).shape)
             print(gamma_1.shape)
             exit()
             evals = ((self.svd.singulars_small / noise_sig)[None, :] ** 2 + gamma_1 + r_sig_inv ** 2).repeat(self.img_dim ** 2)
