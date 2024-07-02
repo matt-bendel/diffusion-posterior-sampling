@@ -43,11 +43,6 @@ class VAMP:
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         gamma_1_mult = torch.zeros(r_1.shape).to(y.device)
-        # TODO
-        gamma_1[:, 0] = 1
-        gamma_1[:, 1] = 2
-        gamma_1[:, 2] = 3
-        #####
         for q in range(self.Q):
             gamma_1_mult += gamma_1[:, q, None, None, None] * self.mask[q, :, :, :]
 
@@ -65,24 +60,8 @@ class VAMP:
             evals = (self.svd.add_zeros(self.svd.singulars().unsqueeze(0)).repeat(gamma_1.shape[0], 1) / noise_sig) ** 2
 
             reshape_gam_1 = gamma_1_mult.clone().reshape(temp.shape[0], self.svd.channels, -1).reshape(temp.shape[0], -1)
-            print(reshape_gam_1[0, 0])
-            print(reshape_gam_1[0, 1])
-            print(reshape_gam_1[0, 65536])
-            print(reshape_gam_1[0, 65537])
-            print(temp[0, 0])
-            print(temp[0, 1])
-            print(temp[0, 65536])
-            print(temp[0, 65537])
-            # print(reshape_gam_1[0, 65537])
-
-            print(temp.shape)
-            # print(reshape_gam_1[0, 0])
-            # print(reshape_gam_1[0, 1])
-            # print(reshape_gam_1[0, ])
-            exit()
             temp = ((evals + sig_ddpm ** 2 + reshape_gam_1) ** -1) * temp
-            return self.V(temp)
-            pass
+            return self.V(temp), gamma_1_mult
         else:
             return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1_mult).view(x_t.shape[0], x_t.shape[1],
                                                                                            x_t.shape[2],
@@ -95,7 +74,10 @@ class VAMP:
         if self.Q == 2:  # Inpainting
             singulars = self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1)
         elif self.Q == 3:  # Colorization
-            pass
+            singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1)).view(gamma_1.shape[0], 3, 256, 256)
+            print(singulars[0, :, 0, 0])
+            print(singulars[0, :, 0, 1])
+            exit()
         else:
             singulars = singulars.reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
 
