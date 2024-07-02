@@ -3,17 +3,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from guided_diffusion.ddrm_svd import Deblurring
 
+
 def clear_color(x):
     if torch.is_complex(x):
         x = torch.abs(x)
     x = x.detach().cpu().squeeze().numpy()
     return normalize_np(np.transpose(x, (1, 2, 0)))
 
+
 def normalize_np(img):
     """ Normalize img in arbitrary range to [0, 1] """
     img -= np.min(img)
     img /= np.max(img)
     return img
+
 
 class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
@@ -48,10 +51,22 @@ class VAMP:
         right_term += self.svd.Ht(y).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]) / noise_sig
         right_term += gamma_1_mult * r_1
 
-        if self.Q > 1:  # Inpainting
+        if self.Q == 2:  # Inpainting
             evals = (self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1) / noise_sig) ** 2
             inv_val = (evals + r_sig_inv ** 2 + gamma_1_mult) ** -1
             return inv_val * right_term, gamma_1_mult
+        elif self.Q == 3:  # Colorization
+            temp = self.svd.Vt(right_term)
+            print(self.svd.singulars_small.shape)
+            print(gamma_1.shape)
+            exit()
+            evals = ((self.svd.singulars_small / noise_sig)[None, :] ** 2 + gamma_1 + r_sig_inv ** 2).repeat(self.img_dim ** 2)
+
+            reshape_gam_1 = gamma_1.clone().reshape(vec.shape[0], self.channels, -1).permute(0, 2, 1).reshape(
+                vec.shape[0], -1)
+            temp = ((evals + sig_ddpm ** 2 + reshape_gam_1) ** -1) * temp
+            return self.V(temp)
+            pass
         else:
             return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1_mult).view(x_t.shape[0], x_t.shape[1],
                                                                                            x_t.shape[2],
@@ -61,8 +76,10 @@ class VAMP:
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
 
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
-        if self.Q > 1:  # Inpainting
+        if self.Q == 2:  # Inpainting
             singulars = self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1)
+        elif self.Q == 3:  # Colorization
+            pass
         else:
             singulars = singulars.reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
 
@@ -99,7 +116,8 @@ class VAMP:
                                                                              None] * (noisy_im - noise_est)
         # x_0 = noisy_im - torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
 
-        return x_0,  ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(noisy_im.device))[t]
+        return x_0, ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(
+            noisy_im.device))[t]
 
     def denoiser_tr_approx(self, r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var):
         eta = torch.zeros(gamma_2.shape).to(gamma_2.device)
@@ -188,13 +206,15 @@ class VAMP:
             old_gamma_1 = gamma_1
             old_r_1 = r_1
 
-            _, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig,
-                                                         t_alpha_bar, noise_sig)
+            _, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
+                                                            y / noise_sig,
+                                                            t_alpha_bar, noise_sig)
 
-            max_g_2, _ = torch.max(1/gamma_2, dim=1)
+            max_g_2, _ = torch.max(1 / gamma_2, dim=1)
 
             for q in range(self.Q):
-                r_2 += (max_g_2 - 1/gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :] # Noise measured region to missing level...
+                r_2 += (max_g_2 - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :,
+                                                                                      :]  # Noise measured region to missing level...
 
             # TODO: REMOVE...
             # r_2 += torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar).sqrt()
@@ -207,7 +227,8 @@ class VAMP:
                 gamma_1 = (self.damping_factor * torch.abs(gamma_1) ** (-1 / 2) + (1 - self.damping_factor) * (
                     old_gamma_1) ** (-1 / 2)) ** -2
 
-            print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
+            print(
+                f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
 
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
                 exit()
@@ -223,14 +244,16 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         r_2 = x_t / torch.sqrt(t_alpha_bar)
-        gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]*self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
+        gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
+            x_t.device)
 
         for i in range(5 if t[0] > 950 else (3 if t[0] > 800 else 1)):
             old_gamma_2 = gamma_2
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
-            mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar), y / noise_sig,
-                                                         t_alpha_bar, noise_sig)
+            mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
+                                                               y / noise_sig,
+                                                               t_alpha_bar, noise_sig)
 
             if use_damping:
                 gamma_2_raw = gamma_2
@@ -238,14 +261,17 @@ class VAMP:
                     old_gamma_2) ** (-1 / 2)) ** -2
 
                 new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
-                max_g_2, _ = torch.max(1/gamma_2, dim=1, keepdim=False)
-                gam_diff = torch.maximum(max_g_2[:, None] - 1/gamma_2_raw, torch.zeros(gamma_2.shape).to(gamma_2.device))
+                max_g_2, _ = torch.max(1 / gamma_2, dim=1, keepdim=False)
+                gam_diff = torch.maximum(max_g_2[:, None] - 1 / gamma_2_raw,
+                                         torch.zeros(gamma_2.shape).to(gamma_2.device))
                 for q in range(self.Q):
-                    new_r_2 += (r_2 + torch.randn_like(r_2).to(r_2.device) * gam_diff[:, q].sqrt()) * self.mask[q, None, :, :, :]
+                    new_r_2 += (r_2 + torch.randn_like(r_2).to(r_2.device) * gam_diff[:, q].sqrt()) * self.mask[q, None,
+                                                                                                      :, :, :]
 
                 r_2 = new_r_2
 
-            print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
+            print(
+                f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
             plt.imsave(f'mu_1.png', clear_color(mu_1))
             plt.imsave(f'mu_2.png', clear_color(mu_2))
 

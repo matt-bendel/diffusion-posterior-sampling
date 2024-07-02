@@ -264,9 +264,9 @@ class Colorization(H_functions):
         self.U_small, self.singulars_small, self.V_small = torch.svd(H, some=False)
         self.Vt_small = self.V_small.transpose(0, 1)
         self.mask = torch.zeros(self.channels, self.channels, img_dim, img_dim)
-        self.mask[0, 0, :, :] = 1
-        self.mask[1, 1, :, :] = 1
-        self.mask[2, 2, :, :] = 1
+        self.mask[0, 0, :, :] = 1.
+        self.mask[1, 1, :, :] = 1.
+        self.mask[2, 2, :, :] = 1.
 
     def V(self, vec):
         # get the needles
