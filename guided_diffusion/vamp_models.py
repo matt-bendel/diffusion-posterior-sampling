@@ -205,7 +205,10 @@ class VAMP:
                                                             y / noise_sig,
                                                             t_alpha_bar, noise_sig)
 
-            plt.imsave(f'denoise_in_pre_adjust.png', clear_color(r_2))
+            test_r_2 = r_2.clone()
+            test_r_2[:, 1, :, :] = test_r_2[:, 0, :, :]
+            test_r_2[:, 2, :, :] = test_r_2[:, 0, :, :]
+            plt.imsave(f'denoise_in_pre_adjust.png', clear_color(test_r_2))
 
             max_g_2, _ = torch.max(1 / gamma_2, dim=1)
 
