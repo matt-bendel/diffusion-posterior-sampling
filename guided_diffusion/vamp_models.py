@@ -79,12 +79,9 @@ class VAMP:
             singulars = singulars.reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
 
         diag_mat_inv = ((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1) ** -1
-        print(singulars[0, :, 0, 0])
-        print(gamma_1[0, :, 0, 0])
 
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
         for q in range(self.Q):
-            print(torch.count_nonzero(self.mask[q]))
             eta[:, q] += (diag_mat_inv * self.mask[q, None, :, :, :]).reshape(eta.shape[0], -1).sum(
                 -1) / torch.count_nonzero(self.mask[q])
 
@@ -204,9 +201,6 @@ class VAMP:
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                             y / noise_sig,
                                                             t_alpha_bar, noise_sig)
-
-            print(r_2[0, :, 0, 0])
-            print(r_2[0, :, 1, 1])
 
             max_g_2, _ = torch.max(1 / gamma_2, dim=1)
 
