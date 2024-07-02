@@ -98,7 +98,6 @@ class VAMP:
         delta = torch.minimum(noise_var / self.v_min, ones)
         noise_var_clip = torch.maximum(noise_var, ones * self.v_min)
 
-        # print(f'{noise_var[0].cpu().numpy()};{delta[0].cpu().numpy()};{t[0]}')
         scaled_noisy_im = noisy_im * torch.sqrt(1 / (1 + noise_var_clip[:, 0, None, None, None]))
 
         noise_predict = self.model(scaled_noisy_im, t)
@@ -109,7 +108,6 @@ class VAMP:
         noise_est = torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
         x_0 = (1 - delta ** self.power)[:, 0, None, None, None] * noisy_im + (delta ** self.power)[:, 0, None, None,
                                                                              None] * (noisy_im - noise_est)
-        # x_0 = noisy_im - torch.sqrt(noise_var_clip)[:, 0, None, None, None] * noise_predict
 
         return x_0, ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(
             noisy_im.device))[t]
@@ -162,7 +160,6 @@ class VAMP:
         # Denoise
         mu_2, true_noise_var = self.uncond_denoiser_function(r_2.float(), noise_var, t, t_alpha_bar)
 
-        # print(noise_var)
         ################
         denoise_in = r_2.float()
         denoise_out = mu_2
@@ -176,7 +173,6 @@ class VAMP:
         ################
 
         tr = self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
-        print(tr)
         eta_2 = 1 / tr
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
@@ -210,6 +206,7 @@ class VAMP:
 
             for q in range(self.Q):
                 r_2 += (max_g_2 - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :]  # Noise measured region to missing level...
+                gamma_2[:, q] = max_g_2
 
             # TODO: REMOVE...
             # r_2 += torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar).sqrt()
