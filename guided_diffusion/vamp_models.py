@@ -26,7 +26,7 @@ class VAMP:
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.2  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.05  # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -167,7 +167,7 @@ class VAMP:
         denoise_in = r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 1 == 0:
+        if t[0] % 25 == 0:
             plt.imsave(f'denoise_in.png', clear_color(denoise_in))
             plt.imsave(f'denoise_out.png', clear_color(denoise_out))
 
@@ -215,11 +215,6 @@ class VAMP:
             # gamma_2[:, 0] = t_alpha_bar / (1 - t_alpha_bar)
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, t_alpha_bar)
-
-            plt.imsave(f'mu_1.png', clear_color(mu_1))
-            plt.imsave(f'mu_2.png', clear_color(mu_2))
-            print(self.Q)
-            exit()
 
             if use_damping:
                 r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
