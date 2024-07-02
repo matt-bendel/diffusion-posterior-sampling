@@ -271,8 +271,6 @@ class Colorization(H_functions):
     def V(self, vec):
         # get the needles
         needles = vec.clone().reshape(vec.shape[0], self.channels, -1).permute(0, 2, 1)  # shape: B, WH, C'
-        print(needles[0, 0, :])
-        exit()
         # multiply each needle by the small V
         needles = torch.matmul(self.V_small, needles.reshape(-1, self.channels, 1)).reshape(vec.shape[0], -1,
                                                                                             self.channels)  # shape: B, WH, C
