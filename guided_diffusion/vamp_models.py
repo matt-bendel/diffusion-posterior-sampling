@@ -80,9 +80,6 @@ class VAMP:
             green_mult = self.svd.V_small[:, 1]
             blue_mult = self.svd.V_small[:, 2]
 
-            print(self.svd.V_small)
-            exit()
-
             color_mults = [red_mult, green_mult, blue_mult]
 
             for q in range(self.Q):
