@@ -61,7 +61,7 @@ class VAMP:
 
             reshape_gam_1 = gamma_1_mult.clone().reshape(temp.shape[0], self.svd.channels, -1).reshape(temp.shape[0], -1)
             temp = ((evals + r_sig_inv ** 2 + reshape_gam_1) ** -1) * temp
-            return self.svd.V(temp), gamma_1_mult
+            return self.svd.V(temp).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]), gamma_1_mult
         else:
             return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1_mult).view(x_t.shape[0], x_t.shape[1],
                                                                                            x_t.shape[2],
