@@ -218,6 +218,7 @@ class VAMP:
 
             plt.imsave(f'mu_1.png', clear_color(mu_1))
             plt.imsave(f'mu_2.png', clear_color(mu_2))
+            print(self.Q)
             exit()
 
             if use_damping:
