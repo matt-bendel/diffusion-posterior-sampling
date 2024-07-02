@@ -180,7 +180,6 @@ class VAMP:
             plt.imsave(f'denoise_in.png', clear_color(denoise_in))
             plt.imsave(f'denoise_out.png', clear_color(denoise_out))
 
-            exit()
         ################
 
         tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
@@ -217,7 +216,7 @@ class VAMP:
             # r_2 += torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar).sqrt()
             # gamma_2[:, 0] = t_alpha_bar / (1 - t_alpha_bar)
 
-            r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, noise=True)
+            r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, noise=False)
 
             if use_damping:
                 r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
