@@ -69,7 +69,10 @@ class VAMP:
             print(reshape_gam_1[0, 1])
             print(reshape_gam_1[0, 65536])
             print(reshape_gam_1[0, 65537])
-            # print(reshape_gam_1[0, 65537])
+            print(temp[0, 0])
+            print(temp[0, 1])
+            print(temp[0, 65536])
+            print(temp[0, 65537])
             # print(reshape_gam_1[0, 65537])
 
             print(temp.shape)
