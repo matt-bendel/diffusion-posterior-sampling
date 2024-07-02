@@ -205,18 +205,11 @@ class VAMP:
                                                             y / noise_sig,
                                                             t_alpha_bar, noise_sig)
 
-            test_r_2 = r_2.clone()
-            test_r_2[:, 0, :, :] = test_r_2[:, 1, :, :]
-            test_r_2[:, 2, :, :] = test_r_2[:, 1, :, :]
-            plt.imsave(f'denoise_in_pre_adjust.png', clear_color(test_r_2))
-
             max_g_2, _ = torch.max(1 / gamma_2, dim=1)
 
             for q in range(self.Q):
                 r_2 += (max_g_2 - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :]  # Noise measured region to missing level...
 
-            print(max_g_2)
-            print(1/gamma_2)
             # TODO: REMOVE...
             # r_2 += torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar).sqrt()
             # gamma_2[:, 0] = t_alpha_bar / (1 - t_alpha_bar)
