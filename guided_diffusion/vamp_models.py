@@ -176,6 +176,7 @@ class VAMP:
         ################
 
         tr = self.denoiser_tr_approx(r_2, gamma_2, mu_2, t, t_alpha_bar, noise_var)
+        print(tr)
         eta_2 = 1 / tr
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
@@ -207,8 +208,8 @@ class VAMP:
 
             max_g_2, _ = torch.max(1 / gamma_2, dim=1)
 
-            # for q in range(self.Q):
-            #     r_2 += (max_g_2 - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :]  # Noise measured region to missing level...
+            for q in range(self.Q):
+                r_2 += (max_g_2 - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :]  # Noise measured region to missing level...
 
             # TODO: REMOVE...
             # r_2 += torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar).sqrt()
