@@ -210,7 +210,7 @@ def main():
                     vamp_model = VAMP(model, sampler.betas_model, sampler.alphas_cumprod_model, 1, 1, x_start, H,
                                       inpainting=inpainting)
 
-                    t_vals = [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 950, 999]
+                    t_vals = np.arange(1000)
                     etas = []
                     mse = []
                     input_var = []
