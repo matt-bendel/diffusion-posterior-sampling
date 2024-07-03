@@ -105,7 +105,7 @@ def main():
     operators = ['sr_bicubic4', 'sr_bicubic8', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'denoising']
     noise_levels = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 1]
 
-    operators = ['color']
+    operators = ['inpainting']
     noise_levels = [0.01]
 
     for l in range(len(operators)):
