@@ -123,8 +123,8 @@ class VAMP:
         x_0 = (1 - delta ** self.power)[:, 0, None, None, None] * noisy_im + (delta ** self.power)[:, 0, None, None,
                                                                              None] * (noisy_im - noise_est)
 
-        return x_0, ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(self.alphas_cumprod).to(
-            noisy_im.device))[t]
+        return x_0, ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
+                self.alphas_cumprod).to(noisy_im.device))[t], t
 
     def denoiser_tr_approx(self, r_2, gamma_2, mu_2, noise_var, noise=False):
         eta = torch.zeros(gamma_2.shape).to(gamma_2.device)
@@ -133,7 +133,7 @@ class VAMP:
             probe = torch.randn_like(mu_2).to(r_2.device)
             # probe = probe / torch.norm(probe, dim=1, keepdim=True) # unit norm
             probe = probe / torch.sqrt(torch.mean(probe ** 2, dim=(1, 2, 3))[:, None, None, None])  # isotropic
-            mu_2_delta, _ = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), noise_var, gamma_2, noise)
+            mu_2_delta, _, _ = self.uncond_denoiser_function((r_2 + self.delta * probe).float(), noise_var, gamma_2, noise)
             probed_diff = probe * (mu_2_delta - mu_2)
 
             for q in range(self.Q):
@@ -170,7 +170,7 @@ class VAMP:
                 new_r_2 += (noise_var[:, 0] - 1 / gamma_2[:, q]).sqrt() * torch.randn_like(r_2) * self.mask[q, None, :, :, :]  # Noise measured region to missing level...
 
         # Denoise
-        mu_2, true_noise_var = self.uncond_denoiser_function(new_r_2.float(), noise_var, gamma_2, noise)
+        mu_2, true_noise_var, used_t = self.uncond_denoiser_function(new_r_2.float(), noise_var, gamma_2, noise)
 
         ################
         denoise_in = new_r_2.float()
@@ -193,7 +193,7 @@ class VAMP:
         ################
 
         if t[0] > 200:
-            eta_2 = 1 / (self.scale_factor[t[0]] * noise_var.sqrt())
+            eta_2 = 1 / (self.scale_factor[used_t] * true_noise_var.sqrt())
         else:
             tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
             eta_2 = 1 / tr
