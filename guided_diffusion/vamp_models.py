@@ -33,6 +33,9 @@ class VAMP:
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
         self.Q = self.mask.shape[0]
+        with open('eta_2_scale.npy', 'rb') as f:
+            self.scale_factor = torch.from_numpy(np.load(f)).to(x_T.device)
+
         print(self.Q)
 
         self.betas = torch.tensor(betas).to(x_T.device)
@@ -189,8 +192,12 @@ class VAMP:
 
         ################
 
-        tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
-        eta_2 = 1 / tr
+        if t[0] > 200:
+            eta_2 = 1 / (self.scale_factor[t[0]] * noise_var.sqrt())
+        else:
+            tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
+            eta_2 = 1 / tr
+
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
         for q in range(self.Q):
