@@ -226,6 +226,10 @@ def main():
                         etas.append(eta[0, 0].cpu().numpy())
                         mse.append(((vamp_model.mask[0, None, :, :, :] * (mu - x_start) ** 2).sum() / torch.count_nonzero(vamp_model.mask)).cpu().numpy())
 
+                        print(t)
+                        print(etas[-1])
+                        print(mse[-1])
+
 
                     plt.figure()
                     plt.semilogy(t_vals, etas)
