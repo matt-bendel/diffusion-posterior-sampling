@@ -212,13 +212,13 @@ def main():
 
                     t_vals = [0, 100, 250, 500, 999]
                     for t in t_vals:
-                        x_t = sampler.q_sample(x_start, t) / torch.sqrt(torch.tensor(vamp_model.alphas_cumprod).to(x_t.device)[t])
+                        x_t = sampler.q_sample(x_start, t) / torch.sqrt(torch.tensor(vamp_model.alphas_cumprod).to(x_start.device)[t])
                         noise_var = (1 - torch.tensor(vamp_model.alphas_cumprod).to(x_t.device)) / torch.tensor(
                             vamp_model.alphas_cumprod).to(x_t.device)
                         noise_var = noise_var[t].unsqueeze(0).repeat(x_t.shape[0], 1)
-                        print(noise_var.shape)
+                        mu, _ = vamp_model.uncond_denoiser_function(x_t, noise_var, False, False)
+                        plt.imsave(f'denoise_{t}.png', clear_color(mu))
                         exit()
-                        mu = vamp_model.uncond_denoiser_function()
 
                     # sample, g1_min, g1_max, g2_min, g2_max, e1_min, e1_max, e2_min, e2_max, mse_1, mse_2 = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
                     #                    noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img)
