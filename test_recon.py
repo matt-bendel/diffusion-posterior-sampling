@@ -210,14 +210,21 @@ def main():
                     vamp_model = VAMP(model, sampler.betas_model, sampler.alphas_cumprod_model, 1, 1, x_start, H,
                                       inpainting=inpainting)
 
-                    t_vals = [0, 100, 250, 500, 999]
+                    t_vals = [0, 100, 250, 500, 750, 999]
                     for t in t_vals:
                         x_t = sampler.q_sample(x_start, t) / torch.sqrt(torch.tensor(vamp_model.alphas_cumprod).to(x_start.device)[t])
                         noise_var = (1 - torch.tensor(vamp_model.alphas_cumprod).to(x_t.device)) / torch.tensor(
                             vamp_model.alphas_cumprod).to(x_t.device)
                         noise_var = noise_var[t].unsqueeze(0).repeat(x_t.shape[0], 1).float()
                         mu, _ = vamp_model.uncond_denoiser_function(x_t.float(), noise_var, False, False)
-                        plt.imsave(f'denoise_{t}.png', clear_color(mu))
+                        plt.imsave(f'denoise_in_{t}.png', clear_color(x_t))
+                        plt.imsave(f'denoise_out_{t}.png', clear_color(mu))
+
+                        eta = vamp_model.denoiser_tr_approx(x_t, torch.tensor([1/noise_levels[l]**2, 1/noise_var[0, 0]]).to(mu.device).unsqueeze(0).repeat(x_t.shape[0], 1), mu, noise_var, False)
+                        print(eta)
+                        print((vamp_model.mask[0, None, :, :, :] * (mu - x_start) ** 2).sum() / (3 * 256 * 256))
+                        print(((1 - vamp_model.mask[0, None, :, :, :]) * (mu - x_start) ** 2).sum() / (3 * 256 * 256))
+
 
                     exit()
 
