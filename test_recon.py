@@ -115,6 +115,7 @@ def main():
         noiser = get_noise(**measure_config['noise'])
 
         base_im_count = 0
+        output_var_curves = []
         for i, data in enumerate(test_loader):
             if i <= 16: #i <= 3:
                 continue
@@ -223,29 +224,33 @@ def main():
                         # plt.imsave(f'denoise_in_{t}.png', clear_color(x_t))
                         # plt.imsave(f'denoise_out_{t}.png', clear_color(mu))
 
-                        eta = vamp_model.denoiser_tr_approx(x_t, torch.tensor([1/noise_var[0, 0]]).to(mu.device).unsqueeze(0).repeat(x_t.shape[0], 1), mu, noise_var, False)
-                        etas.append(eta[0, 0].cpu().numpy())
+                        # eta = vamp_model.denoiser_tr_approx(x_t, torch.tensor([1/noise_var[0, 0]]).to(mu.device).unsqueeze(0).repeat(x_t.shape[0], 1), mu, noise_var, False)
+                        # etas.append(eta[0, 0].cpu().numpy())
                         mse.append(((vamp_model.mask[0, None, :, :, :] * (mu - x_start) ** 2).sum() / torch.count_nonzero(vamp_model.mask)).cpu().numpy())
                         input_var.append(noise_var[0, 0].cpu().numpy())
                         print(t)
-                        print(etas[-1])
-                        print(mse[-1])
-                        print('')
 
 
                     plt.figure()
-                    plt.semilogy(t_vals, etas)
                     plt.semilogy(t_vals, mse)
                     plt.semilogy(t_vals, input_var)
                     plt.semilogy(t_vals, np.sqrt(input_var))
+                    output_var_curves.append(mse)
                     plt.xlabel('t')
-                    plt.legend(['1/eta_2', 'MSE', 'Input variance'])
+                    plt.legend(['MSE', 'Input variance'])
                     plt.savefig(f'eta_2_debug_{i}.png')
                     plt.close()
 
                     # sample, g1_min, g1_max, g2_min, g2_max, e1_min, e1_max, e2_min, e2_max, mse_1, mse_2 = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
                     #                    noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img)
             if i == 20:
+                plt.figure()
+                plt.semilogy(t_vals, np.mean(np.array(output_var_curves), axis=0))
+                plt.semilogy(t_vals, np.sqrt(input_var))
+                plt.xlabel('t')
+                plt.legend(['output variance', 'sqrt(input_variance)'])
+                plt.savefig(f'eta_2_debug_avg.png')
+                plt.close()
                 exit()
             else:
                 continue
