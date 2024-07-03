@@ -210,7 +210,7 @@ def main():
                     vamp_model = VAMP(model, sampler.betas_model, sampler.alphas_cumprod_model, 1, 1, x_start, H,
                                       inpainting=inpainting)
 
-                    t_vals = [0, 100, 250, 500, 750, 999]
+                    t_vals = [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 950, 999]
                     etas = []
                     mse = []
                     for t in t_vals:
@@ -222,13 +222,14 @@ def main():
                         plt.imsave(f'denoise_in_{t}.png', clear_color(x_t))
                         plt.imsave(f'denoise_out_{t}.png', clear_color(mu))
 
-                        eta = vamp_model.denoiser_tr_approx(x_t, torch.tensor([1/noise_var[0, 0]]).to(mu.device).unsqueeze(0).repeat(x_t.shape[0], 1), mu, noise_var, False)
+                        eta = 1/vamp_model.denoiser_tr_approx(x_t, torch.tensor([1/noise_var[0, 0]]).to(mu.device).unsqueeze(0).repeat(x_t.shape[0], 1), mu, noise_var, False)
                         etas.append(eta[0, 0].cpu().numpy())
                         mse.append(((vamp_model.mask[0, None, :, :, :] * (mu - x_start) ** 2).sum() / torch.count_nonzero(vamp_model.mask)).cpu().numpy())
 
                         print(t)
                         print(etas[-1])
                         print(mse[-1])
+                        print('')
 
 
                     plt.figure()
