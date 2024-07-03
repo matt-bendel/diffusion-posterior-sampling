@@ -193,8 +193,7 @@ class VAMP:
         ################
 
         if t[0] > 200:
-            print(used_t)
-            eta_2 = 1 / (self.scale_factor[used_t] * true_noise_var.sqrt())
+            eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt())
         else:
             tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
             eta_2 = 1 / tr
@@ -257,7 +256,7 @@ class VAMP:
         gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
 
-        for i in range(2):
+        for i in range(3):
             old_gamma_2 = gamma_2
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t)
