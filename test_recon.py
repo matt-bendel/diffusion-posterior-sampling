@@ -222,7 +222,7 @@ def main():
                         plt.imsave(f'denoise_in_{t}.png', clear_color(x_t))
                         plt.imsave(f'denoise_out_{t}.png', clear_color(mu))
 
-                        eta = 1/vamp_model.denoiser_tr_approx(x_t, torch.tensor([1/noise_var[0, 0]]).to(mu.device).unsqueeze(0).repeat(x_t.shape[0], 1), mu, noise_var, False)
+                        eta = vamp_model.denoiser_tr_approx(x_t, torch.tensor([1/noise_var[0, 0]]).to(mu.device).unsqueeze(0).repeat(x_t.shape[0], 1), mu, noise_var, False)
                         etas.append(eta[0, 0].cpu().numpy())
                         mse.append(((vamp_model.mask[0, None, :, :, :] * (mu - x_start) ** 2).sum() / torch.count_nonzero(vamp_model.mask)).cpu().numpy())
 
