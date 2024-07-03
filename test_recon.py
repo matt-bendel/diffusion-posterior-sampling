@@ -203,7 +203,7 @@ def main():
             # y_n = ref_img
             y_n = noiser(y_n)
 
-            for k in range(4):
+            for k in range(1):
                 # Sampling
                 with torch.no_grad():
                     x_start = ref_img
@@ -237,13 +237,17 @@ def main():
                     plt.semilogy(t_vals, etas)
                     plt.semilogy(t_vals, mse)
                     plt.semilogy(t_vals, input_var)
+                    plt.semilogy(t_vals, np.sqrt(input_var))
                     plt.xlabel('t')
                     plt.legend(['1/eta_2', 'MSE', 'Input variance'])
-                    plt.savefig('eta_2_debug.png')
-                    exit()
+                    plt.savefig(f'eta_2_debug_{i}.png')
 
                     # sample, g1_min, g1_max, g2_min, g2_max, e1_min, e1_max, e2_min, e2_max, mse_1, mse_2 = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
                     #                    noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img)
+                if i == 20:
+                    exit()
+                else:
+                    continue
 
                 x_axis = np.arange(1000)
                 # plt.semilogy(x_axis, 1/np.array(g1_min))
