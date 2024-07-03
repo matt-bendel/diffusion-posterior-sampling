@@ -171,7 +171,7 @@ class VAMP:
         denoise_in = new_r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 25 == 0:
+        if t[0] % 1 == 0:
             im_np = r_2[0].cpu().numpy()
             plt.imsave(f'red_c.png', im_np[0])
             plt.imsave(f'green_c.png', im_np[1])
@@ -233,6 +233,7 @@ class VAMP:
             if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
                 exit()
 
+        exit()
         self.gamma_1 = gamma_1
         self.r_1 = r_1
 
