@@ -227,7 +227,6 @@ def main():
                         print(t)
                         print(eta)
                         print((vamp_model.mask[0, None, :, :, :] * (mu - x_start) ** 2).sum() / torch.count_nonzero(vamp_model.mask))
-                        print(torch.count_nonzero(vamp_model.mask))
                         print('')
 
                     exit()
