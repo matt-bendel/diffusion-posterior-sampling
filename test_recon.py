@@ -241,6 +241,7 @@ def main():
                     plt.xlabel('t')
                     plt.legend(['1/eta_2', 'MSE', 'Input variance'])
                     plt.savefig(f'eta_2_debug_{i}.png')
+                    plt.close()
 
                     # sample, g1_min, g1_max, g2_min, g2_max, e1_min, e1_max, e2_min, e2_max, mse_1, mse_2 = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
                     #                    noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img)
