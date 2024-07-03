@@ -220,8 +220,8 @@ def main():
                             vamp_model.alphas_cumprod).to(x_t.device)
                         noise_var = noise_var[t].unsqueeze(0).repeat(x_t.shape[0], 1).float()
                         mu, _ = vamp_model.uncond_denoiser_function(x_t.float(), noise_var, False, False)
-                        plt.imsave(f'denoise_in_{t}.png', clear_color(x_t))
-                        plt.imsave(f'denoise_out_{t}.png', clear_color(mu))
+                        # plt.imsave(f'denoise_in_{t}.png', clear_color(x_t))
+                        # plt.imsave(f'denoise_out_{t}.png', clear_color(mu))
 
                         eta = vamp_model.denoiser_tr_approx(x_t, torch.tensor([1/noise_var[0, 0]]).to(mu.device).unsqueeze(0).repeat(x_t.shape[0], 1), mu, noise_var, False)
                         etas.append(eta[0, 0].cpu().numpy())
