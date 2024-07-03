@@ -66,7 +66,7 @@ class H_functions:
         if evals is None:
             evals = self.add_zeros((self.singulars().unsqueeze(0).repeat(vec.shape[0], 1) / sig_y) ** 2)
 
-        reshape_gam_1 = gamma_1.clone().reshape(vec.shape[0], self.channels, -1).permute(0, 2, 1).reshape(vec.shape[0], -1)
+        reshape_gam_1 = gamma_1.clone().reshape(vec.shape[0], 3, -1).permute(0, 2, 1).reshape(vec.shape[0], -1)
         temp = ((evals + sig_ddpm ** 2 + reshape_gam_1) ** -1) * temp
         return self.V(temp)
 

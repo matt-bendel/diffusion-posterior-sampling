@@ -26,7 +26,7 @@ class VAMP:
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.2  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.1  # Factor for damping (per Saurav's suggestion)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -256,7 +256,7 @@ class VAMP:
         gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
 
-        for i in range(2 if t[0] > 200 else 1):
+        for i in range(2 if t[0] > 400 else 1):
             old_gamma_2 = gamma_2
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t)
