@@ -102,11 +102,11 @@ def main():
     # SR DAMPING: 0.2
     # BLUR DAMPING: 0.1
 
-    operators = ['sr_bicubic4', 'sr_bicubic8', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'denoising']
-    noise_levels = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 1]
+    operators = ['sr_bicubic4', 'sr_bicubic8', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'inpainting', 'denoising']
+    noise_levels = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1]
 
-    operators = ['inpainting']
-    noise_levels = [0.01]
+    # operators = ['inpainting']
+    # noise_levels = [0.01]
 
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
@@ -131,8 +131,8 @@ def main():
             ref_img = x.to(device)
 
             mask = mask.to(device)
-            mask = torch.ones(mask.shape).to(device)
-            mask[:, :, 64:192, 64:192] = 0
+            # mask = torch.ones(mask.shape).to(device)
+            # mask[:, :, 64:192, 64:192] = 0
             # mask[:, :, 96:160, 96:160] = 0
 
             # mask_creator = MaskCreator()
@@ -216,7 +216,7 @@ def main():
             # y_n = ref_img
             y_n = noiser(y_n)
 
-            for k in range(4):
+            for k in range(2):
                 # Sampling
                 with torch.no_grad():
                     x_start = torch.randn(ref_img.shape, device=device)
@@ -257,11 +257,9 @@ def main():
                         plt.imsave(f'{measure_config["operator"]["name"]}/test_y_{i + j}.png', clear_color(y[j].unsqueeze(0)))
                         plt.imsave(f'{measure_config["operator"]["name"]}/test_x_{i + j}.png', clear_color(ref_img[j].unsqueeze(0)))
 
-            exit()
-
             base_im_count += sample.shape[0]
 
-            if base_im_count == 4:
+            if base_im_count == 2:
                 break
 
 if __name__ == '__main__':
