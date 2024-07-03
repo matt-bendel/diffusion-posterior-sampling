@@ -249,6 +249,8 @@ def main():
                 plt.semilogy(t_vals, mean_out_var)
                 plt.semilogy(t_vals, np.sqrt(input_var))
                 scale_factor = mean_out_var / np.sqrt(input_var)
+                with open('eta_2_scale.npy', 'wb') as f:
+                    np.save(f, scale_factor)
                 plt.semilogy(t_vals, scale_factor * np.sqrt(input_var))
                 plt.xlabel('t')
                 plt.legend(['output variance', 'sqrt(input_variance)'])
