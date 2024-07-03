@@ -173,16 +173,16 @@ class VAMP:
         denoise_in = new_r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 1 == 0:
+        if t[0] % 25 == 0:
             im_np = r_2[0].cpu().numpy()
-            plt.imsave(f'red_c.png', im_np[0])
-            plt.imsave(f'green_c.png', im_np[1])
-            plt.imsave(f'blue_c.png', im_np[2])
+            # plt.imsave(f'red_c.png', im_np[0])
+            # plt.imsave(f'green_c.png', im_np[1])
+            # plt.imsave(f'blue_c.png', im_np[2])
 
             im_np = new_r_2[0].cpu().numpy()
-            plt.imsave(f'red_c_2.png', im_np[0])
-            plt.imsave(f'green_c_2.png', im_np[1])
-            plt.imsave(f'blue_c_2.png', im_np[2])
+            # plt.imsave(f'red_c_2.png', im_np[0])
+            # plt.imsave(f'green_c_2.png', im_np[1])
+            # plt.imsave(f'blue_c_2.png', im_np[2])
 
             plt.imsave(f'denoise_in.png', clear_color(denoise_in))
             plt.imsave(f'denoise_out.png', clear_color(denoise_out))
@@ -275,7 +275,7 @@ class VAMP:
             print(
                 f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
 
-            plt.imsave('mu_1.png', clear_color(mu_1))
+            # plt.imsave('mu_1.png', clear_color(mu_1))
             # exit()
 
             # if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
