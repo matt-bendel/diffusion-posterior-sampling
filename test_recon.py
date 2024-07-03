@@ -235,6 +235,7 @@ def main():
                     plt.figure()
                     plt.semilogy(t_vals, etas)
                     plt.semilogy(t_vals, mse)
+                    plt.legend(['1/eta_2', 'MSE'])
                     plt.savefig('eta_2_debug.png')
                     exit()
 
