@@ -144,6 +144,8 @@ class VAMP:
         mu_1, gamma_1_mult = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(gamma_1_mult, t_alpha_bar, noise_sig, gamma_1)
 
+        print(eta_1)
+        print(gamma_1)
         gamma_2 = eta_1 - gamma_1
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
         for q in range(self.Q):
