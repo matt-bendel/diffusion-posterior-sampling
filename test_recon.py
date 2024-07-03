@@ -222,8 +222,8 @@ def main():
 
                         eta = vamp_model.denoiser_tr_approx(x_t, torch.tensor([1/noise_levels[l]**2, 1/noise_var[0, 0]]).to(mu.device).unsqueeze(0).repeat(x_t.shape[0], 1), mu, noise_var, False)
                         print(eta)
-                        print((vamp_model.mask[0, None, :, :, :] * (mu - x_start) ** 2).sum() / (3 * 256 * 256))
-                        print(((1 - vamp_model.mask[0, None, :, :, :]) * (mu - x_start) ** 2).sum() / (3 * 256 * 256))
+                        print((vamp_model.mask[0, None, :, :, :] * (mu - x_start) ** 2).sum() / torch.count_nonzero(vamp_model.mask))
+                        print(((1 - vamp_model.mask[0, None, :, :, :]) * (mu - x_start) ** 2).sum() / torch.count_nonzero(1 - vamp_model.mask))
 
 
                     exit()
