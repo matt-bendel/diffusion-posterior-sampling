@@ -215,8 +215,8 @@ def main():
                         x_t = sampler.q_sample(x_start, t) / torch.sqrt(torch.tensor(vamp_model.alphas_cumprod).to(x_start.device)[t])
                         noise_var = (1 - torch.tensor(vamp_model.alphas_cumprod).to(x_t.device)) / torch.tensor(
                             vamp_model.alphas_cumprod).to(x_t.device)
-                        noise_var = noise_var[t].unsqueeze(0).repeat(x_t.shape[0], 1)
-                        mu, _ = vamp_model.uncond_denoiser_function(x_t, noise_var, False, False)
+                        noise_var = noise_var[t].unsqueeze(0).repeat(x_t.shape[0], 1).float()
+                        mu, _ = vamp_model.uncond_denoiser_function(x_t.float(), noise_var, False, False)
                         plt.imsave(f'denoise_{t}.png', clear_color(mu))
                         exit()
 
