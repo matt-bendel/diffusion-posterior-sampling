@@ -212,8 +212,10 @@ def main():
 
                     t_vals = [0, 100, 250, 500, 999]
                     for t in t_vals:
-                        x_t = sampler.q_sample(x_start)
-                        noise_var = (1 - sampler.alphas_cumprod_model[t]) / sampler.alphas_cumprod_model[t]
+                        x_t = sampler.q_sample(x_start, t) / torch.sqrt(torch.tensor(vamp_model.alphas_cumprod).to(x_t.device)[t])
+                        noise_var = (1 - torch.tensor(vamp_model.alphas_cumprod).to(x_t.device)) / torch.tensor(
+                            vamp_model.alphas_cumprod).to(x_t.device)
+                        noise_var = noise_var[t].unsqueeze(0).repeat(x_t.shape[0], 1)
                         print(noise_var.shape)
                         exit()
                         mu = vamp_model.uncond_denoiser_function()
