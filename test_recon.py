@@ -245,8 +245,11 @@ def main():
                     #                    noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img)
             if i == 20:
                 plt.figure()
-                plt.semilogy(t_vals, np.mean(np.array(output_var_curves), axis=0))
+                mean_out_var = np.mean(np.array(output_var_curves), axis=0)
+                plt.semilogy(t_vals, mean_out_var)
                 plt.semilogy(t_vals, np.sqrt(input_var))
+                scale_factor = mean_out_var / np.sqrt(input_var)
+                plt.semilogy(t_vals, scale_factor * np.sqrt(input_var))
                 plt.xlabel('t')
                 plt.legend(['output variance', 'sqrt(input_variance)'])
                 plt.savefig(f'eta_2_debug_avg.png')
