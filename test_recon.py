@@ -211,6 +211,8 @@ def main():
                                       inpainting=inpainting)
 
                     t_vals = [0, 100, 250, 500, 750, 999]
+                    etas = []
+                    mse_measured = []
                     for t in t_vals:
                         x_t = sampler.q_sample(x_start, t) / torch.sqrt(torch.tensor(vamp_model.alphas_cumprod).to(x_start.device)[t])
                         noise_var = (1 - torch.tensor(vamp_model.alphas_cumprod).to(x_t.device)) / torch.tensor(
@@ -221,10 +223,10 @@ def main():
                         plt.imsave(f'denoise_out_{t}.png', clear_color(mu))
 
                         eta = vamp_model.denoiser_tr_approx(x_t, torch.tensor([1/noise_levels[l]**2, 1/noise_var[0, 0]]).to(mu.device).unsqueeze(0).repeat(x_t.shape[0], 1), mu, noise_var, False)
+                        print(t)
                         print(eta)
                         print((vamp_model.mask[0, None, :, :, :] * (mu - x_start) ** 2).sum() / torch.count_nonzero(vamp_model.mask))
-                        print(((1 - vamp_model.mask[0, None, :, :, :]) * (mu - x_start) ** 2).sum() / torch.count_nonzero(1 - vamp_model.mask))
-
+                        print('')
 
                     exit()
 
