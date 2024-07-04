@@ -302,6 +302,7 @@ class VAMP:
         for i in range(10):
             old_gamma_2 = gamma_2.clone()
             old_r_1 = r_1.clone()
+            old_r_2 = r_2.clone()
             old_gamma_1 = gamma_1.clone()
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i)
