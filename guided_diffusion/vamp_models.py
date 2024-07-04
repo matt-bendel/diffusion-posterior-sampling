@@ -290,6 +290,9 @@ class VAMP:
         gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
 
+        r_1 = self.r_1
+        gamma_1 = self.gamma_1
+
         gam1s = []
         gam2s = []
         eta1s = []
@@ -298,6 +301,8 @@ class VAMP:
 
         for i in range(10):
             old_gamma_2 = gamma_2.clone()
+            old_r_1 = r_1.clone()
+            old_gamma_1 = gamma_1.clone()
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i)
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
@@ -308,6 +313,11 @@ class VAMP:
                 gamma_2_raw = gamma_2.clone()
                 gamma_2 = (self.damping_factor * gamma_2_raw ** (-1 / 2) + (1 - self.damping_factor) *
                     old_gamma_2 ** (-1 / 2)) ** -2
+
+                gamma_1 = (self.damping_factor * gamma_1 ** (-1 / 2) + (1 - self.damping_factor) *
+                           old_gamma_1 ** (-1 / 2)) ** -2
+                r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
+
 
                 new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
                 max_g_2, _ = torch.max(1 / gamma_2, dim=1, keepdim=False)
