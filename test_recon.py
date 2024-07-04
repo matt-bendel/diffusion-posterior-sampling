@@ -216,7 +216,7 @@ def main():
 
                     t_vals = [0, 50, 100, 500, 999]
                     t_vals = [50, 100, 500, 999]
-                    damping_factos = [0.1, 0.2, 0.5, 1]
+                    damping_factos = [0.1, 0.5, 1]
                     return_mu_1 = [True, False]
                     for damp in damping_factos:
                         vamp_model.damping_factor = damp
@@ -231,11 +231,11 @@ def main():
                                     mses.append(torch.nn.functional.mse_loss(ref_img, out).item())
 
                                 plt.figure()
-                                plt.semilogy(np.arange(20), eta1s)
-                                plt.semilogy(np.arange(20), eta2s)
-                                plt.semilogy(np.arange(20), gam1s)
-                                plt.semilogy(np.arange(20), gam2s)
-                                plt.semilogy(np.arange(20), mses, linestyle='dashed')
+                                plt.semilogy(np.arange(10), eta1s)
+                                plt.semilogy(np.arange(10), eta2s)
+                                plt.semilogy(np.arange(10), gam1s)
+                                plt.semilogy(np.arange(10), gam2s)
+                                plt.semilogy(np.arange(10), mses, linestyle='dashed')
                                 plt.xlabel('VAMP Iteration')
                                 plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE'])
                                 plt.title(measure_config['operator']['name'])

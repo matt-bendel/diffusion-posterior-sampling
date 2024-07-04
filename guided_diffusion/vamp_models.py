@@ -163,6 +163,7 @@ class VAMP:
     def denoising(self, r_2, gamma_2, t, vamp_iter=0, noise=False):
         # Max var
         noise_var, _ = torch.max(1 / gamma_2, dim=1, keepdim=True)
+        print(noise_var)
 
         new_r_2 = r_2.clone()
         if noise:
@@ -307,8 +308,8 @@ class VAMP:
         eta2s = []
         vamp_outs = []
 
-        for i in range(20):
-            old_gamma_2 = gamma_2
+        for i in range(10):
+            old_gamma_2 = gamma_2.clone()
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i)
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
@@ -316,9 +317,9 @@ class VAMP:
                                                                t_alpha_bar, noise_sig)
 
             if use_damping:
-                gamma_2_raw = gamma_2
-                gamma_2 = (self.damping_factor * gamma_2_raw ** (-1 / 2) + (1 - self.damping_factor) * (
-                    old_gamma_2) ** (-1 / 2)) ** -2
+                gamma_2_raw = gamma_2.clone()
+                gamma_2 = (self.damping_factor * gamma_2_raw ** (-1 / 2) + (1 - self.damping_factor) *
+                    old_gamma_2 ** (-1 / 2)) ** -2
 
                 new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
                 max_g_2, _ = torch.max(1 / gamma_2, dim=1, keepdim=False)
