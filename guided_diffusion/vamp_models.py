@@ -20,7 +20,7 @@ def normalize_np(img):
 
 class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
-        self.model = models
+        self.model = model
         self.alphas_cumprod = alphas_cumprod
         self.max_iters = max_iters
         self.K = 1
