@@ -147,8 +147,6 @@ class VAMP:
         mu_1, gamma_1_mult = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(gamma_1_mult, t_alpha_bar, noise_sig, gamma_1)
 
-        print(eta_1)
-        print(gamma_1)
         gamma_2 = eta_1 - gamma_1
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
         for q in range(self.Q):
@@ -193,7 +191,6 @@ class VAMP:
         ################
 
         # if t[0] > 200:
-        print(used_t)
         eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().unsqueeze(0).repeat(r_2.shape[0], self.Q)).float()
         # else:
         #     tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
