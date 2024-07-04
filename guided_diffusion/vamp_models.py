@@ -185,7 +185,7 @@ class VAMP:
         ################
 
         if noise_var[0, 0] > 1:
-            eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().unsqueeze(0).repeat(r_2.shape[0], self.Q)).float()
+            eta_2 = 1 / (self.scale_factor[used_t[0]] * noise_var.sqrt().unsqueeze(0).repeat(r_2.shape[0], self.Q)).float()
         else:
             tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
             eta_2 = 1 / tr
