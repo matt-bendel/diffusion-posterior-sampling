@@ -28,6 +28,7 @@ class VAMP:
         self.delta = 1e-4
         self.power = 0.5
         self.damping_factor = 0.5  # Factor for damping (per Saurav's suggestion)
+        self.damping_factors = np.linspace(0.01, 1, 1000)
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -311,6 +312,7 @@ class VAMP:
                                                                t_alpha_bar, noise_sig)
 
             if use_damping:
+                damp_fac = self.damping_factors[t[0].cpu().numpy()]
                 # gamma_2_raw = gamma_2.clone()
                 # gamma_2 = (self.damping_factor * gamma_2_raw ** (-1 / 2) + (1 - self.damping_factor) *
                 #     old_gamma_2 ** (-1 / 2)) ** -2
@@ -319,9 +321,9 @@ class VAMP:
                 #            old_gamma_1 ** (-1 / 2)) ** -2
                 # r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
 
-                gamma_2 = (self.damping_factor * gamma_2 ** (-1 / 2) + (1 - self.damping_factor) *
+                gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
                            old_gamma_2 ** (-1 / 2)) ** -2
-                r_2 = self.damping_factor * r_2 + (1 - self.damping_factor) * old_r_2
+                r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
 
                 # new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
