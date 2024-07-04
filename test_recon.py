@@ -215,12 +215,8 @@ def main():
                     y = noiser(y)
 
                     t_vals = [0, 50, 100, 250, 500, 750, 999]
-                    eta1s = []
-                    eta2s = []
-                    gam1s = []
-                    gam2s = []
-                    mses = []
                     for t in t_vals:
+                        mses = []
                         x_t = sampler.q_sample(x_start, t) / torch.sqrt(torch.tensor(vamp_model.alphas_cumprod).to(x_start.device)[t])
                         _, eta1s, eta2s, gam1s, gam2s, outs = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], False)
 
