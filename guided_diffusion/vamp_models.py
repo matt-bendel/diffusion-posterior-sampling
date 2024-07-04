@@ -192,11 +192,11 @@ class VAMP:
 
         ################
 
-        if t[0] > 200:
-            eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().unsqueeze(0).repeat(r_2.shape[0], self.Q)).float()
-        else:
-            tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
-            eta_2 = 1 / tr
+        # if t[0] > 200:
+        eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().unsqueeze(0).repeat(r_2.shape[0], self.Q)).float()
+        # else:
+        #     tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
+        #     eta_2 = 1 / tr
 
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
@@ -290,6 +290,54 @@ class VAMP:
 
         return mu_1, gamma_1, gamma_2, eta_1, eta_2
 
+    def run_vamp_reverse_test(self, x_t, y, t, noise_sig, use_damping=False):
+        mu_1 = None  # needs to exist outside of for loop scope for return
+
+        t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
+
+        r_2 = x_t / torch.sqrt(t_alpha_bar)
+        gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
+            x_t.device)
+
+        gam1s = []
+        gam2s = []
+        eta1s = []
+        eta2s = []
+        vamp_outs = []
+
+        for i in range(10):
+            old_gamma_2 = gamma_2
+
+            r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t)
+            mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
+                                                               y / noise_sig,
+                                                               t_alpha_bar, noise_sig)
+
+            if use_damping:
+                gamma_2_raw = gamma_2
+                gamma_2 = (self.damping_factor * gamma_2_raw ** (-1 / 2) + (1 - self.damping_factor) * (
+                    old_gamma_2) ** (-1 / 2)) ** -2
+
+                new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
+                max_g_2, _ = torch.max(1 / gamma_2, dim=1, keepdim=False)
+                gam_diff = torch.maximum(max_g_2[:, None] - 1 / gamma_2_raw,
+                                         torch.zeros(gamma_2.shape).to(gamma_2.device))
+                for q in range(self.Q):
+                    new_r_2 += (r_2 + torch.randn_like(r_2).to(r_2.device) * gam_diff[:, q].sqrt()) * self.mask[q, None,
+                                                                                                      :, :, :]
+
+                r_2 = new_r_2
+
+            eta1s.append(1/eta_1[0, 0].cpu().numpy())
+            eta2s.append(1/eta_2[0, 0].cpu().numpy())
+            gam1s.append(1/gamma_1[0, 0].cpu().numpy())
+            gam2s.append(1/gamma_2[0, 0].cpu().numpy())
+            vamp_outs.append(mu_1)
+
+            print(
+                f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
+
+        return mu_1, eta1s, eta2s, gam1s, gam2s, vamp_outs
 
 def extract_and_expand(array, time, target):
     array = torch.from_numpy(array).to(target.device)[time].float()

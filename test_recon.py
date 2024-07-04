@@ -211,36 +211,34 @@ def main():
                     vamp_model = VAMP(model, sampler.betas_model, sampler.alphas_cumprod_model, 1, 1, x_start, H,
                                       inpainting=inpainting)
 
-                    t_vals = np.arange(1000)
-                    etas = []
-                    mse = []
-                    input_var = []
+                    y = H.H(ref_img)
+                    y = noiser(y)
+
+                    t_vals = [0, 50, 100, 250, 500, 750, 999]
+                    eta1s = []
+                    eta2s = []
+                    gam1s = []
+                    gam2s = []
+                    mses = []
                     for t in t_vals:
                         x_t = sampler.q_sample(x_start, t) / torch.sqrt(torch.tensor(vamp_model.alphas_cumprod).to(x_start.device)[t])
-                        noise_var = (1 - torch.tensor(vamp_model.alphas_cumprod).to(x_t.device)) / torch.tensor(
-                            vamp_model.alphas_cumprod).to(x_t.device)
-                        noise_var = noise_var[t].unsqueeze(0).repeat(x_t.shape[0], 1).float()
-                        mu, _ = vamp_model.uncond_denoiser_function(x_t.float(), noise_var, False, False)
-                        # plt.imsave(f'denoise_in_{t}.png', clear_color(x_t))
-                        # plt.imsave(f'denoise_out_{t}.png', clear_color(mu))
+                        _, eta1s, eta2s, gam1s, gam2s, outs = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor(t).to(x_t.device), measure_config['noise']['sigma'], False)
 
-                        # eta = vamp_model.denoiser_tr_approx(x_t, torch.tensor([1/noise_var[0, 0]]).to(mu.device).unsqueeze(0).repeat(x_t.shape[0], 1), mu, noise_var, False)
-                        # etas.append(eta[0, 0].cpu().numpy())
-                        mse.append(((vamp_model.mask[0, None, :, :, :] * (mu - x_start) ** 2).sum() / torch.count_nonzero(vamp_model.mask)).cpu().numpy())
-                        input_var.append(noise_var[0, 0].cpu().numpy())
-                        print(t)
+                        for out in outs:
+                            mses.append(torch.nn.functional.mse_loss(ref_img, out))
 
+                        plt.figure()
+                        plt.semilogy(np.arange(10), eta1s)
+                        plt.semilogy(np.arange(10), eta2s)
+                        plt.semilogy(np.arange(10), gam1s)
+                        plt.semilogy(np.arange(10), gam2s)
+                        plt.semilogy(np.arange(10), mses, linestyle='dashed')
+                        plt.xlabel('VAMP Iteration')
+                        plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE'])
+                        plt.savefig(f'vamp_debug/trajectories_t={t}_no_damp.png')
+                        plt.close()
 
-                    plt.figure()
-                    plt.semilogy(t_vals, mse)
-                    plt.semilogy(t_vals, input_var)
-                    plt.semilogy(t_vals, np.sqrt(input_var))
-                    output_var_curves.append(mse)
-                    plt.xlabel('t')
-                    plt.legend(['MSE', 'Input variance'])
-                    plt.savefig(f'eta_2_debug_{i}.png')
-                    plt.close()
-
+            exit()
                     # sample, g1_min, g1_max, g2_min, g2_max, e1_min, e1_max, e2_min, e2_max, mse_1, mse_2 = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
                     #                    noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img)
             if i == 20:
