@@ -299,7 +299,7 @@ class VAMP:
         mu1s = []
         mu2s = []
 
-        for i in range(25):
+        for i in range(50):
             old_gamma_2 = gamma_2.clone()
             old_r_1 = r_1.clone()
             old_r_2 = r_2.clone()
