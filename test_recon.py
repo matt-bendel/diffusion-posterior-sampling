@@ -225,7 +225,7 @@ def main():
                         _, eta1s, eta2s, gam1s, gam2s, outs = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor(t).to(x_t.device), measure_config['noise']['sigma'], False)
 
                         for out in outs:
-                            mses.append(torch.nn.functional.mse_loss(ref_img, out))
+                            mses.append(torch.nn.functional.mse_loss(ref_img, out).cpu().numpy())
 
                         plt.figure()
                         plt.semilogy(np.arange(10), eta1s)
