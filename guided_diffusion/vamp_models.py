@@ -312,7 +312,11 @@ class VAMP:
                                                                t_alpha_bar, noise_sig)
 
             if use_damping:
-                damp_fac = self.damping_factors[t[0].cpu().numpy()]
+                if self.damping_factor == 'dynamic':
+                    damp_fac = self.damping_factors[t[0].cpu().numpy()]
+                else:
+                    damp_fac = self.damping_factor
+
                 # gamma_2_raw = gamma_2.clone()
                 # gamma_2 = (self.damping_factor * gamma_2_raw ** (-1 / 2) + (1 - self.damping_factor) *
                 #     old_gamma_2 ** (-1 / 2)) ** -2
