@@ -216,6 +216,7 @@ def main():
 
                     t_vals = [0, 50, 100, 500, 999]
                     damping_factos = ["dynamic", 0.1, 0.5, 1]
+                    damping_factos = [0.1]
                     for damp in damping_factos:
                         vamp_model.damping_factor = damp
                         for t in t_vals:
@@ -241,7 +242,7 @@ def main():
                             plt.xlabel('VAMP Iteration')
                             plt.legend(['1/eta_1', '1/eta_2', 'MSE mu_1', 'MSE mu_2'])
                             plt.title(measure_config['operator']['name'])
-                            plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/trajectories_t={t}_damp={damp}.png')
+                            plt.savefig(f'vamp_debug/chosen_damp/{measure_config["operator"]["name"]}/trajectories_t={t}.png')
                             plt.close()
 
             break

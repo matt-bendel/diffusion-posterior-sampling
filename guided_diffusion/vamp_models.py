@@ -27,7 +27,7 @@ class VAMP:
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.5  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.1  # Factor for damping (per Saurav's suggestion)
         self.damping_factors = np.flip(np.linspace(0.01, 0.5, 1000))
         self.svd = svd
         self.inpainting = inpainting
@@ -94,7 +94,6 @@ class VAMP:
         else:
             singulars = singulars.reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
 
-        print(singulars[0, :, 0, 0])
         diag_mat_inv = ((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1) ** -1
 
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
@@ -321,9 +320,9 @@ class VAMP:
                 # gamma_2 = (self.damping_factor * gamma_2_raw ** (-1 / 2) + (1 - self.damping_factor) *
                 #     old_gamma_2 ** (-1 / 2)) ** -2
 
-                gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
-                           old_gamma_1 ** (-1 / 2)) ** -2
-                r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
+                # gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
+                #            old_gamma_1 ** (-1 / 2)) ** -2
+                # r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
 
                 gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
                            old_gamma_2 ** (-1 / 2)) ** -2
