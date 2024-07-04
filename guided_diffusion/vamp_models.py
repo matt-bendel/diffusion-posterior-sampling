@@ -28,7 +28,7 @@ class VAMP:
         self.delta = 1e-4
         self.power = 0.5
         self.damping_factor = 0.5  # Factor for damping (per Saurav's suggestion)
-        self.damping_factors = np.linspace(0.01, 1, 1000)
+        self.damping_factors = np.flip(np.linspace(0.01, 1, 1000))
         self.svd = svd
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
@@ -45,7 +45,6 @@ class VAMP:
         self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
         self.r_2 = None
         self.gamma_2 = None
-        self.return_mu_1 = True
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         gamma_1_mult = torch.zeros(r_1.shape).to(y.device)
@@ -298,9 +297,10 @@ class VAMP:
         gam2s = []
         eta1s = []
         eta2s = []
-        vamp_outs = []
+        mu1s = []
+        mu2s = []
 
-        for i in range(10):
+        for i in range(25):
             old_gamma_2 = gamma_2.clone()
             old_r_1 = r_1.clone()
             old_r_2 = r_2.clone()
@@ -340,10 +340,8 @@ class VAMP:
             eta2s.append(1/eta_2[0, 0].cpu().numpy())
             gam1s.append(1/gamma_1[0, 0].cpu().numpy())
             gam2s.append(1/gamma_2[0, 0].cpu().numpy())
-            if self.return_mu_1:
-                vamp_outs.append(mu_1)
-            else:
-                vamp_outs.append(mu_2)
+            mu1s.append(mu_1)
+            mu2s.append(mu_2)
 
             print(
                 f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
@@ -351,8 +349,8 @@ class VAMP:
             # plt.imsave('new_denoise_in.png', clear_color(r_2))
             # time.sleep(5)
 
-        return_val = mu_1 if self.return_mu_1 else mu_2
-        return return_val, eta1s, eta2s, gam1s, gam2s, vamp_outs
+        return_val = mu_1
+        return return_val, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s
 
 def extract_and_expand(array, time, target):
     array = torch.from_numpy(array).to(target.device)[time].float()
