@@ -214,8 +214,8 @@ def main():
                     y = H.H(ref_img)
                     y = noiser(y)
 
-                    t_vals = [0, 50, 100, 500, 999]
-                    damping_factos = ["dynamic", 0.1, 0.5, 1]
+                    t_vals = [0, 50, 100, 250, 500, 750, 999]
+                    # damping_factos = ["dynamic", 0.1, 0.5, 1]
                     damping_factos = [0.1]
                     for damp in damping_factos:
                         vamp_model.damping_factor = damp
