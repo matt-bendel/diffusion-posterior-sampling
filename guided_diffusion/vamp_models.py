@@ -31,7 +31,7 @@ class VAMP:
         self.inpainting = inpainting
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask.to(x_T.device)
-        self.noise_sig_schedule = np.linspace(0.01, 0.5s, 1000)
+        self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
         self.Q = self.mask.shape[0]
         with open('eta_2_scale.npy', 'rb') as f:
             self.scale_factor = torch.from_numpy(np.load(f)).to(x_T.device)
