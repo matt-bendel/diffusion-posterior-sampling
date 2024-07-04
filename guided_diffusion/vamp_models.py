@@ -175,7 +175,7 @@ class VAMP:
         denoise_in = new_r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 25 == 0:
+        if t[0] % 1 == 0:
             im_np = r_2[0].cpu().numpy()
             # plt.imsave(f'red_c.png', im_np[0])
             # plt.imsave(f'green_c.png', im_np[1])
@@ -191,11 +191,11 @@ class VAMP:
 
         ################
 
-        if vamp_iter == 0:
-            eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().unsqueeze(0).repeat(r_2.shape[0], self.Q)).float()
-        else:
-            tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
-            eta_2 = 1 / tr
+        # if vamp_iter == 0:
+        eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().unsqueeze(0).repeat(r_2.shape[0], self.Q)).float()
+        # else:
+        #     tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
+        #     eta_2 = 1 / tr
 
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
@@ -305,7 +305,7 @@ class VAMP:
         eta2s = []
         vamp_outs = []
 
-        for i in range(10):
+        for i in range(20):
             old_gamma_2 = gamma_2
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i)
