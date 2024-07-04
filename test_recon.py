@@ -106,7 +106,7 @@ def main():
     operators = ['sr_bicubic4', 'sr_bicubic8', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'denoising']
     noise_levels = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 1]
 
-    operators = ['sr_bicubic8']
+    operators = ['blur_aniso']
     noise_levels = [0.01]
 
     for l in range(len(operators)):
@@ -215,7 +215,6 @@ def main():
                     y = noiser(y)
 
                     t_vals = [0, 50, 100, 500, 999]
-                    t_vals = [50, 100, 500, 999]
                     damping_factos = [1, 0.5, 0.1]
                     return_mu_1 = [True, False]
                     for damp in damping_factos:
