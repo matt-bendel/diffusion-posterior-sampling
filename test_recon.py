@@ -215,6 +215,7 @@ def main():
                     y = noiser(y)
 
                     t_vals = [0, 50, 100, 500, 999]
+                    t_vals = [50, 100, 500, 999]
                     damping_factos = [0.1, 0.2, 0.5, 1]
                     return_mu_1 = [True, False]
                     for damp in damping_factos:

@@ -1,4 +1,5 @@
 import torch
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 from guided_diffusion.ddrm_svd import Deblurring
@@ -175,7 +176,7 @@ class VAMP:
         denoise_in = new_r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 25 == 0:
+        if t[0] % 1 == 0:
             im_np = r_2[0].cpu().numpy()
             # plt.imsave(f'red_c.png', im_np[0])
             # plt.imsave(f'green_c.png', im_np[1])
@@ -188,6 +189,7 @@ class VAMP:
 
             plt.imsave(f'denoise_in.png', clear_color(denoise_in))
             plt.imsave(f'denoise_out.png', clear_color(denoise_out))
+            time.sleep(5)
 
         ################
 
