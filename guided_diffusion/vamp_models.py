@@ -43,6 +43,7 @@ class VAMP:
         self.r_1 = (torch.sqrt(torch.tensor(1e-6)) * torch.randn_like(x_T)).to(x_T.device)
         self.r_2 = None
         self.gamma_2 = None
+        self.return_mu_1 = True
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
         gamma_1_mult = torch.zeros(r_1.shape).to(y.device)
@@ -290,6 +291,7 @@ class VAMP:
 
     def run_vamp_reverse_test(self, x_t, y, t, noise_sig, use_damping=False):
         mu_1 = None  # needs to exist outside of for loop scope for return
+        mu_2 = None
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
@@ -335,7 +337,8 @@ class VAMP:
             print(
                 f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
 
-        return mu_1, eta1s, eta2s, gam1s, gam2s, vamp_outs
+        return_val = mu_1 if self.return_mu_1 else mu_2
+        return return_val, eta1s, eta2s, gam1s, gam2s, vamp_outs
 
 def extract_and_expand(array, time, target):
     array = torch.from_numpy(array).to(target.device)[time].float()
