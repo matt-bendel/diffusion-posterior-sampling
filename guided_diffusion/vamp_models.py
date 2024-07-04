@@ -159,7 +159,7 @@ class VAMP:
 
         return mu_1, r_2, gamma_2, eta_1
 
-    def denoising(self, r_2, gamma_2, t, noise=False):
+    def denoising(self, r_2, gamma_2, t, vamp_iter=0, noise=False):
         # Max var
         noise_var, _ = torch.max(1 / gamma_2, dim=1, keepdim=True)
 
@@ -191,7 +191,7 @@ class VAMP:
 
         ################
 
-        if t[0] > 200:
+        if vamp_iter == 0:
             eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().unsqueeze(0).repeat(r_2.shape[0], self.Q)).float()
         else:
             tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
@@ -308,7 +308,7 @@ class VAMP:
         for i in range(10):
             old_gamma_2 = gamma_2
 
-            r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t)
+            r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i)
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                                y / noise_sig,
                                                                t_alpha_bar, noise_sig)
@@ -332,7 +332,10 @@ class VAMP:
             eta2s.append(1/eta_2[0, 0].cpu().numpy())
             gam1s.append(1/gamma_1[0, 0].cpu().numpy())
             gam2s.append(1/gamma_2[0, 0].cpu().numpy())
-            vamp_outs.append(mu_1)
+            if self.return_mu_1:
+                vamp_outs.append(mu_1)
+            else:
+                vamp_outs.append(mu_2)
 
             print(
                 f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')

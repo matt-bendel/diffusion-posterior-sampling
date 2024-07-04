@@ -214,29 +214,32 @@ def main():
                     y = H.H(ref_img)
                     y = noiser(y)
 
-                    t_vals = [0, 50, 250, 500, 999]
+                    t_vals = [0, 50, 100, 500, 999]
                     damping_factos = [0.1, 0.2, 0.5, 1]
+                    return_mu_1 = [True, False]
                     for damp in damping_factos:
                         vamp_model.damping_factor = damp
-                        for t in t_vals:
-                            mses = []
-                            x_t = sampler.q_sample(x_start, t) / torch.sqrt(torch.tensor(vamp_model.alphas_cumprod).to(x_start.device)[t])
-                            _, eta1s, eta2s, gam1s, gam2s, outs = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], True)
+                        for return_val in return_mu_1:
+                            vamp_model.return_mu_1 = return_val
+                            for t in t_vals:
+                                mses = []
+                                x_t = sampler.q_sample(x_start, t) / torch.sqrt(torch.tensor(vamp_model.alphas_cumprod).to(x_start.device)[t])
+                                _, eta1s, eta2s, gam1s, gam2s, outs = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], True)
 
-                            for out in outs:
-                                mses.append(torch.nn.functional.mse_loss(ref_img, out).item())
+                                for out in outs:
+                                    mses.append(torch.nn.functional.mse_loss(ref_img, out).item())
 
-                            plt.figure()
-                            plt.semilogy(np.arange(10), eta1s)
-                            plt.semilogy(np.arange(10), eta2s)
-                            plt.semilogy(np.arange(10), gam1s)
-                            plt.semilogy(np.arange(10), gam2s)
-                            plt.semilogy(np.arange(10), mses, linestyle='dashed')
-                            plt.xlabel('VAMP Iteration')
-                            plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE'])
-                            plt.title(measure_config['operator']['name'])
-                            plt.savefig(f'vamp_debug/trajectories_t={t}_damp={damp}.png')
-                            plt.close()
+                                plt.figure()
+                                plt.semilogy(np.arange(10), eta1s)
+                                plt.semilogy(np.arange(10), eta2s)
+                                plt.semilogy(np.arange(10), gam1s)
+                                plt.semilogy(np.arange(10), gam2s)
+                                plt.semilogy(np.arange(10), mses, linestyle='dashed')
+                                plt.xlabel('VAMP Iteration')
+                                plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE'])
+                                plt.title(measure_config['operator']['name'])
+                                plt.savefig(f'vamp_debug/trajectories_t={t}_damp={damp}.png')
+                                plt.close()
 
             exit()
                     # sample, g1_min, g1_max, g2_min, g2_max, e1_min, e1_max, e2_min, e2_max, mse_1, mse_2 = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
