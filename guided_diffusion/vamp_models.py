@@ -175,7 +175,7 @@ class VAMP:
         denoise_in = new_r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 1 == 0:
+        if t[0] % 25 == 0:
             im_np = r_2[0].cpu().numpy()
             # plt.imsave(f'red_c.png', im_np[0])
             # plt.imsave(f'green_c.png', im_np[1])
