@@ -216,7 +216,7 @@ def main():
 
                     t_vals = [0, 50, 100, 500, 999]
                     t_vals = [50, 100, 500, 999]
-                    damping_factos = [0.1, 0.5, 1]
+                    damping_factos = [1, 0.5, 0.1]
                     return_mu_1 = [True, False]
                     for damp in damping_factos:
                         vamp_model.damping_factor = damp
