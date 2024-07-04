@@ -232,7 +232,7 @@ def main():
                         plt.xlabel('VAMP Iteration')
                         plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE'])
                         plt.title(measure_config['operator']['name'])
-                        plt.savefig(f'vamp_debug/trajectories_t={t}_damp=1e-1.png')
+                        plt.savefig(f'vamp_debug/trajectories_t={t}_damp=5se-1.png')
                         plt.close()
 
             exit()
