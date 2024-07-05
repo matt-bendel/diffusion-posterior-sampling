@@ -218,7 +218,7 @@ def main():
                     y = noiser(y)
 
                     t_vals = [0, 25, 50, 100, 250, 500, 750, 999]
-                    t_vals = [25]
+                    t_vals = [25, 50, 100]
                     # damping_factos = ["dynamic", 0.1, 0.5, 1]
                     damping_factos = [0.2]
                     for damp in damping_factos:
