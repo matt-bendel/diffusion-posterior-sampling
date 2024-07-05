@@ -332,7 +332,6 @@ class VAMP:
                            old_gamma_2 ** (-1 / 2)) ** -2
                 r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
-            time.sleep(20)
                 # new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
                 # max_g_2, _ = torch.max(1 / gamma_2, dim=1, keepdim=False)
                 # gam_diff = torch.maximum(max_g_2[:, None] - 1 / gamma_2_raw,
@@ -353,7 +352,7 @@ class VAMP:
             print(
                 f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
             # plt.imsave('new_denoise_in.png', clear_color(r_2))
-            # time.sleep(5)
+            time.sleep(20)
 
         return_val = mu_1
         return return_val, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s
