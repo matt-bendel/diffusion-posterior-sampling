@@ -218,6 +218,7 @@ def main():
                     y = noiser(y)
 
                     t_vals = [0, 25, 50, 100, 250, 500, 750, 999]
+                    t_vals = [25, 50]
                     # damping_factos = ["dynamic", 0.1, 0.5, 1]
                     damping_factos = [0.2]
                     for damp in damping_factos:
@@ -236,12 +237,12 @@ def main():
                                 mse2s.append(torch.nn.functional.mse_loss(ref_img, out).item())
 
                             plt.figure()
-                            plt.semilogy(np.arange(10), eta1s)
-                            plt.semilogy(np.arange(10), eta2s)
-                            plt.semilogy(np.arange(10), gam1s)
-                            plt.semilogy(np.arange(10), gam2s)
-                            plt.semilogy(np.arange(10), mse1s, linestyle='dashed')
-                            plt.semilogy(np.arange(10), mse2s, linestyle='dashed')
+                            plt.semilogy(np.arange(25), eta1s)
+                            plt.semilogy(np.arange(25), eta2s)
+                            plt.semilogy(np.arange(25), gam1s)
+                            plt.semilogy(np.arange(25), gam2s)
+                            plt.semilogy(np.arange(25), mse1s, linestyle='dashed')
+                            plt.semilogy(np.arange(25), mse2s, linestyle='dashed')
                             plt.xlabel('VAMP Iteration')
                             plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2'])
                             plt.title(measure_config['operator']['name'])
