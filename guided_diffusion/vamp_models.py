@@ -177,7 +177,7 @@ class VAMP:
         denoise_in = new_r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 25 == 0:
+        if t[0] % 1 == 0:
             plt.imsave(f'denoise_in.png', clear_color(denoise_in))
             plt.imsave(f'denoise_out.png', clear_color(denoise_out))
 
@@ -310,6 +310,9 @@ class VAMP:
                                                                y / noise_sig,
                                                                t_alpha_bar, noise_sig)
 
+            plt.imsave('mu_1.png', clear_color(mu_1))
+            plt.imsave('mu_2.png', clear_color(mu_2))
+
             if use_damping:
                 if self.damping_factor == 'dynamic':
                     damp_fac = self.damping_factors[t[0].cpu().numpy()]
@@ -348,7 +351,6 @@ class VAMP:
 
             print(
                 f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
-            # plt.imsave('mu_1.png', clear_color(mu_1))
             # plt.imsave('new_denoise_in.png', clear_color(r_2))
             # time.sleep(5)
 
