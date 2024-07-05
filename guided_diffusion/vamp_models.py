@@ -184,11 +184,10 @@ class VAMP:
         ################
 
         # eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
-        print(used_t)
-        # tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
-        # eta_2 = 1 / tr
-        # if tr[0, 0] < 0:
-        eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
+        tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
+        eta_2 = 1 / tr
+        if tr[0, 0] < 0:
+            eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
 
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
@@ -311,8 +310,8 @@ class VAMP:
                                                                y / noise_sig,
                                                                t_alpha_bar, noise_sig)
 
-            plt.imsave('mu_1.png', clear_color(mu_1))
-            plt.imsave('mu_2.png', clear_color(mu_2))
+            # plt.imsave('mu_1.png', clear_color(mu_1))
+            # plt.imsave('mu_2.png', clear_color(mu_2))
 
             if use_damping:
                 if self.damping_factor == 'dynamic':
