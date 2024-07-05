@@ -305,7 +305,7 @@ class VAMP:
             old_r_2 = r_2.clone()
             old_gamma_1 = gamma_1.clone()
 
-            plt.imsave(f'vamp_debug/{prob_name}/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(denoise_in))
+            plt.imsave(f'vamp_debug/{prob_name}/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(r_2))
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i)
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
