@@ -247,7 +247,7 @@ def main():
                             plt.xlabel('VAMP Iteration')
                             plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2'])
                             plt.title(measure_config['operator']['name'])
-                            plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/trajectories_t={t}_w_tr.png')
+                            plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/trajectories_t={t}_damp={damp}.png')
                             plt.close()
 
             break
