@@ -177,9 +177,9 @@ class VAMP:
         denoise_in = new_r_2.float()
         denoise_out = mu_2
 
-        if t[0] % 1 == 0:
-            plt.imsave(f'denoise_in.png', clear_color(denoise_in))
-            plt.imsave(f'denoise_out.png', clear_color(denoise_out))
+        # if t[0] % 1 == 0:
+        #     plt.imsave(f'denoise_in.png', clear_color(denoise_in))
+        #     plt.imsave(f'denoise_out.png', clear_color(denoise_out))
 
         ################
 
@@ -279,7 +279,7 @@ class VAMP:
 
         return mu_1, gamma_1, gamma_2, eta_1, eta_2
 
-    def run_vamp_reverse_test(self, x_t, y, t, noise_sig, use_damping=False):
+    def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, use_damping=False):
         mu_1 = None  # needs to exist outside of for loop scope for return
         mu_2 = None
 
@@ -304,6 +304,8 @@ class VAMP:
             old_r_1 = r_1.clone()
             old_r_2 = r_2.clone()
             old_gamma_1 = gamma_1.clone()
+
+            plt.imsave(f'vamp_debug/{prob_name}/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(denoise_in))
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i)
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
@@ -347,6 +349,10 @@ class VAMP:
             gam2s.append(1/gamma_2[0, 0].cpu().numpy())
             mu1s.append(mu_1)
             mu2s.append(mu_2)
+
+            plt.imsave(f'vamp_debug/{prob_name}/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(mu_1))
+            plt.imsave(f'vamp_debug/{prob_name}/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(mu_2))
+
 
             print(
                 f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
