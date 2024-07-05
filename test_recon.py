@@ -228,7 +228,7 @@ def main():
                             mse1s = []
                             mse2s = []
 
-                            x_t = sampler.q_sample(x_start, t) / torch.sqrt(torch.tensor(vamp_model.alphas_cumprod).to(x_start.device)[t])
+                            x_t = sampler.q_sample(x_start, t)
                             _, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], True)
 
                             for out in mu1s:
