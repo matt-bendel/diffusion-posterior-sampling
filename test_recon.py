@@ -109,6 +109,9 @@ def main():
     operators = ['blur_aniso', 'sr_bicubic8', 'color', 'inpainting']
     noise_levels = [0.01, 0.01, 0.01, 0.01]
 
+    operators = ['color']
+    noise_levels = [0.01]
+
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
         measure_config['operator']['name'] = operators[l]
@@ -242,7 +245,7 @@ def main():
                             plt.xlabel('VAMP Iteration')
                             plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2'])
                             plt.title(measure_config['operator']['name'])
-                            plt.savefig(f'vamp_debug/chosen_damp/{measure_config["operator"]["name"]}/trajectories_t={t}.png')
+                            plt.savefig(f'vamp_debug/w_wo_tr_approx/{measure_config["operator"]["name"]}/trajectories_t={t}_w_tr.png')
                             plt.close()
 
             break
