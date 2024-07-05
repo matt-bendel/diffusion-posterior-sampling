@@ -229,7 +229,7 @@ def main():
                             mse2s = []
 
                             x_t = sampler.q_sample(x_start, t)
-                            _, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], True)
+                            _, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], measure_config["operator"]["name"], True)
 
                             for out in mu1s:
                                 mse1s.append(torch.nn.functional.mse_loss(ref_img, out).item())
