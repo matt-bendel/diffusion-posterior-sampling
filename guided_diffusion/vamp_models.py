@@ -319,16 +319,16 @@ class VAMP:
                 else:
                     damp_fac = self.damping_factor
 
-                # gamma_2_raw = gamma_2.clone()
-                # gamma_2 = (self.damping_factor * gamma_2_raw ** (-1 / 2) + (1 - self.damping_factor) *
-                #     old_gamma_2 ** (-1 / 2)) ** -2
+                gamma_2_raw = gamma_2.clone()
+                gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) *
+                    old_gamma_2 ** (-1 / 2)) ** -2
 
                 # gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
                 #            old_gamma_1 ** (-1 / 2)) ** -2
                 # r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
 
-                gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
-                           old_gamma_2 ** (-1 / 2)) ** -2
+                # gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
+                #            old_gamma_2 ** (-1 / 2)) ** -2
                 # r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
                 new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
