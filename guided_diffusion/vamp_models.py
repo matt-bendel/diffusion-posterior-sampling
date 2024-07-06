@@ -324,10 +324,10 @@ class VAMP:
                 # gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) *
                 #     old_gamma_2 ** (-1 / 2)) ** -2
 
-                if i > 0:
-                    gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
-                           old_gamma_1 ** (-1 / 2)) ** -2
-                    r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
+                # if i > 0:
+                gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
+                       old_gamma_1 ** (-1 / 2)) ** -2
+                r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
 
                 gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
                            old_gamma_2 ** (-1 / 2)) ** -2
