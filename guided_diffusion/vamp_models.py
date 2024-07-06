@@ -356,7 +356,7 @@ class VAMP:
 
             # plt.imsave('new_denoise_in.png', clear_color(r_2))
 
-            time.sleep(30)
+            # time.sleep(30)
 
         return_val = mu_1
         return return_val, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s
