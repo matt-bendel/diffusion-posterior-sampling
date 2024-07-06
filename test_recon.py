@@ -120,6 +120,7 @@ def main():
         base_im_count = 0
         output_var_curves = []
         for i, data in enumerate(test_loader):
+            print(i)
             if i <= 16: #i <= 3:
                 continue
 
@@ -237,7 +238,6 @@ def main():
                         mse.append(((vamp_model.mask[0, None, :, :, :] * (
                                     mu - x_start) ** 2).sum() / torch.count_nonzero(vamp_model.mask)).cpu().numpy())
                         input_var.append(noise_var[0, 0].cpu().numpy())
-                        print(t)
 
                     plt.figure()
                     plt.semilogy(t_vals, mse)
