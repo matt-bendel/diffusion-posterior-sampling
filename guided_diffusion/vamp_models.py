@@ -357,7 +357,7 @@ class VAMP:
             print(
                 f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
             # plt.imsave('new_denoise_in.png', clear_color(r_2))
-            # time.sleep(20)
+            time.sleep(30)
 
         return_val = mu_1
         return return_val, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s
