@@ -240,57 +240,57 @@ def main():
                         print(t)
 
                     plt.figure()
-                    plt.plot(t_vals, mse)
-                    # plt.semilogy(t_vals, input_var)
-                    # plt.semilogy(t_vals, np.sqrt(input_var))
-                    plt.plot(t_vals, etas)
+                    plt.semilogy(t_vals, mse)
+                    plt.semilogy(t_vals, input_var)
+                    plt.semilogy(t_vals, np.sqrt(input_var))
+                    plt.semilogy(t_vals, etas)
+                    output_var_curves.append(mse)
                     plt.xlabel('t')
-                    # plt.legend(['MSE', 'Input variance', 'Sqrt Input variance', '1/eta_2 approx'])
-                    plt.savefig(f'eta_2_debug_{i}.png')
+                    plt.legend(['MSE', 'Input variance', 'Sqrt Input variance', '1/eta_2 approx'])
+                    plt.savefig(f'vamp_debug/eta_2_approx/eta_2_debug_{i}.png')
                     plt.close()
-                    exit()
 
 
-                    y = H.H(ref_img)
-                    y = noiser(y)
+                    # y = H.H(ref_img)
+                    # y = noiser(y)
+                    #
+                    # t_vals = [0, 25, 50, 100, 250, 500, 750, 999]
+                    # # t_vals = [25, 50, 100, 250]
+                    # # damping_factos = [0.1, 0.2, 0.5, 0.75, 1]
+                    # t_vals = [250]
+                    # damping_factos = [0.1]
+                    # for damp in damping_factos:
+                    #     vamp_model.damping_factor = damp
+                    #     for t in t_vals:
+                    #         mse1s = []
+                    #         mse2s = []
+                    #
+                    #         x_t = sampler.q_sample(x_start, t)
+                    #         _, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], measure_config["operator"]["name"], True)
+                    #
+                    #         for out in mu1s:
+                    #             mse1s.append(torch.nn.functional.mse_loss(ref_img, out).item())
+                    #
+                    #         for out in mu2s:
+                    #             mse2s.append(torch.nn.functional.mse_loss(ref_img, out).item())
+                    #
+                    #         plt.figure()
+                    #         plt.semilogy(np.arange(25), eta1s)
+                    #         plt.semilogy(np.arange(25), eta2s)
+                    #         plt.semilogy(np.arange(25), gam1s)
+                    #         plt.semilogy(np.arange(25), gam2s)
+                    #         plt.semilogy(np.arange(25), mse1s, linestyle='dashed')
+                    #         plt.semilogy(np.arange(25), mse2s, linestyle='dashed')
+                    #         plt.xlabel('VAMP Iteration')
+                    #         plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2'])
+                    #         plt.title(measure_config['operator']['name'])
+                    #         plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/trajectories_t={t}_damp={damp}.png')
+                    #         plt.close()
 
-                    t_vals = [0, 25, 50, 100, 250, 500, 750, 999]
-                    # t_vals = [25, 50, 100, 250]
-                    # damping_factos = [0.1, 0.2, 0.5, 0.75, 1]
-                    t_vals = [250]
-                    damping_factos = [0.1]
-                    for damp in damping_factos:
-                        vamp_model.damping_factor = damp
-                        for t in t_vals:
-                            mse1s = []
-                            mse2s = []
-
-                            x_t = sampler.q_sample(x_start, t)
-                            _, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], measure_config["operator"]["name"], True)
-
-                            for out in mu1s:
-                                mse1s.append(torch.nn.functional.mse_loss(ref_img, out).item())
-
-                            for out in mu2s:
-                                mse2s.append(torch.nn.functional.mse_loss(ref_img, out).item())
-
-                            plt.figure()
-                            plt.semilogy(np.arange(25), eta1s)
-                            plt.semilogy(np.arange(25), eta2s)
-                            plt.semilogy(np.arange(25), gam1s)
-                            plt.semilogy(np.arange(25), gam2s)
-                            plt.semilogy(np.arange(25), mse1s, linestyle='dashed')
-                            plt.semilogy(np.arange(25), mse2s, linestyle='dashed')
-                            plt.xlabel('VAMP Iteration')
-                            plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2'])
-                            plt.title(measure_config['operator']['name'])
-                            plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/trajectories_t={t}_damp={damp}.png')
-                            plt.close()
-
-            break
+            # break
                     # sample, g1_min, g1_max, g2_min, g2_max, e1_min, e1_max, e2_min, e2_max, mse_1, mse_2 = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
                     #                    noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img)
-            if i == 20:
+            if i == 100:
                 plt.figure()
                 mean_out_var = np.mean(np.array(output_var_curves), axis=0)
                 plt.semilogy(t_vals, mean_out_var)
