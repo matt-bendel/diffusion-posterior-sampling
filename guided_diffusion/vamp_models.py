@@ -94,7 +94,6 @@ class VAMP:
         else:
             singulars = singulars.reshape(gamma_1.shape[0], -1).view(gamma_1.shape[0], 3, 256, 256)
 
-        print(singulars[0, :, 0, 0])
         diag_mat_inv = ((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1) ** -1
 
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
@@ -183,11 +182,11 @@ class VAMP:
 
         ################
 
-        eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
-        # tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
-        # eta_2 = 1 / tr
-        # if tr[0, 0] < 0:
-        #     eta_2 = 1 / (self.scale_factor[used_t[0]] * noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
+        # eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
+        tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
+        eta_2 = 1 / tr
+        if tr[0, 0] < 0:
+            eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
 
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
