@@ -214,6 +214,43 @@ def main():
                     vamp_model = VAMP(model, sampler.betas_model, sampler.alphas_cumprod_model, 1, 1, x_start, H,
                                       inpainting=inpainting)
 
+                    t_vals = np.arange(1000)
+                    etas = []
+                    mse = []
+                    input_var = []
+                    for t in t_vals:
+                        x_t = sampler.q_sample(x_start, t) / torch.sqrt(
+                            torch.tensor(vamp_model.alphas_cumprod).to(x_start.device)[t])
+                        noise_var = (1 - torch.tensor(vamp_model.alphas_cumprod).to(x_t.device)) / torch.tensor(
+                            vamp_model.alphas_cumprod).to(x_t.device)
+                        noise_var = noise_var[t].unsqueeze(0).repeat(x_t.shape[0], 1).float()
+                        mu, true_noise_var, used_t = vamp_model.uncond_denoiser_function(x_t.float(), noise_var, False, False)
+                        eta_2 = 1 / (vamp_model.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0],
+                                                                                                 self.Q)).float()[0,0].cpu().numpy()
+                        etas.append(1/eta_2)
+
+                        # plt.imsave(f'denoise_in_{t}.png', clear_color(x_t))
+                        # plt.imsave(f'denoise_out_{t}.png', clear_color(mu))
+
+                        # eta = vamp_model.denoiser_tr_approx(x_t, torch.tensor([1/noise_var[0, 0]]).to(mu.device).unsqueeze(0).repeat(x_t.shape[0], 1), mu, noise_var, False)
+                        # etas.append(eta[0, 0].cpu().numpy())
+                        mse.append(((vamp_model.mask[0, None, :, :, :] * (
+                                    mu - x_start) ** 2).sum() / torch.count_nonzero(vamp_model.mask)).cpu().numpy())
+                        input_var.append(noise_var[0, 0].cpu().numpy())
+                        print(t)
+
+                    plt.figure()
+                    plt.semilogy(t_vals, mse)
+                    plt.semilogy(t_vals, input_var)
+                    plt.semilogy(t_vals, np.sqrt(input_var))
+                    plt.semilogy(t_vals, etas)
+                    plt.xlabel('t')
+                    plt.legend(['MSE', 'Input variance', 'Sqrt Input variance', '1/eta_2 approx'])
+                    plt.savefig(f'eta_2_debug_{i}.png')
+                    plt.close()
+                    exit()
+
+
                     y = H.H(ref_img)
                     y = noiser(y)
 
