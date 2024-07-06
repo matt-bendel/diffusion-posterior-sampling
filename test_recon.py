@@ -109,8 +109,8 @@ def main():
     operators = ['sr_bicubic8', 'color', 'inpainting']
     noise_levels = [0.01, 0.01, 0.01]
 
-    operators = ['sr_bicubic8']
-    noise_levels = [0.01]
+    # operators = ['sr_bicubic8']
+    # noise_levels = [0.01]
 
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
@@ -284,7 +284,7 @@ def main():
                             plt.xlabel('VAMP Iteration')
                             plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2'])
                             plt.title(measure_config['operator']['name'])
-                            plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/trajectories_t={t}_damp={damp}.png')
+                            plt.savefig(f'vamp_debug/regular_damping/{measure_config["operator"]["name"]}/trajectories_t={t}_damp={damp}.png')
                             plt.close()
 
             break
