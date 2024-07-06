@@ -163,7 +163,6 @@ class VAMP:
     def denoising(self, r_2, gamma_2, t, vamp_iter=0, noise=False):
         # Max var
         noise_var, _ = torch.max(1 / gamma_2, dim=1, keepdim=True)
-        print(noise_var)
 
         new_r_2 = r_2.clone()
         if noise:
@@ -361,7 +360,7 @@ class VAMP:
 
             # plt.imsave('new_denoise_in.png', clear_color(r_2))
 
-            time.sleep(30)
+            # time.sleep(30)
 
         return_val = mu_1
         return return_val, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s
