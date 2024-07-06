@@ -181,6 +181,9 @@ class VAMP:
         #     plt.imsave(f'denoise_out.png', clear_color(denoise_out))
 
         ################
+        print(true_noise_var.sqrt())
+        print(true_noise_var)
+        exit()
 
         eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
         # tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
