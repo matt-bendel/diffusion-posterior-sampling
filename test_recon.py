@@ -308,46 +308,5 @@ def main():
             # else:
             #     continue
 
-                x_axis = np.arange(1000)
-                # plt.semilogy(x_axis, 1/np.array(g1_min))
-                # plt.semilogy(x_axis, 1 / np.array(g1_max))
-                # plt.semilogy(x_axis, 1 / np.array(g2_min))
-                # plt.semilogy(x_axis, 1 / np.array(g2_max))
-                # plt.semilogy(x_axis, 1 / np.array(e1_min))
-                # plt.semilogy(x_axis, 1 / np.array(e1_max))
-                plt.semilogy(x_axis, 1 / np.array(e2_min))
-                # plt.semilogy(x_axis, 1 / np.array(e2_max))
-                plt.semilogy(x_axis, mse_1)
-                # plt.semilogy(x_axis, mse_2)
-                # plt.legend(['1/min{g1}', '1/max{g1}', '1/min{g2}', '1/max{g2}', '1/min{e1}', '1/max{e1}', '1/min{e2}', '1/max{e2}', 'measured mse', 'nonmeasured mse'])
-                plt.legend(['1/min{e2}', 'mse'])
-                plt.savefig('vamp_trajectories.png')
-
-                if inpainting:
-                    sample = ref_img * mask + (1 - mask) * sample
-                # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
-                # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
-                y = H.H(ref_img)
-                if inpainting or coloring:
-                    y = H.Ht(y).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
-                else:
-                    y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2] if not sr else ref_img.shape[2] // blur_by, ref_img.shape[3] if not sr else ref_img.shape[2] // blur_by)
-
-                # y_n = ref_img
-                y = noiser(y)
-                for j in range(sample.shape[0]):
-                    # plt.imsave(f'{measure_config["operator"]["name"]}/test.png', clear_color((sample[j] * mask[j]).unsqueeze(0)))
-                    plt.imsave(f'{measure_config["operator"]["name"]}/test_recon_{i + j}_{k}.png', clear_color(sample[j].unsqueeze(0)))
-                    if k == 0:
-                        plt.imsave(f'{measure_config["operator"]["name"]}/test_y_{i + j}.png', clear_color(y[j].unsqueeze(0)))
-                        plt.imsave(f'{measure_config["operator"]["name"]}/test_x_{i + j}.png', clear_color(ref_img[j].unsqueeze(0)))
-
-            exit()
-
-            base_im_count += sample.shape[0]
-
-            if base_im_count == 4:
-                break
-
 if __name__ == '__main__':
     main()
