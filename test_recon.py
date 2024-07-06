@@ -247,7 +247,7 @@ def main():
                     output_var_curves.append(mse)
                     plt.xlabel('t')
                     plt.legend(['MSE', 'Input variance', 'Sqrt Input variance', '1/eta_2 approx'])
-                    plt.savefig(f'vamp_debug/eta_2_approx/eta_2_debug_{i}.png')
+                    plt.savefig(f'vamp_debug/eta_2_approx/eta_2_debug_{base_im_count}.png')
                     plt.close()
 
 
@@ -290,7 +290,8 @@ def main():
             # break
                     # sample, g1_min, g1_max, g2_min, g2_max, e1_min, e1_max, e2_min, e2_max, mse_1, mse_2 = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
                     #                    noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img)
-            if i == 100:
+            base_im_count += 1
+            if base_im_count == 100:
                 plt.figure()
                 mean_out_var = np.mean(np.array(output_var_curves), axis=0)
                 plt.semilogy(t_vals, mean_out_var)
