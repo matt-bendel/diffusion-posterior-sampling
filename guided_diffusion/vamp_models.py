@@ -352,6 +352,7 @@ class VAMP:
 
             plt.imsave(f'vamp_debug/{prob_name}/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(mu_1))
             plt.imsave(f'vamp_debug/{prob_name}/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(mu_2))
+            plt.imsave(f'vamp_debug/{prob_name}/r1s/r_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(r_2))
 
 
             print(
