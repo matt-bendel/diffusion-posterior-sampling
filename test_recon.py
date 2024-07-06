@@ -225,8 +225,8 @@ def main():
                             vamp_model.alphas_cumprod).to(x_t.device)
                         noise_var = noise_var[t].unsqueeze(0).repeat(x_t.shape[0], 1).float()
                         mu, true_noise_var, used_t = vamp_model.uncond_denoiser_function(x_t.float(), noise_var, False, False)
-                        eta_2 = 1 / (vamp_model.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0],
-                                                                                                 self.Q)).float()[0,0].cpu().numpy()
+                        eta_2 = 1 / (vamp_model.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(x_t.shape[0],
+                                                                                                 vamp_model.Q)).float()[0,0].cpu().numpy()
                         etas.append(1/eta_2)
 
                         # plt.imsave(f'denoise_in_{t}.png', clear_color(x_t))
