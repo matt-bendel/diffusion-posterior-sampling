@@ -182,11 +182,11 @@ class VAMP:
 
         ################
 
-        # eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
-        tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
-        eta_2 = 1 / tr
-        if tr[0, 0] < 0:
-            eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
+        eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
+        # tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
+        # eta_2 = 1 / tr
+        # if tr[0, 0] < 0:
+        #     eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
 
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
@@ -280,16 +280,12 @@ class VAMP:
 
     def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, use_damping=False):
         mu_1 = None  # needs to exist outside of for loop scope for return
-        mu_2 = None
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         r_2 = x_t / torch.sqrt(t_alpha_bar)
         gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
-
-        r_1 = self.r_1
-        gamma_1 = self.gamma_1
 
         gam1s = []
         gam2s = []
@@ -300,9 +296,7 @@ class VAMP:
 
         for i in range(25):
             old_gamma_2 = gamma_2.clone()
-            old_r_1 = r_1.clone()
             old_r_2 = r_2.clone()
-            old_gamma_1 = gamma_1.clone()
 
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(r_2))
 
@@ -360,7 +354,7 @@ class VAMP:
 
             # plt.imsave('new_denoise_in.png', clear_color(r_2))
 
-            # time.sleep(30)
+            time.sleep(30)
 
         return_val = mu_1
         return return_val, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s
