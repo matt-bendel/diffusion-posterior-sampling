@@ -305,6 +305,8 @@ class VAMP:
                                                                y / noise_sig,
                                                                t_alpha_bar, noise_sig)
 
+            plt.imsave(f'vamp_debug/{prob_name}/denoise_in_pre_damp/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(r_2))
+
             # plt.imsave('mu_1.png', clear_color(mu_1))
             # plt.imsave('mu_2.png', clear_color(mu_2))
 
