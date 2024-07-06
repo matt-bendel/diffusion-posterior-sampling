@@ -325,9 +325,10 @@ class VAMP:
                 # gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) *
                 #     old_gamma_2 ** (-1 / 2)) ** -2
 
-                # gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
-                #            old_gamma_1 ** (-1 / 2)) ** -2
-                # r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
+                if i > 0:
+                    gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
+                           old_gamma_1 ** (-1 / 2)) ** -2
+                    r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
 
                 gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
                            old_gamma_2 ** (-1 / 2)) ** -2
@@ -357,6 +358,7 @@ class VAMP:
 
             print(
                 f'||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()};eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
+
             # plt.imsave('new_denoise_in.png', clear_color(r_2))
 
             time.sleep(30)
