@@ -74,8 +74,6 @@ class VAMP:
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig, gam1):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
-        print(gamma_1[0, :, 0, 0])
-        print(gamma_1[0, :, 1, 1])
 
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
         mult = self.mask.clone()
@@ -359,6 +357,8 @@ class VAMP:
 
             print(
                 f'||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()};eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
+
+            exit()
 
             # plt.imsave('new_denoise_in.png', clear_color(r_2))
 
