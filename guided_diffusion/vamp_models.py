@@ -194,13 +194,14 @@ class VAMP:
         #     eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
 
         gamma_1 = eta_2 - gamma_2
-        r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
-        for q in range(self.Q):
-            r_1 += ((eta_2[:, q, None, None, None] * mu_2 - gamma_2[:, q, None, None, None] * r_2) / gamma_1[:, q, None,
-                                                                                                     None,
-                                                                                                     None]) * self.mask[
-                                                                                                              q, None,
-                                                                                                              :, :, :]
+        # r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
+        r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None, None, None]
+        # for q in range(self.Q):
+        #     r_1 += ((eta_2[:, q, None, None, None] * mu_2 - gamma_2[:, q, None, None, None] * r_2) / gamma_1[:, q, None,
+        #                                                                                              None,
+        #                                                                                              None]) * self.mask[
+        #                                                                                                       q, None,
+        #                                                                                                       :, :, :]
 
         return r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var.cpu().numpy()
 

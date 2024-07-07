@@ -66,8 +66,8 @@ class H_functions:
         if evals is None:
             evals = ((self.singulars() / sig_y) ** 2).unsqueeze(0).repeat(vec.shape[0], 1)
 
-        temp[:, :singulars.shape[0]] = (evals + sig_ddpm ** 2 + gamma_1[:, 0, None]) ** -1 * temp[:, :singulars.shape[0]]
-        temp[:, singulars.shape[0]:] = (sig_ddpm ** 2 + gamma_1[:, 0, None]) ** -1 * temp[:, singulars.shape[0]:]
+        temp[:, :evals.shape[0]] = (evals + sig_ddpm ** 2 + gamma_1[:, 0, None]) ** -1 * temp[:, :evals.shape[0]]
+        temp[:, evals.shape[0]:] = (sig_ddpm ** 2 + gamma_1[:, 0, None]) ** -1 * temp[:, evals.shape[0]:]
 
         return self.V(temp)
 
