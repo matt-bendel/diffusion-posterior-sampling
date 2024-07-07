@@ -160,7 +160,7 @@ class VAMP:
 
         return mu_1, r_2, gamma_2, eta_1
 
-    def denoising(self, r_2, gamma_2, t, vamp_iter=0, noise=False):
+    def denoising(self, r_2, gamma_2, t, vamp_iter=0, noise=False, gt=None):
         # Max var
         noise_var, _ = torch.max(1 / gamma_2, dim=1, keepdim=True)
 
@@ -183,6 +183,12 @@ class VAMP:
         ################
 
         eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
+        print(eta_2)
+        if gt is not None:
+            eta_2 = 1 / ((mu_2 - gt) ** 2).view(r_2.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
+
+        print(eta_2)
+        exit()
         # tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
         # eta_2 = 1 / tr
         # if tr[0, 0] < 0:
@@ -278,7 +284,7 @@ class VAMP:
 
         return mu_1, gamma_1, gamma_2, eta_1, eta_2
 
-    def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, use_damping=False):
+    def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, gt, use_damping=False):
         mu_1 = None  # needs to exist outside of for loop scope for return
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
@@ -300,7 +306,7 @@ class VAMP:
 
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(r_2))
 
-            r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i)
+            r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i, gt=gt)
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                                y / noise_sig,
                                                                t_alpha_bar, noise_sig)
