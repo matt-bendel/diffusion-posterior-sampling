@@ -145,9 +145,13 @@ class VAMP:
 
         return eta / self.K
 
-    def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
+    def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig, gt=None):
         mu_1, gamma_1_mult = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(gamma_1_mult, t_alpha_bar, noise_sig, gamma_1)
+        print(eta_1)
+        if gt is not None:
+            eta_1 = 1 / ((mu_1 - gt) ** 2).view(r_1.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
+        print(eta_1)
 
         gamma_2 = eta_1 - gamma_1
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
@@ -307,7 +311,7 @@ class VAMP:
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i, gt=gt)
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                                y / noise_sig,
-                                                               t_alpha_bar, noise_sig)
+                                                               t_alpha_bar, noise_sig, gt=gt)
 
 
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in_pre_damp/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(r_2))
