@@ -110,7 +110,7 @@ def main():
     noise_levels = [0.01, 0.01, 0.01]
 
     operators = ['sr_bicubic8']
-    noise_levels = [0.01]
+    noise_levels = [0.05]
 
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
