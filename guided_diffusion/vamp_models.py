@@ -96,12 +96,12 @@ class VAMP:
 
         diag_mat_inv = ((singulars / noise_sig) ** 2 + r_sig_inv ** 2 + gamma_1) ** -1
 
-        eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
-        for q in range(self.Q):
-            eta[:, q] += (mult[q, None, :, :, :] * diag_mat_inv).reshape(eta.shape[0], -1).sum(
-                -1) / torch.count_nonzero(self.mask[q])
+        # eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
+        # for q in range(self.Q):
+        #     eta[:, q] += (mult[q, None, :, :, :] * diag_mat_inv).reshape(eta.shape[0], -1).sum(
+        #         -1) / torch.count_nonzero(self.mask[q])
 
-        return 1 / eta
+        return diag_mat_inv.view(gamma_1.shape[0], -1).mean(-1).unsqueeze(1) ** -1
 
     def uncond_denoiser_function(self, noisy_im, noise_var, gamma_2, noise=False):
         diff = torch.abs(
@@ -308,6 +308,7 @@ class VAMP:
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                                y / noise_sig,
                                                                t_alpha_bar, noise_sig)
+
 
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in_pre_damp/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(r_2))
 
