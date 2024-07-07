@@ -184,10 +184,10 @@ class VAMP:
 
         eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
         print(eta_2)
-        if gt is not None:
-            eta_2 = 1 / ((mu_2 - gt) ** 2).view(r_2.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
+        # if gt is not None:
+        #     eta_2 = 1 / ((mu_2 - gt) ** 2).view(r_2.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
 
-        print(eta_2)
+        # print(eta_2)
         # tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
         # eta_2 = 1 / tr
         # if tr[0, 0] < 0:
