@@ -148,10 +148,8 @@ class VAMP:
     def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig, gt=None):
         mu_1, gamma_1_mult = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(gamma_1_mult, t_alpha_bar, noise_sig, gamma_1)
-        print(eta_1)
-        if gt is not None:
-            eta_1 = 1 / ((mu_1 - gt) ** 2).view(r_1.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
-        print(eta_1)
+        # if gt is not None:
+        #     eta_1 = 1 / ((mu_1 - gt) ** 2).view(r_1.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
 
         gamma_2 = eta_1 - gamma_1
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
@@ -187,8 +185,8 @@ class VAMP:
         ################
 
         eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(r_2.shape[0], self.Q)).float()
-        if gt is not None:
-            eta_2 = 1 / ((mu_2 - gt) ** 2).view(r_2.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
+        # if gt is not None:
+        #     eta_2 = 1 / ((mu_2 - gt) ** 2).view(r_2.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
 
         # tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
         # eta_2 = 1 / tr
