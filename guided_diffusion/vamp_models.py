@@ -54,7 +54,7 @@ class VAMP:
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         right_term = r_sig_inv * x_t
         right_term += self.svd.Ht(y).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]) / noise_sig
-        right_term += gamma_1_mult * r_1
+        right_term += gamma_1[:, 0, None, None, None] * r_1
 
         if self.Q == 2:  # Inpainting
             evals = (self.mask[0].unsqueeze(0).repeat(gamma_1.shape[0], 1, 1, 1) / noise_sig) ** 2
@@ -68,12 +68,14 @@ class VAMP:
             temp = ((evals + r_sig_inv ** 2 + reshape_gam_1) ** -1) * temp
             return self.svd.V(temp).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]), gamma_1_mult
         else:
-            return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1_mult).view(x_t.shape[0], x_t.shape[1],
+            return self.svd.vamp_mu_1(right_term, noise_sig, r_sig_inv, gamma_1).view(x_t.shape[0], x_t.shape[1],
                                                                                            x_t.shape[2],
                                                                                            x_t.shape[3]), gamma_1_mult
 
     def eta_1(self, gamma_1, t_alpha_bar, noise_sig, gam1):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
+        print(gamma_1[0, :, 0, 0])
+        print(gamma_1[0, :, 1, 1])
 
         singulars = self.svd.add_zeros(self.svd.singulars().unsqueeze(0).repeat(gamma_1.shape[0], 1))
         mult = self.mask.clone()

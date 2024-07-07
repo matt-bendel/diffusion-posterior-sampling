@@ -64,10 +64,11 @@ class H_functions:
         temp = self.Vt(vec)
 
         if evals is None:
-            evals = self.add_zeros((self.singulars().unsqueeze(0).repeat(vec.shape[0], 1) / sig_y) ** 2)
+            evals = ((self.singulars() / sig_y) ** 2).unsqueeze(0).repeat(vec.shape[0], 1)
 
-        reshape_gam_1 = gamma_1.clone().reshape(vec.shape[0], 3, -1).permute(0, 2, 1).reshape(vec.shape[0], -1)
-        temp = ((evals + sig_ddpm ** 2 + reshape_gam_1) ** -1) * temp
+        temp[:, :singulars.shape[0]] = (evals + sig_ddpm ** 2 + gamma_1[:, 0, None]) ** -1 * temp[:, :singulars.shape[0]]
+        temp[:, singulars.shape[0]:] = (sig_ddpm ** 2 + gamma_1[:, 0, None]) ** -1 * temp[:, singulars.shape[0]:]
+
         return self.V(temp)
 
     def H_pinv(self, vec):
