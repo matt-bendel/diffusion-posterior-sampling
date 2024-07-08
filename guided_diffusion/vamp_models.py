@@ -301,11 +301,11 @@ class VAMP:
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        r_1 = x_t / torch.sqrt(t_alpha_bar)
+        # r_1 = x_t / torch.sqrt(t_alpha_bar)
         r_2 = x_t / torch.sqrt(t_alpha_bar)
 
-        gamma_1 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
-            x_t.device)
+        # gamma_1 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
+        #     x_t.device)
         gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
 
@@ -350,11 +350,11 @@ class VAMP:
                 # gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) *
                 #     old_gamma_2 ** (-1 / 2)) ** -2
 
-                # if i > 0:
-                gamma_1_raw = gamma_1.clone()
-                gamma_1 = (damp_fac_g1 * gamma_1_raw ** (-1 / 2) + (1 - damp_fac_g1) *
+                if i > 0:
+                    gamma_1_raw = gamma_1.clone()
+                    gamma_1 = (damp_fac_g1 * gamma_1_raw ** (-1 / 2) + (1 - damp_fac_g1) *
                        old_gamma_1 ** (-1 / 2)) ** -2
-                r_1 = r_1 + torch.randn_like(r_2).to(r_2.device) * (1/gamma_1 - 1/gamma_1_raw).sqrt()[:, 0]
+                    r_1 = r_1 + torch.randn_like(r_2).to(r_2.device) * (1/gamma_1 - 1/gamma_1_raw).sqrt()[:, 0]
 
                 gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
                            old_gamma_2 ** (-1 / 2)) ** -2
