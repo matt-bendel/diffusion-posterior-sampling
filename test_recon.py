@@ -109,7 +109,7 @@ def main():
     operators = ['sr_bicubic8', 'color', 'inpainting']
     noise_levels = [0.01, 0.01, 0.01, 0.01]
 
-    operators = ['sr4']
+    operators = ['color']
     noise_levels = [0.01]
 
     for l in range(len(operators)):
@@ -257,7 +257,7 @@ def main():
                     t_vals = [0, 25, 50, 100, 250, 500, 750, 999]
                     # t_vals = [25, 50, 100, 250]
                     # damping_factos = [0.1, 0.2, 0.5, 0.75, 1]
-                    # t_vals = [250]
+                    t_vals = [500]
                     damping_factos = [0.1]
                     for damp in damping_factos:
                         vamp_model.damping_factor = damp
@@ -283,14 +283,14 @@ def main():
                                 mser2s.append(torch.nn.functional.mse_loss(ref_img, out).item())
 
                             plt.figure()
-                            plt.semilogy(np.arange(25), eta1s)
-                            plt.semilogy(np.arange(25), eta2s)
-                            plt.semilogy(np.arange(25), gam1s)
-                            plt.semilogy(np.arange(25), gam2s)
-                            plt.semilogy(np.arange(25), mse1s, linestyle='dashed')
-                            plt.semilogy(np.arange(25), mse2s, linestyle='dashed')
-                            plt.semilogy(np.arange(25), mser1s, linestyle='dashed')
-                            plt.semilogy(np.arange(25), mser2s, linestyle='dashed')
+                            plt.semilogy(np.arange(100), eta1s)
+                            plt.semilogy(np.arange(100), eta2s)
+                            plt.semilogy(np.arange(100), gam1s)
+                            plt.semilogy(np.arange(100), gam2s)
+                            plt.semilogy(np.arange(100), mse1s, linestyle='dashed')
+                            plt.semilogy(np.arange(100), mse2s, linestyle='dashed')
+                            plt.semilogy(np.arange(100), mser1s, linestyle='dashed')
+                            plt.semilogy(np.arange(100), mser2s, linestyle='dashed')
                             plt.xlabel('VAMP Iteration')
                             plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2'])
                             plt.title(measure_config['operator']['name'])
