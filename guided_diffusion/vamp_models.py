@@ -346,7 +346,7 @@ class VAMP:
 
                 damp_fac_g1 = self.damping_factor_g1
 
-                gamma_2_raw = gamma_2.clone()
+                gamma_2_raw = gamma_2.clone().abs()
                 gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
 
                 # if i > 0:
