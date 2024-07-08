@@ -260,9 +260,9 @@ def main():
                     evec_1 = H.V(tmp)
                     out_vec = H.Ht(H.H(evec_1))
 
-                    print((out_vec / evec_1)[0, 0, 0, 0])
-                    print((out_vec / evec_1)[0, 0, 1, 1])
-                    print((out_vec / evec_1)[0, 1, 1, 1])
+                    print((out_vec / evec_1)[0, 0])
+                    print((out_vec / evec_1)[0, 2])
+                    print((out_vec / evec_1)[0, 1])
 
                     singulars = H.singulars()
                     print((singulars ** 2)[0])
