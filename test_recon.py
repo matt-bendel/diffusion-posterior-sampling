@@ -109,7 +109,7 @@ def main():
     operators = ['sr_bicubic8', 'color', 'inpainting']
     noise_levels = [0.01, 0.01, 0.01, 0.01]
 
-    operators = ['sr_bicubic8']
+    operators = ['inpainting']
     noise_levels = [0.01]
 
     for l in range(len(operators)):
@@ -253,20 +253,6 @@ def main():
 
                     y = H.H(ref_img)
                     y = noiser(y)
-
-                    tmp = torch.zeros(ref_img.shape).to(ref_img.device)
-                    tmp[:, 0, 0, 0] = 1.
-
-                    evec_1 = H.V(tmp)
-                    out_vec = H.Ht(H.H(evec_1))
-
-                    print((out_vec / evec_1)[0, 0])
-                    print((out_vec / evec_1)[0, 2])
-                    print((out_vec / evec_1)[0, 1])
-
-                    singulars = H.singulars()
-                    print((singulars ** 2)[0])
-                    exit()
 
                     t_vals = [0, 25, 50, 100, 250, 500, 750, 999]
                     # t_vals = [25, 50, 100, 250]
