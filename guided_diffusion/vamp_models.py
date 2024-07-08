@@ -34,6 +34,7 @@ class VAMP:
         self.delta = 1e-4
         self.power = 0.5
         self.damping_factor = 0.2  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor_g1 = 0.25
         self.damping_factors = np.flip(np.linspace(0.1, 0.5, 1000))
         self.svd = svd
         self.inpainting = inpainting
@@ -165,6 +166,8 @@ class VAMP:
                                                                                                      None]) * self.mask[
                                                                                                               q, None,
                                                                                                               :, :, :]
+        if gt is not None:
+            gamma_2 = 1 / ((r_2 - gt) ** 2).view(r_1.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
 
         return mu_1, r_2, gamma_2, eta_1
 
@@ -202,8 +205,8 @@ class VAMP:
         gamma_1 = eta_2 - gamma_2
         # r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
         r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None, None, None]
-        # if gt is not None:
-        #     gamma_1 = 1 / ((r_1 - gt) ** 2).view(r_2.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
+        if gt is not None:
+            gamma_1 = 1 / ((r_1 - gt) ** 2).view(r_2.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
 
         # for q in range(self.Q):
         #     r_1 += ((eta_2[:, q, None, None, None] * mu_2 - gamma_2[:, q, None, None, None] * r_2) / gamma_1[:, q, None,
@@ -341,7 +344,7 @@ class VAMP:
                 else:
                     damp_fac = self.damping_factor
 
-                damp_fac_g1 = 0.25
+                damp_fac_g1 = self.damping_factor_g1
 
                 # gamma_2_raw = gamma_2.clone()
                 # gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) *
