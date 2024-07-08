@@ -205,8 +205,8 @@ class VAMP:
         gamma_1 = eta_2 - gamma_2
         # r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
         r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None, None, None]
-        # if gt is not None:
-        #     gamma_1 = 1 / ((r_1 - gt) ** 2).view(r_2.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
+        if gt is not None:
+            gamma_1 = 1 / ((r_1 - gt) ** 2).view(r_2.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
 
         # for q in range(self.Q):
         #     r_1 += ((eta_2[:, q, None, None, None] * mu_2 - gamma_2[:, q, None, None, None] * r_2) / gamma_1[:, q, None,
@@ -354,6 +354,7 @@ class VAMP:
                 #     gamma_1 = (damp_fac_g1 * gamma_1_raw ** (-1 / 2) + (1 - damp_fac_g1) *
                 #        old_gamma_1 ** (-1 / 2)) ** -2
                 #     r_1 = r_1 + torch.randn_like(r_2).to(r_2.device) * (1/gamma_1 - 1/gamma_1_raw).sqrt()[:, 0]
+                    # r_2 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
 
                 # gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
                 #            old_gamma_2 ** (-1 / 2)) ** -2
