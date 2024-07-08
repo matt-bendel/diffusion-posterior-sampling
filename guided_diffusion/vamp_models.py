@@ -4,10 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from guided_diffusion.ddrm_svd import Deblurring
 
-# TODO: Try regular damped r1, gam1; stochastic damped r2, gam2
-# TODO: Try true gam1, gam2
 # TODO: Check if there is a bias...
-# TODO: 100 VAMP iterations...
 # TODO: Plot MSE on the rs
 # TODO: Verify singular values for colorization and super resolution
 
@@ -204,15 +201,15 @@ class VAMP:
 
         gamma_1 = eta_2 - gamma_2
         # r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
-        # r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None, None, None]
+        r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None, None, None]
         # if gt is not None:
         #     gamma_1 = 1 / ((r_1 - gt) ** 2).view(r_2.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
 
-        for l in range(3):
-            r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None,
-                                                                                                   None, None]
-            if gt is not None:
-                gamma_1 = 1 / ((r_1 - gt) ** 2).view(r_2.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
+        # for l in range(3):
+        #     r_1 = (eta_2[:, 0, None, None, None] * mu_2 - gamma_2[:, 0, None, None, None] * r_2) / gamma_1[:, 0, None,
+        #                                                                                            None, None]
+        #     if gt is not None:
+        #         gamma_1 = 1 / ((r_1 - gt) ** 2).view(r_2.shape[0], -1).mean(-1).unsqueeze(1).repeat(1, self.Q)
 
         # for q in range(self.Q):
         #     r_1 += ((eta_2[:, q, None, None, None] * mu_2 - gamma_2[:, q, None, None, None] * r_2) / gamma_1[:, q, None,
@@ -350,23 +347,23 @@ class VAMP:
                 else:
                     damp_fac = self.damping_factor
 
-                damp_fac_g1 = self.damping_factor_g1
+                # damp_fac_g1 = self.damping_factor_g1
 
-                gamma_2_raw = gamma_2.clone().abs()
-                gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
+                # gamma_2_raw = gamma_2.clone().abs()
+                # gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
 
-                # if i > 0:
-                #     gamma_1_raw = gamma_1.clone()
-                #     gamma_1 = (damp_fac_g1 * gamma_1_raw ** (-1 / 2) + (1 - damp_fac_g1) *
-                #        old_gamma_1 ** (-1 / 2)) ** -2
-                #     r_1 = r_1 + torch.randn_like(r_2).to(r_2.device) * (1/gamma_1 - 1/gamma_1_raw).sqrt()[:, 0]
-                    # r_2 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
+                if i > 0:
+                    gamma_1_raw = gamma_1.clone()
+                    gamma_1 = (damp_fac * gamma_1_raw ** (-1 / 2) + (1 - damp_fac) *
+                       old_gamma_1 ** (-1 / 2)) ** -2
+                    r_1 = r_1 + torch.randn_like(r_2).to(r_2.device) * (1/gamma_1 - 1/gamma_1_raw).sqrt()[:, 0]
+                    r_2 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
 
-                # gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
-                #            old_gamma_2 ** (-1 / 2)) ** -2
-                # r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
+                gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
+                           old_gamma_2 ** (-1 / 2)) ** -2
+                r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
-                r_2 = r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum((1 / gamma_2 - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 0]
+                # r_2 = r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum((1 / gamma_2 - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 0]
 
             eta1s.append(1/eta_1[0, 0].cpu().numpy())
             eta2s.append(1/eta_2[0, 0].cpu().numpy())
