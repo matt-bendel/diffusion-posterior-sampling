@@ -4,6 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from guided_diffusion.ddrm_svd import Deblurring
 
+# TODO: Try regular damped r1, gam1; stochastic damped r2, gam2
+# TODO: Try true gam1, gam2
+# TODO: Check if there is a bias...
+# TODO: 100 VAMP iterations...
+# TODO: Plot MSE on the rs
+# TODO: Verify singular values for colorization and super resolution
 
 def clear_color(x):
     if torch.is_complex(x):
@@ -299,6 +305,8 @@ class VAMP:
         eta2s = []
         mu1s = []
         mu2s = []
+        r1s = []
+        r2s = []
 
         for i in range(25):
             old_gamma_2 = gamma_2.clone()
@@ -352,6 +360,8 @@ class VAMP:
             gam2s.append(1/gamma_2[0, 0].cpu().numpy())
             mu1s.append(mu_1)
             mu2s.append(mu_2)
+            r1s.append(r_1)
+            r2s.append(r_2)
 
             plt.imsave(f'vamp_debug/{prob_name}/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(mu_1))
             plt.imsave(f'vamp_debug/{prob_name}/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(mu_2))
@@ -366,7 +376,7 @@ class VAMP:
             # time.sleep(30)
 
         return_val = mu_1
-        return return_val, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s
+        return return_val, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s, r1s, r2s
 
 def extract_and_expand(array, time, target):
     array = torch.from_numpy(array).to(target.device)[time].float()

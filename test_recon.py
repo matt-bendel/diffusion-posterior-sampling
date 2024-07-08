@@ -264,15 +264,23 @@ def main():
                         for t in t_vals:
                             mse1s = []
                             mse2s = []
+                            mser1s = []
+                            mser2s = []
 
                             x_t = sampler.q_sample(x_start, t)
-                            _, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], measure_config["operator"]["name"], ref_img, True)
+                            _, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s, r1s, r2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], measure_config["operator"]["name"], ref_img, True)
 
                             for out in mu1s:
                                 mse1s.append(torch.nn.functional.mse_loss(ref_img, out).item())
 
                             for out in mu2s:
                                 mse2s.append(torch.nn.functional.mse_loss(ref_img, out).item())
+
+                            for out in r1s:
+                                mser1s.append(torch.nn.functional.mse_loss(ref_img, out).item())
+
+                            for out in r2s:
+                                mser2s.append(torch.nn.functional.mse_loss(ref_img, out).item())
 
                             plt.figure()
                             plt.semilogy(np.arange(25), eta1s)
@@ -281,6 +289,8 @@ def main():
                             plt.semilogy(np.arange(25), gam2s)
                             plt.semilogy(np.arange(25), mse1s, linestyle='dashed')
                             plt.semilogy(np.arange(25), mse2s, linestyle='dashed')
+                            plt.semilogy(np.arange(25), mser1s, linestyle='dashed')
+                            plt.semilogy(np.arange(25), mser2s, linestyle='dashed')
                             plt.xlabel('VAMP Iteration')
                             plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2'])
                             plt.title(measure_config['operator']['name'])
