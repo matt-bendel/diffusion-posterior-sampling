@@ -298,10 +298,11 @@ class VAMP:
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        r_1 = self.r_1
+        r_1 = x_t / torch.sqrt(t_alpha_bar)
         r_2 = x_t / torch.sqrt(t_alpha_bar)
 
-        gamma_1 = self.gamma_1
+        gamma_1 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
+            x_t.device)
         gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
 
@@ -340,7 +341,7 @@ class VAMP:
                 else:
                     damp_fac = self.damping_factor
 
-                damp_fac_g1 = 0.5
+                damp_fac_g1 = 0.25
 
                 # gamma_2_raw = gamma_2.clone()
                 # gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) *
