@@ -292,7 +292,7 @@ def main():
                             plt.semilogy(np.arange(100), mser1s, linestyle='dashed')
                             plt.semilogy(np.arange(100), mser2s, linestyle='dashed')
                             plt.xlabel('VAMP Iteration')
-                            plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2'])
+                            plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2', 'MSE r_1', 'MSE r_2'])
                             plt.title(measure_config['operator']['name'])
                             plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/trajectories_t={t}_damp={damp}.png')
                             plt.close()
