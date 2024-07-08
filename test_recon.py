@@ -254,6 +254,20 @@ def main():
                     y = H.H(ref_img)
                     y = noiser(y)
 
+                    tmp = torch.zeros(ref_img.shape).to(ref_img.device)
+                    tmp[:, 0, 0, 0] = 1.
+
+                    evec_1 = H.V(tmp)
+                    out_vec = H.Ht(H.H(evec_1))
+
+                    print((out_vec / evec_1)[0, 0, 0, 0])
+                    print((out_vec / evec_1)[0, 0, 1, 1])
+                    print((out_vec / evec_1)[0, 1, 1, 1])
+
+                    singulars = H.singulars()
+                    print((singulars ** 2)[0])
+                    exit()
+
                     t_vals = [0, 25, 50, 100, 250, 500, 750, 999]
                     # t_vals = [25, 50, 100, 250]
                     # damping_factos = [0.1, 0.2, 0.5, 0.75, 1]
