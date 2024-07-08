@@ -304,8 +304,8 @@ class VAMP:
         # r_1 = x_t / torch.sqrt(t_alpha_bar)
         r_2 = x_t / torch.sqrt(t_alpha_bar)
 
-        # gamma_1 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
-        #     x_t.device)
+        gamma_1 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
+            x_t.device)
         gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
 
@@ -322,7 +322,7 @@ class VAMP:
             old_gamma_1 = gamma_1.clone()
             old_gamma_2 = gamma_2.clone()
 
-            old_r_1 = r_1.clone()
+            # old_r_1 = r_1.clone()
             old_r_2 = r_2.clone()
 
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(r_2))
