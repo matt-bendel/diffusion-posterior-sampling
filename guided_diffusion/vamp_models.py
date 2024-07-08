@@ -298,7 +298,10 @@ class VAMP:
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
+        r_1 = self.r_1
         r_2 = x_t / torch.sqrt(t_alpha_bar)
+
+        gamma_1 = self.gamma_1
         gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
 
@@ -312,7 +315,10 @@ class VAMP:
         r2s = []
 
         for i in range(100):
+            old_gamma_1 = gamma_1.clone()
             old_gamma_2 = gamma_2.clone()
+
+            old_r_1 = r_1.clone()
             old_r_2 = r_2.clone()
 
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(r_2))
@@ -339,9 +345,10 @@ class VAMP:
                 #     old_gamma_2 ** (-1 / 2)) ** -2
 
                 # if i > 0:
-                # gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
-                #        old_gamma_1 ** (-1 / 2)) ** -2
-                # r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
+                gamma_1_raw = gamma_1.clone()
+                gamma_1 = (damp_fac * gamma_1_raw ** (-1 / 2) + (1 - damp_fac) *
+                       old_gamma_1 ** (-1 / 2)) ** -2
+                r_1 = r_1 + torch.randn_like(r_2).to(r_2.device) * (1/gamma_2 - 1/gamma_1_raw).sqrt()[:, 0]
 
                 gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
                            old_gamma_2 ** (-1 / 2)) ** -2
