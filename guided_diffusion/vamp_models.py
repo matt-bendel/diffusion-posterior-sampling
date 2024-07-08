@@ -359,15 +359,7 @@ class VAMP:
                 #            old_gamma_2 ** (-1 / 2)) ** -2
                 # r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
-                # new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
-                max_g_2, _ = torch.max(1 / gamma_2, dim=1, keepdim=False)
-                gam_diff = torch.maximum(max_g_2[:, None] - 1 / gamma_2_raw,
-                                         torch.zeros(gamma_2.shape).to(gamma_2.device))
-                for q in range(self.Q):
-                    new_r_2 += (r_2 + torch.randn_like(r_2).to(r_2.device) * gam_diff[:, q].sqrt()) * self.mask[q, None,
-                                                                                                      :, :, :]
-
-                r_2 = new_r_2
+                r_2 = r_2 + torch.randn_like(r_2).to(r_2.device) * (1 / gamma_2 - 1 / gamma_2_raw).sqrt()[:, 0]
 
             eta1s.append(1/eta_1[0, 0].cpu().numpy())
             eta2s.append(1/eta_2[0, 0].cpu().numpy())
