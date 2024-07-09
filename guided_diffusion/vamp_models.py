@@ -359,15 +359,15 @@ class VAMP:
                 else:
                     damp_fac = self.damping_factor
 
-                # gamma_2_raw = gamma_2.clone().abs()
-                # gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
+                gamma_2_raw = gamma_2.clone().abs()
+                gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
 
                 # if i > 0:
-                gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
-                           old_gamma_2 ** (-1 / 2)) ** -2
-                r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
+                # gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
+                #            old_gamma_2 ** (-1 / 2)) ** -2
+                # r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
-                # r_2 = r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum((1 / gamma_2 - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 0]
+                r_2 = r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum((1 / gamma_2 - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 0]
 
             eta1s.append(1/eta_1[0, 0].cpu().numpy())
             eta2s.append(1/eta_2[0, 0].cpu().numpy())
