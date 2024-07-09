@@ -256,7 +256,7 @@ def main():
 
 
                     plt.imsave('gt.png', clear_color(ref_img))
-                    plt.imsave('measures.png', clear_color(y))
+                    plt.imsave('measures.png', clear_color(y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2] // blur_by, ref_img.shape[2] // blur_by)))
 
                     t_vals = [0, 25, 50, 100, 250, 500, 750, 999]
                     # t_vals = [25, 50, 100, 250]
