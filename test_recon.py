@@ -256,6 +256,7 @@ def main():
 
 
                     plt.imsave('gt.png', clear_color(ref_img))
+                    plt.imsave('measures.png', clear_color(ref_img))
 
                     t_vals = [0, 25, 50, 100, 250, 500, 750, 999]
                     # t_vals = [25, 50, 100, 250]
