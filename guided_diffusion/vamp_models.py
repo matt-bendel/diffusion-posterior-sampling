@@ -335,14 +335,13 @@ class VAMP:
                 damp_fac = self.damping_factor
 
                 if i > 1:
-                    gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
+                    # gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
+                    #            old_gamma_1 ** (-1 / 2)) ** -2
+                    # r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
+                    gamma_1_raw = gamma_1.clone()
+                    gamma_1 = (damp_fac_g1 * gamma_1_raw ** (-1 / 2) + (1 - damp_fac_g1) *
                                old_gamma_1 ** (-1 / 2)) ** -2
-                    r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
-
-                # gamma_1_raw = gamma_1.clone()
-                # gamma_1 = (damp_fac_g1 * gamma_1_raw ** (-1 / 2) + (1 - damp_fac_g1) *
-                #            old_gamma_1 ** (-1 / 2)) ** -2
-                # r_1 = r_1 + torch.randn_like(r_2).to(r_2.device) * (1 / gamma_1 - 1 / gamma_1_raw).sqrt()[:, 0]
+                    r_1 = r_1 + torch.randn_like(r_2).to(r_2.device) * (1 / gamma_1 - 1 / gamma_1_raw).sqrt()[:, 0]
 
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                                y / noise_sig,
