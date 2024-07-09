@@ -106,8 +106,8 @@ def main():
     operators = ['sr_bicubic4', 'sr_bicubic8', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'denoising']
     noise_levels = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 1]
 
-    operators = ['sr_bicubic8', 'color', 'inpainting']
-    noise_levels = [0.01, 0.01, 0.01, 0.01]
+    # operators = ['sr_bicubic8', 'color', 'inpainting']
+    # noise_levels = [0.01, 0.01, 0.01, 0.01]
 
     # operators = ['sr_bicubic8']
     # noise_levels = [0.01]
@@ -253,6 +253,9 @@ def main():
 
                     y = H.H(ref_img)
                     y = noiser(y)
+
+                    print(H.singulars().shape)
+                    continue
 
                     plt.imsave('gt.png', clear_color(ref_img))
 
