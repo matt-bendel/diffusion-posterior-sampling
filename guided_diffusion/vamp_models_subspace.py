@@ -309,19 +309,14 @@ class VAMP:
             #                old_gamma_2 ** (-1 / 2)) ** -2
             #     r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
-            mu_1 = self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256)
-            mu_2 = self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256)
-            r_1 = self.svd.V(r_1).view(r_2.shape[0], 3, 256, 256)
-            r_2 = self.svd.V(r_1).view(r_2.shape[0], 3, 256, 256)
-
             eta1s.append(1/eta_1[0, 0].cpu().numpy())
             eta2s.append(1/eta_2[0, 0].cpu().numpy())
             gam1s.append(1/gamma_1[0, 0].cpu().numpy())
             gam2s.append(1/gamma_2[0, 0].cpu().numpy())
-            mu1s.append(mu_1)
-            mu2s.append(mu_2)
-            r1s.append(r_1)
-            r2s.append(r_2)
+            mu1s.append(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256))
+            mu2s.append(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256))
+            r1s.append(self.svd.V(r_1).view(r_2.shape[0], 3, 256, 256))
+            r2s.append(self.svd.V(r_1).view(r_2.shape[0], 3, 256, 256))
 
             plt.imsave(f'vamp_debug/{prob_name}/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256)))
             plt.imsave(f'vamp_debug/{prob_name}/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256)))
