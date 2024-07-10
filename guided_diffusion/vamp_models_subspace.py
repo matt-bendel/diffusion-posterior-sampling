@@ -52,9 +52,9 @@ class VAMP:
         self.gamma_2 = None
 
     def f_1(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig):
-        gamma_1_mult = torch.zeros(r_1.shape).to(y.device)
-        for q in range(self.Q):
-            gamma_1_mult += gamma_1[:, q, None, None, None] * self.mask[q, :, :, :]
+        # gamma_1_mult = torch.zeros(r_1.shape).to(y.device)
+        # for q in range(self.Q):
+        #     gamma_1_mult += gamma_1[:, q, None, None, None] * self.mask[q, :, :, :]
 
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         evals = (self.svd.singulars() / noise_sig) ** 2
@@ -80,7 +80,7 @@ class VAMP:
         return mu_1
 
 
-    def eta_1(self, gamma_1, t_alpha_bar, noise_sig, gam1):
+    def eta_1(self, t_alpha_bar, noise_sig, gamma_1):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         evals = (self.svd.singulars() / noise_sig) ** 2
 
@@ -119,8 +119,8 @@ class VAMP:
                 self.alphas_cumprod).to(noisy_im.device))[t], t
 
     def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig, gt=None):
-        mu_1, gamma_1_mult = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
-        eta_1 = self.eta_1(gamma_1_mult, t_alpha_bar, noise_sig, gamma_1)
+        mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
+        eta_1 = self.eta_1(t_alpha_bar, noise_sig, gamma_1)
         singulars = self.svd.singulars()
 
         gamma_2 = eta_1 - gamma_1
