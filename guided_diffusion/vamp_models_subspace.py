@@ -89,8 +89,6 @@ class VAMP:
         eta[:, 0] = inv_measured.mean(-1) ** -1
         if self.Q > 1:
             inv_nonmeasured = ((torch.ones(self.d - evals.shape[0]).to(gamma_1.device) * r_sig_inv ** 2)[None, :] + gamma_1[:, 1]) ** -1
-            print(inv_nonmeasured)
-            exit()
             eta[:, 1] = inv_nonmeasured.mean(-1) ** -1
 
         return eta
@@ -130,13 +128,13 @@ class VAMP:
         max_g_2, _ = torch.max(1/gamma_2, dim=1)
 
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
-        # noise = torch.randn_like(r_2)
-        noise = torch.zeros(mu_1.shape).to(mu_1.device)
+        noise = torch.randn_like(r_2)
+        # noise = torch.zeros(mu_1.shape).to(mu_1.device)
         r_2[:, :singulars.shape[0]] = ((eta_1[:, 0, None] * mu_1 - gamma_1[:, 0, None] * r_1) / gamma_2[:, 0, None] + noise * (max_g_2 - 1/gamma_2[:, 0]).sqrt())[:, :singulars.shape[0]]
         if self.Q > 1:
             r_2[:, singulars.shape[0]:] = ((eta_1[:, 1, None] * mu_1 - gamma_1[:, 1, None] * r_1) / gamma_2[:, 1,None] + noise * (max_g_2 - 1/gamma_2[:, 1]).sqrt())[:, singulars.shape[0]:]
 
-        # gamma_2 = max_g_2.unsqueeze(1).repeat(1, self.Q)
+        gamma_2 = max_g_2.unsqueeze(1).repeat(1, self.Q)
 
         return mu_1, r_2, gamma_2, eta_1
 
