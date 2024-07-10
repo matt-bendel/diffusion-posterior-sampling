@@ -70,12 +70,12 @@ class VAMP:
 
         right_term += scaled_r_1
 
-        nonzero_singular_mult = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0]) ** -1
+        nonzero_singular_mult = ((evals[None, :] + r_sig_inv ** 2) ** 2 + gamma_1[:, 0]) ** -1
 
         mu_1 = right_term
         mu_1[:, :evals.shape[0]] = nonzero_singular_mult * right_term[:, :evals.shape[0]]
         if self.Q > 1:
-            mu_1[:, evals.shape[0]:] = (r_sig_inv ** 2 + gamma_1[:, 1]) ** -1 * mu_1[:, evals.shape[0]:]
+            mu_1[:, evals.shape[0]:] = ((r_sig_inv ** 2) ** 2 + gamma_1[:, 1]) ** -1 * mu_1[:, evals.shape[0]:]
 
         return mu_1
 
@@ -85,12 +85,15 @@ class VAMP:
         evals = (self.svd.singulars() / noise_sig) ** 2
 
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
-        inv_measured = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0]) ** -1
+        inv_measured = ((evals[None, :] + r_sig_inv ** 2) ** 2 + gamma_1[:, 0]) ** -1
+        print(inv_measured.shape)
         eta[:, 0] = inv_measured.mean(-1) ** -1
         if self.Q > 1:
-            inv_nonmeasured = ((torch.ones(self.d - evals.shape[0]).to(gamma_1.device) * r_sig_inv ** 2)[None, :] + gamma_1[:, 1]) ** -1
+            inv_nonmeasured = ((torch.ones(self.d - evals.shape[0]).to(gamma_1.device) * r_sig_inv ** 2)[None, :] ** 2 + gamma_1[:, 1]) ** -1
+            print(inv_nonmeasured.shape)
             eta[:, 1] = inv_nonmeasured.mean(-1) ** -1
 
+        exit()
         return eta
 
     def uncond_denoiser_function(self, noisy_im, noise_var, gamma_2, noise=False):
@@ -306,12 +309,12 @@ class VAMP:
 
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in_pre_damp/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256)))
 
-            if use_damping:
-                damp_fac = self.damping_factor
-
-                gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
-                           old_gamma_2 ** (-1 / 2)) ** -2
-                r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
+            # if use_damping:
+            #     damp_fac = self.damping_factor
+            #
+            #     gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
+            #                old_gamma_2 ** (-1 / 2)) ** -2
+            #     r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
             eta1s.append(1/eta_1[0, 0].cpu().numpy())
             eta2s.append(1/eta_2[0, 0].cpu().numpy())
