@@ -300,14 +300,14 @@ class VAMP:
 
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in_pre_damp/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256)))
 
-            # if use_damping:
+            if use_damping:
             #     if self.damping_factor == 'dynamic':
             #         damp_fac = self.damping_factors[t[0].cpu().numpy()]
             #     else:
-            #         damp_fac = self.damping_factor
-            #     gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
-            #                old_gamma_2 ** (-1 / 2)) ** -2
-            #     r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
+                damp_fac = self.damping_factor
+                gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
+                           old_gamma_2 ** (-1 / 2)) ** -2
+                r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
             eta1s.append(1/eta_1[0, 0].cpu().numpy())
             eta2s.append(1/eta_2[0, 0].cpu().numpy())
