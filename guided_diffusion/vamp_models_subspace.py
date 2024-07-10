@@ -86,14 +86,11 @@ class VAMP:
 
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
         inv_measured = ((evals[None, :] + r_sig_inv ** 2) ** 2 + gamma_1[:, 0]) ** -1
-        print(inv_measured.shape)
         eta[:, 0] = inv_measured.mean(-1) ** -1
         if self.Q > 1:
             inv_nonmeasured = ((torch.ones(self.d - evals.shape[0]).to(gamma_1.device) * r_sig_inv ** 2)[None, :] ** 2 + gamma_1[:, 1]) ** -1
-            print(inv_nonmeasured.shape)
             eta[:, 1] = inv_nonmeasured.mean(-1) ** -1
 
-        exit()
         return eta
 
     def uncond_denoiser_function(self, noisy_im, noise_var, gamma_2, noise=False):
