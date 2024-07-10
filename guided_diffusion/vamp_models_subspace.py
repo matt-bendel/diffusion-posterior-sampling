@@ -70,12 +70,12 @@ class VAMP:
 
         right_term += scaled_r_1
 
-        nonzero_singular_mult = ((evals[None, :] + r_sig_inv ** 2) ** 2 + gamma_1[:, 0]) ** -1
+        nonzero_singular_mult = ((evals[None, :] + r_sig_inv ** 2) + gamma_1[:, 0]) ** -1
 
         mu_1 = right_term
         mu_1[:, :evals.shape[0]] = nonzero_singular_mult * right_term[:, :evals.shape[0]]
         if self.Q > 1:
-            mu_1[:, evals.shape[0]:] = ((r_sig_inv ** 2) ** 2 + gamma_1[:, 1]) ** -1 * mu_1[:, evals.shape[0]:]
+            mu_1[:, evals.shape[0]:] = ((r_sig_inv ** 2) + gamma_1[:, 1]) ** -1 * mu_1[:, evals.shape[0]:]
 
         return mu_1
 
@@ -85,10 +85,10 @@ class VAMP:
         evals = (self.svd.singulars() / noise_sig) ** 2
 
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
-        inv_measured = ((evals[None, :] + r_sig_inv ** 2) ** 2 + gamma_1[:, 0]) ** -1
+        inv_measured = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0]) ** -1
         eta[:, 0] = inv_measured.mean(-1) ** -1
         if self.Q > 1:
-            inv_nonmeasured = ((torch.ones(self.d - evals.shape[0]).to(gamma_1.device) * r_sig_inv ** 2)[None, :] ** 2 + gamma_1[:, 1]) ** -1
+            inv_nonmeasured = ((torch.ones(self.d - evals.shape[0]).to(gamma_1.device) * r_sig_inv ** 2)[None, :] + gamma_1[:, 1]) ** -1
             eta[:, 1] = inv_nonmeasured.mean(-1) ** -1
 
         return eta
