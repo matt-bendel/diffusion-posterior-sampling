@@ -134,21 +134,21 @@ class VAMP:
 
     def get_eta_2(self, inv_gamma_2):
         diff = torch.abs(
-            inv_gamma_2[:, 0, None] - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
-                self.alphas_cumprod).to(noisy_im.device))
+            inv_gamma_2[:, 0, None] - (1 - torch.tensor(self.alphas_cumprod).to(inv_gamma_2.device)) / torch.tensor(
+                self.alphas_cumprod).to(inv_gamma_2.device))
         t = torch.argmin(diff, dim=1)
-        true_noise_var = ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
-                self.alphas_cumprod).to(noisy_im.device))[t]
+        true_noise_var = ((1 - torch.tensor(self.alphas_cumprod).to(inv_gamma_2.device)) / torch.tensor(
+                self.alphas_cumprod).to(inv_gamma_2.device))[t]
 
         eta_2 = torch.zeros(inv_gamma_2.shape).to(inv_gamma_2.device)
         eta_2[:, 0] = (self.scale_factor[t[0]] * true_noise_var.sqrt()).float()
         if self.Q > 1:
             diff = torch.abs(
-                inv_gamma_2[:, 1, None] - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
-                    self.alphas_cumprod).to(noisy_im.device))
+                inv_gamma_2[:, 1, None] - (1 - torch.tensor(self.alphas_cumprod).to(inv_gamma_2.device)) / torch.tensor(
+                    self.alphas_cumprod).to(inv_gamma_2.device))
             t = torch.argmin(diff, dim=1)
-            true_noise_var = ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
-                self.alphas_cumprod).to(noisy_im.device))[t]
+            true_noise_var = ((1 - torch.tensor(self.alphas_cumprod).to(inv_gamma_2.device)) / torch.tensor(
+                self.alphas_cumprod).to(inv_gamma_2.device))[t]
             eta_2[:, 1] = (self.scale_factor[t[0]] * true_noise_var.sqrt()).float()
 
         return 1 / eta_2
