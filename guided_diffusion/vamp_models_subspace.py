@@ -128,8 +128,8 @@ class VAMP:
         max_g_2, _ = torch.max(1/gamma_2, dim=1)
 
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
-        # noise = torch.randn_like(r_2)
-        noise = torch.zeros(mu_1.shape).to(mu_1.device)
+        noise = torch.randn_like(r_2)
+        # noise = torch.zeros(mu_1.shape).to(mu_1.device)
         r_2[:, :singulars.shape[0]] = ((eta_1[:, 0, None] * mu_1 - gamma_1[:, 0, None] * r_1) / gamma_2[:, 0, None] + noise * (max_g_2 - 1/gamma_2[:, 0]).sqrt())[:, :singulars.shape[0]]
         if self.Q > 1:
             r_2[:, singulars.shape[0]:] = ((eta_1[:, 1, None] * mu_1 - gamma_1[:, 1, None] * r_1) / gamma_2[:, 1,None] + noise * (max_g_2 - 1/gamma_2[:, 1]).sqrt())[:, singulars.shape[0]:]
