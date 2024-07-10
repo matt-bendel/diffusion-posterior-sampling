@@ -89,6 +89,8 @@ class VAMP:
         eta[:, 0] = inv_measured.mean(-1) ** -1
         if self.Q > 1:
             inv_nonmeasured = ((torch.ones(self.d - evals.shape[0]).to(gamma_1.device) * r_sig_inv ** 2)[None, :] + gamma_1[:, 1]) ** -1
+            print(inv_nonmeasured)
+            exit()
             eta[:, 1] = inv_nonmeasured.mean(-1) ** -1
 
         return eta
@@ -281,7 +283,7 @@ class VAMP:
         r1s = []
         r2s = []
 
-        for i in range(2):
+        for i in range(100):
             old_gamma_1 = gamma_1.clone()
             old_gamma_2 = gamma_2.clone()
 
