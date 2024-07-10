@@ -168,8 +168,6 @@ class VAMP:
 
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
-        print(((eta_2[:, 0, None] * mu_2 - gamma_2[:, 0, None] * r_2) / gamma_1[:, 0, None])[:, :singulars.shape[0]].shape)
-        exit()
         r_1[:, :singulars.shape[0]] = ((eta_2[:, 0, None] * mu_2 - gamma_2[:, 0, None] * r_2) / gamma_1[:, 0, None])[:, :singulars.shape[0]]
         if self.Q > 1:
             r_1[:, singulars.shape[0]:] = ((eta_2[:, 1, None] * mu_2 - gamma_2[:, 1, None] * r_2) / gamma_1[:, 1, None])[:, singulars.shape[0]:]
