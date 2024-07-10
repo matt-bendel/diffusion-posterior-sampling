@@ -20,7 +20,7 @@ from data.FFHQDataModule import FFHQDataModule
 from pytorch_lightning import seed_everything
 from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising, Deblurring2D, Colorization, SuperResolution, SRConv
 from util.inpaint.get_mask import MaskCreator
-from guided_diffusion.vamp_models import VAMP
+from guided_diffusion.vamp_models_subspace import VAMP
 
 
 def load_object(dct):
@@ -272,7 +272,7 @@ def main():
                             mser2s = []
 
                             x_t = sampler.q_sample(x_start, t)
-                            _, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s, r1s, r2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], measure_config["operator"]["name"], ref_img, False)
+                            _, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s, r1s, r2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], measure_config["operator"]["name"], ref_img, True)
 
                             for out in mu1s:
                                 mse1s.append(torch.nn.functional.mse_loss(ref_img, out).item())

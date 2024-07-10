@@ -149,6 +149,8 @@ class VAMP:
         eta_2 = torch.zeros(inv_gamma_2.shape).to(inv_gamma_2.device)
         eta_2[:, 0] = (self.scale_factor[t[0]] * true_noise_var.sqrt()).float()
         if self.Q > 1:
+            eta_2.repeat(1, self.Q)
+            return 1 / eta_2
             diff = torch.abs(
                 inv_gamma_2[:, 1, None] - (1 - torch.tensor(self.alphas_cumprod).to(inv_gamma_2.device)) / torch.tensor(
                     self.alphas_cumprod).to(inv_gamma_2.device))
