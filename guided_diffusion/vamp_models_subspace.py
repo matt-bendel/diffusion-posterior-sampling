@@ -230,7 +230,6 @@ class VAMP:
 
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in_pre_damp/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256)))
 
-            exit()
             if use_damping:
                 damp_fac = self.damping_factor
 
@@ -265,6 +264,7 @@ class VAMP:
 
             print(
                 f'||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
+            exit()
 
             # time.sleep(30)
 
