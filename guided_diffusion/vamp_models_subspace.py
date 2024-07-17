@@ -172,7 +172,7 @@ class VAMP:
 
         # eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(1, self.Q)).float()
 
-        eta_2 = self.get_eta_2(noise_var.repeat(1, self.Q))
+        eta_2 = self.get_eta_2(1/gamma_2)
 
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
