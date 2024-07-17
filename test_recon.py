@@ -261,7 +261,7 @@ def main():
                     # t_vals = [25, 50, 100, 250]
                     # damping_factos = [0.1, 0.2, 0.5, 0.75, 1]
                     t_vals = [999]
-                    damping_factos = [0.1]
+                    damping_factos = [0.5]
                     for damp in damping_factos:
                         vamp_model.damping_factor = damp
                         for t in t_vals:
@@ -273,17 +273,17 @@ def main():
                             x_t = sampler.q_sample(x_start, t)
                             _, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s, r1s, r2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], measure_config["operator"]["name"], ref_img, True)
 
-                            for out in mu1s:
-                                mse1s.append(torch.nn.functional.mse_loss(ref_img, out[0]).item())
+                            for out in mu1s[0]:
+                                mse1s.append(torch.nn.functional.mse_loss(ref_img, out).item())
 
-                            for out in mu2s:
-                                mse2s.append(torch.nn.functional.mse_loss(ref_img, out[0]).item())
+                            for out in mu2s[0]:
+                                mse2s.append(torch.nn.functional.mse_loss(ref_img, out).item())
 
-                            for out in r1s:
-                                mser1s.append(torch.nn.functional.mse_loss(ref_img, out[0]).item())
+                            for out in r1s[0]:
+                                mser1s.append(torch.nn.functional.mse_loss(ref_img, out).item())
 
-                            for out in r2s:
-                                mser2s.append(torch.nn.functional.mse_loss(ref_img, out[0]).item())
+                            for out in r2s[0]:
+                                mser2s.append(torch.nn.functional.mse_loss(ref_img, out).item())
 
                             plt.figure()
                             plt.semilogy(np.arange(len(eta1s[0])), eta1s[0], color='red')
