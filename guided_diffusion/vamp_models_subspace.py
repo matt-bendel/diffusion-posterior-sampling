@@ -122,7 +122,6 @@ class VAMP:
         mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(t_alpha_bar, noise_sig, gamma_1)
         singulars = self.svd.singulars()
-        eta_1[:, 0] = eta_1[:, 1]
 
         gamma_2 = eta_1 - gamma_1
 
