@@ -63,7 +63,7 @@ class VAMP:
         right_term += self.svd.Ht(y).view(x_t.shape[0], x_t.shape[1], x_t.shape[2], x_t.shape[3]) / noise_sig
         right_term = self.svd.Vt(right_term)
 
-        scaled_r_1 = r_1
+        scaled_r_1 = torch.zeros(right_term.shape).to(right_term.device)
         scaled_r_1[:, :evals.shape[0]] = gamma_1[:, 0] * r_1[:, :evals.shape[0]]
         if self.Q > 1:
             scaled_r_1[:, evals.shape[0]:] = gamma_1[:, 1] * r_1[:, evals.shape[0]:]
@@ -71,6 +71,9 @@ class VAMP:
         right_term += scaled_r_1
 
         nonzero_singular_mult = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0]) ** -1
+        print(nonzero_singular_mult[0])
+        print((evals[0] + r_sig_inv ** 2 + gamma_1[0, 0]) ** -1)
+        exit()
 
         mu_1 = right_term
         mu_1[:, :evals.shape[0]] = nonzero_singular_mult * right_term[:, :evals.shape[0]]
@@ -222,6 +225,7 @@ class VAMP:
                     gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
                                old_gamma_1 ** (-1 / 2)) ** -2
                     r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
+
 
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                                y / noise_sig,
