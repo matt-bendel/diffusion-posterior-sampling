@@ -162,7 +162,6 @@ class VAMP:
     def denoising(self, r_2, gamma_2, t, vamp_iter=0, noise=False, gt=None):
         # Max var
         noise_var, _ = torch.max(1 / gamma_2, dim=1, keepdim=True)
-        print(noise_var)
         singulars = self.svd.singulars()
 
         new_r_2 = self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256)
@@ -171,11 +170,11 @@ class VAMP:
         mu_2, true_noise_var, used_t = self.uncond_denoiser_function(new_r_2.float(), noise_var, gamma_2, noise)
         mu_2 = self.svd.Vt(mu_2)
 
-        # eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(1, self.Q)).float()
+        eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(1, self.Q)).float()
 
-        eta_2 = self.get_eta_2(1/gamma_2)
+        # eta_2 = self.get_eta_2(1/gamma_2)
 
-        new_gamma_2 = gamma_2 #1 / noise_var.repeat(1, self.Q)
+        new_gamma_2 = 1 / noise_var.repeat(1, self.Q)
         gamma_1 = eta_2 - new_gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
         r_1[:, :singulars.shape[0]] = ((eta_2[:, 0, None] * mu_2 - new_gamma_2[:, 0, None] * r_2) / gamma_1[:, 0, None])[:, :singulars.shape[0]]
