@@ -250,10 +250,10 @@ class VAMP:
             # if torch.linalg.norm(mu_1 - mu_2).cpu().numpy() > 5e3:
             #     break
 
-            eta1s.append(1/eta_1[0, 0].cpu().numpy())
-            eta2s.append(1/eta_2[0, 0].cpu().numpy())
-            gam1s.append(1/gamma_1[0, 0].cpu().numpy())
-            gam2s.append(1/gamma_2[0, 0].cpu().numpy())
+            eta1s.append(1/eta_1[0, 1].cpu().numpy())
+            eta2s.append(1/eta_2[0, 1].cpu().numpy())
+            gam1s.append(1/gamma_1[0, 1].cpu().numpy())
+            gam2s.append(1/gamma_2[0, 1].cpu().numpy())
             mu1s.append(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256))
             mu2s.append(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256))
             r1s.append(self.svd.V(r_1).view(r_2.shape[0], 3, 256, 256))
