@@ -44,6 +44,7 @@ class VAMP:
             self.scale_factor = torch.from_numpy(np.load(f)).to(x_T.device)
 
         print(self.Q)
+        print('SUBSPACE!!!')
 
         self.betas = torch.tensor(betas).to(x_T.device)
         self.gamma_1 = 1e-6 * torch.ones(x_T.shape[0], self.Q, device=x_T.device)
