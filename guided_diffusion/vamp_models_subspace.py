@@ -128,8 +128,8 @@ class VAMP:
         max_g_2, _ = torch.max(1/gamma_2, dim=1)
 
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
-        noise = torch.randn_like(r_2)
-        # noise = torch.zeros(mu_1.shape).to(mu_1.device)
+        # noise = torch.randn_like(r_2)
+        noise = torch.zeros(mu_1.shape).to(mu_1.device)
         r_2[:, :singulars.shape[0]] = ((eta_1[:, 0, None] * mu_1 - gamma_1[:, 0, None] * r_1) / gamma_2[:, 0, None] + noise * (max_g_2 - 1/gamma_2[:, 0]).sqrt())[:, :singulars.shape[0]]
         if self.Q > 1:
             r_2[:, singulars.shape[0]:] = ((eta_1[:, 1, None] * mu_1 - gamma_1[:, 1, None] * r_1) / gamma_2[:, 1,None] + noise * (max_g_2 - 1/gamma_2[:, 1]).sqrt())[:, singulars.shape[0]:]
@@ -170,12 +170,11 @@ class VAMP:
         mu_2, true_noise_var, used_t = self.uncond_denoiser_function(new_r_2.float(), noise_var, gamma_2, noise)
         mu_2 = self.svd.Vt(mu_2)
 
-        # eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(1, self.Q)).float()
-        #
-        eta_2 = self.get_eta_2(1/gamma_2)
+        eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(1, self.Q)).float()
 
-        # new_gamma_2 = 1 / noise_var.repeat(1, self.Q)
-        new_gamma_2 = gamma_2
+        # eta_2 = self.get_eta_2(noise_var.repeat(1, self.Q))
+
+        new_gamma_2 = 1 / noise_var.repeat(1, self.Q)
         gamma_1 = eta_2 - new_gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
         r_1[:, :singulars.shape[0]] = ((eta_2[:, 0, None] * mu_2 - new_gamma_2[:, 0, None] * r_2) / gamma_1[:, 0, None])[:, :singulars.shape[0]]
