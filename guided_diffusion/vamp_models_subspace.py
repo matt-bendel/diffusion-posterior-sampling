@@ -175,7 +175,7 @@ class VAMP:
         # eta_2 = self.get_eta_2(noise_var.repeat(1, self.Q))
 
         new_gamma_2 = 1 / noise_var.repeat(1, self.Q)
-        gamma_1 = eta_2 - gamma_2
+        gamma_1 = eta_2 - new_gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
         r_1[:, :singulars.shape[0]] = ((eta_2[:, 0, None] * mu_2 - new_gamma_2[:, 0, None] * r_2) / gamma_1[:, 0, None])[:, :singulars.shape[0]]
         if self.Q > 1:
@@ -216,13 +216,13 @@ class VAMP:
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256)))
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i, gt=gt)
-            if use_damping:
-                damp_fac = self.damping_factor
-
-                if i > 0:
-                    gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
-                               old_gamma_1 ** (-1 / 2)) ** -2
-                    r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
+            # if use_damping:
+            #     damp_fac = self.damping_factor
+            #
+            #     if i > 0:
+            #         gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
+            #                    old_gamma_1 ** (-1 / 2)) ** -2
+            #         r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
 
 
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
