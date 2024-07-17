@@ -175,7 +175,7 @@ class VAMP:
         # eta_2 = self.get_eta_2(noise_var.repeat(1, self.Q))
 
         new_gamma_2 = 1 / noise_var.repeat(1, self.Q)
-        gamma_1 = eta_2 - new_gamma_2
+        gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
         r_1[:, :singulars.shape[0]] = ((eta_2[:, 0, None] * mu_2 - new_gamma_2[:, 0, None] * r_2) / gamma_1[:, 0, None])[:, :singulars.shape[0]]
         if self.Q > 1:
