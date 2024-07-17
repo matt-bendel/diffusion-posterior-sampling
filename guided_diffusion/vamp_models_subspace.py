@@ -180,86 +180,6 @@ class VAMP:
 
         return r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var.cpu().numpy()
 
-    def run_vamp(self, x_t, y, t, noise_sig, use_damping=False):
-        mu_2 = None  # needs to exist outside of for loop scope for return
-        gamma_1 = self.gamma_1
-        r_1 = self.r_1
-        singulars = self.svd.singulars()
-
-        # noise_sig = self.noise_sig_schedule[t[0].cpu().numpy()]
-
-        t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
-
-        for i in range(1):
-            old_gamma_1 = gamma_1
-            old_r_1 = r_1
-
-            mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
-                                                            y / noise_sig,
-                                                            t_alpha_bar, noise_sig)
-
-            # TODO: REMOVE...
-            # r_2 += torch.randn_like(r_2) * ((1 - t_alpha_bar) / t_alpha_bar).sqrt()
-            # gamma_2[:, 0] = t_alpha_bar / (1 - t_alpha_bar)
-
-            r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, noise=True)
-
-            if use_damping:
-                r_1 = self.damping_factor * r_1 + (1 - self.damping_factor) * old_r_1
-                gamma_1 = (self.damping_factor * torch.abs(gamma_1) ** (-1 / 2) + (1 - self.damping_factor) * (
-                    old_gamma_1) ** (-1 / 2)) ** -2
-
-            print(f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
-
-            if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
-                exit()
-
-        self.gamma_1 = gamma_1
-        self.r_1 = r_1
-
-        return mu_2, gamma_1, gamma_2, eta_1, eta_2
-
-    def run_vamp_reverse(self, x_t, y, t, noise_sig, use_damping=False):
-        mu_1 = None  # needs to exist outside of for loop scope for return
-
-        t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
-
-        r_2 = x_t / torch.sqrt(t_alpha_bar)
-        gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
-            x_t.device)
-
-        for i in range(2 if t[0] > 400 else 1):
-            old_gamma_2 = gamma_2
-
-            r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t)
-            mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
-                                                               y / noise_sig,
-                                                               t_alpha_bar, noise_sig)
-
-            if use_damping:
-                gamma_2_raw = gamma_2
-                gamma_2 = (self.damping_factor * gamma_2_raw ** (-1 / 2) + (1 - self.damping_factor) * (
-                    old_gamma_2) ** (-1 / 2)) ** -2
-
-                new_r_2 = torch.zeros(r_2.shape).to(r_2.device)
-                max_g_2, _ = torch.max(1 / gamma_2, dim=1, keepdim=False)
-                gam_diff = torch.maximum(max_g_2[:, None] - 1 / gamma_2_raw,
-                                         torch.zeros(gamma_2.shape).to(gamma_2.device))
-                for q in range(self.Q):
-                    new_r_2 += (r_2 + torch.randn_like(r_2).to(r_2.device) * gam_diff[:, q].sqrt()) * self.mask[q, None,
-                                                                                                      :, :, :]
-
-                r_2 = new_r_2
-
-            print(
-                f'eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
-
-
-            # if torch.isnan(gamma_2).any(1).any(0) or torch.isnan(gamma_1).any(1).any(0):
-            #     exit()
-
-        return mu_1, gamma_1, gamma_2, eta_1, eta_2
-
     def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, gt, use_damping=False):
         mu_1 = None  # needs to exist outside of for loop scope for return
         singulars = self.svd.singulars()
@@ -293,13 +213,13 @@ class VAMP:
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256)))
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i, gt=gt)
-            # if use_damping:
-            #     damp_fac = self.damping_factor
-            #
-            #     if i > 1:
-            #         gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
-            #                    old_gamma_1 ** (-1 / 2)) ** -2
-            #         r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
+            if use_damping:
+                damp_fac = self.damping_factor
+
+                if i > 1:
+                    gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
+                               old_gamma_1 ** (-1 / 2)) ** -2
+                    r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
 
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                                y / noise_sig,
@@ -311,22 +231,22 @@ class VAMP:
             if use_damping:
                 damp_fac = self.damping_factor
 
-                gamma_2_raw = gamma_2.clone().abs()
-                gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
-                r_2[:, :singulars.shape[0]] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum((1 / gamma_2 - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 0])[:, :singulars.shape[0]]
-                if self.Q > 1:
-                    r_2[:, singulars.shape[0]:] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum(
-                        (1 / gamma_2 - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 1])[:,
-                                                  singulars.shape[0]:]
+                # gamma_2_raw = gamma_2.clone().abs()
+                # gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
+                # r_2[:, :singulars.shape[0]] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum((1 / gamma_2 - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 0])[:, :singulars.shape[0]]
+                # if self.Q > 1:
+                #     r_2[:, singulars.shape[0]:] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum(
+                #         (1 / gamma_2 - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 1])[:,
+                #                                   singulars.shape[0]:]
 
-                # gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
-                #            old_gamma_2 ** (-1 / 2)) ** -2
-                # r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
+                gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
+                           old_gamma_2 ** (-1 / 2)) ** -2
+                r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
-            eta1s.append(1/eta_1[0, 0].cpu().numpy())
-            eta2s.append(1/eta_2[0, 0].cpu().numpy())
-            gam1s.append(1/gamma_1[0, 0].cpu().numpy())
-            gam2s.append(1/gamma_2[0, 0].cpu().numpy())
+            eta1s.append(1/eta_1[0, 1].cpu().numpy())
+            eta2s.append(1/eta_2[0, 1].cpu().numpy())
+            gam1s.append(1/gamma_1[0, 1].cpu().numpy())
+            gam2s.append(1/gamma_2[0, 1].cpu().numpy())
             mu1s.append(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256))
             mu2s.append(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256))
             r1s.append(self.svd.V(r_1).view(r_2.shape[0], 3, 256, 256))
