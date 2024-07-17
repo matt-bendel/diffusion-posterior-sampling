@@ -128,8 +128,8 @@ class VAMP:
         max_g_2, _ = torch.max(1/gamma_2, dim=1)
 
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
-        # noise = torch.randn_like(r_2)
-        noise = torch.zeros(mu_1.shape).to(mu_1.device)
+        noise = torch.randn_like(r_2)
+        # noise = torch.zeros(mu_1.shape).to(mu_1.device)
         r_2[:, :singulars.shape[0]] = ((eta_1[:, 0, None] * mu_1 - gamma_1[:, 0, None] * r_1) / gamma_2[:, 0, None] + noise * (max_g_2 - 1/gamma_2[:, 0]).sqrt())[:, :singulars.shape[0]]
         if self.Q > 1:
             r_2[:, singulars.shape[0]:] = ((eta_1[:, 1, None] * mu_1 - gamma_1[:, 1, None] * r_1) / gamma_2[:, 1,None] + noise * (max_g_2 - 1/gamma_2[:, 1]).sqrt())[:, singulars.shape[0]:]
@@ -196,14 +196,14 @@ class VAMP:
         gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
 
-        gam1s = []
-        gam2s = []
-        eta1s = []
-        eta2s = []
-        mu1s = []
-        mu2s = []
-        r1s = []
-        r2s = []
+        gam1s = [[], []]
+        gam2s = [[], []]
+        eta1s = [[], []]
+        eta2s = [[], []]
+        mu1s = [[], []]
+        mu2s = [[], []]
+        r1s = [[], []]
+        r2s = [[], []]
 
         for i in range(100):
             old_gamma_1 = gamma_1.clone()
@@ -249,14 +249,24 @@ class VAMP:
             # if torch.linalg.norm(mu_1 - mu_2).cpu().numpy() > 5e3:
             #     break
 
-            eta1s.append(1/eta_1[0, 1].cpu().numpy())
-            eta2s.append(1/eta_2[0, 1].cpu().numpy())
-            gam1s.append(1/gamma_1[0, 1].cpu().numpy())
-            gam2s.append(1/gamma_2[0, 1].cpu().numpy())
-            mu1s.append(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256))
-            mu2s.append(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256))
-            r1s.append(self.svd.V(r_1).view(r_2.shape[0], 3, 256, 256))
-            r2s.append(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256))
+            eta1s[0].append(1/eta_1[0, 0].cpu().numpy())
+            eta2s[0].append(1/eta_2[0, 0].cpu().numpy())
+            gam1s[0].append(1/gamma_1[0, 0].cpu().numpy())
+            gam2s[0].append(1/gamma_2[0, 0].cpu().numpy())
+            mu1s[0].append(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256))
+            mu2s[0].append(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256))
+            r1s[0].append(self.svd.V(r_1).view(r_2.shape[0], 3, 256, 256))
+            r2s[0].append(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256))
+
+            if self.Q > 1:
+                eta1s[1].append(1 / eta_1[0, 1].cpu().numpy())
+                eta2s[1].append(1 / eta_2[0, 1].cpu().numpy())
+                gam1s[1].append(1 / gamma_1[0, 1].cpu().numpy())
+                gam2s[1].append(1 / gamma_2[0, 1].cpu().numpy())
+                mu1s[1].append(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256))
+                mu2s[1].append(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256))
+                r1s[1].append(self.svd.V(r_1).view(r_2.shape[0], 3, 256, 256))
+                r2s[1].append(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256))
 
             plt.imsave(f'vamp_debug/{prob_name}/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256)))
             plt.imsave(f'vamp_debug/{prob_name}/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256)))
