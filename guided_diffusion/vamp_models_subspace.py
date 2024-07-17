@@ -128,13 +128,13 @@ class VAMP:
         max_g_2, _ = torch.max(1/gamma_2, dim=1)
 
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
-        noise = torch.randn_like(r_2)
-        # noise = torch.zeros(mu_1.shape).to(mu_1.device)
+        # noise = torch.randn_like(r_2)
+        noise = torch.zeros(mu_1.shape).to(mu_1.device)
         r_2[:, :singulars.shape[0]] = ((eta_1[:, 0, None] * mu_1 - gamma_1[:, 0, None] * r_1) / gamma_2[:, 0, None] + noise * (max_g_2 - 1/gamma_2[:, 0]).sqrt())[:, :singulars.shape[0]]
         if self.Q > 1:
             r_2[:, singulars.shape[0]:] = ((eta_1[:, 1, None] * mu_1 - gamma_1[:, 1, None] * r_1) / gamma_2[:, 1,None] + noise * (max_g_2 - 1/gamma_2[:, 1]).sqrt())[:, singulars.shape[0]:]
 
-        gamma_2 = 1/max_g_2.unsqueeze(1).repeat(1, self.Q)
+        # gamma_2 = 1/max_g_2.unsqueeze(1).repeat(1, self.Q)
 
         return mu_1, r_2, gamma_2, eta_1
 
@@ -228,8 +228,8 @@ class VAMP:
 
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in_pre_damp/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256)))
 
-            # if use_damping:
-            #     damp_fac = self.damping_factor
+            if use_damping:
+                damp_fac = self.damping_factor
 
                 # gamma_2_raw = gamma_2.clone().abs()
                 # gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
@@ -239,9 +239,9 @@ class VAMP:
                 #         (1 / gamma_2 - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 1])[:,
                 #                                   singulars.shape[0]:]
 
-                # gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
-                #            old_gamma_2 ** (-1 / 2)) ** -2
-                # r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
+                gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
+                           old_gamma_2 ** (-1 / 2)) ** -2
+                r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
             eta1s.append(1/eta_1[0, 0].cpu().numpy())
             eta2s.append(1/eta_2[0, 0].cpu().numpy())
