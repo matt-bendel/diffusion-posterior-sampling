@@ -176,11 +176,11 @@ class VAMP:
 
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
-        r_1[:, :singulars.shape[0]] = ((eta_2[:, 0, None] * mu_2 - gamma_2[:, 0, None] * r_2) / gamma_1[:, 0, None])[:, :singulars.shape[0]]
+        r_1[:, :singulars.shape[0]] = ((eta_2[:, 0, None] * self.svd.V(mu_2) - gamma_2[:, 0, None] * self.svd.V(r_2)) / gamma_1[:, 0, None])[:, :singulars.shape[0]]
         if self.Q > 1:
             r_1[:, singulars.shape[0]:] = ((eta_2[:, 1, None] * mu_2 - gamma_2[:, 1, None] * r_2) / gamma_1[:, 1, None])[:, singulars.shape[0]:]
 
-        return r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var.cpu().numpy()
+        return self.svd.Vt(r_1), gamma_1, eta_2, mu_2, noise_var, true_noise_var.cpu().numpy()
 
     def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, gt, use_damping=False):
         mu_1 = None  # needs to exist outside of for loop scope for return
