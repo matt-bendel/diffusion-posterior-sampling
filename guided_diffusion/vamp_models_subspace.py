@@ -188,10 +188,11 @@ class VAMP:
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        r_1 = None
+        r_1 = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
         r_2 = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
 
-        gamma_1 = None
+        gamma_1 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
+            x_t.device)
         gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
 
