@@ -83,14 +83,14 @@ class VAMP:
     def eta_1(self, t_alpha_bar, noise_sig, gamma_1):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         evals = (self.svd.singulars() / noise_sig) ** 2
-        print(evals.shape)
-        exit()
 
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
         inv_measured = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0]) ** -1
         eta[:, 0] = inv_measured.mean(-1) ** -1
         if self.Q > 1:
             inv_nonmeasured = ((torch.ones(self.d - evals.shape[0]).to(gamma_1.device) * r_sig_inv ** 2)[None, :] + gamma_1[:, 1]) ** -1
+            print(inv_nonmeasured.shape)
+            exit()
             eta[:, 1] = inv_nonmeasured.mean(-1) ** -1
 
         return eta
