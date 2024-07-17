@@ -122,6 +122,9 @@ class VAMP:
         mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(t_alpha_bar, noise_sig, gamma_1)
         singulars = self.svd.singulars()
+        print(eta_1)
+        print(gamma_1)
+        exit()
 
         gamma_2 = eta_1 - gamma_1
 
@@ -224,14 +227,12 @@ class VAMP:
                                old_gamma_1 ** (-1 / 2)) ** -2
                     r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
 
-            print(gamma_2)
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                                y / noise_sig,
                                                                t_alpha_bar, noise_sig, gt=gt)
 
 
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in_pre_damp/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256)))
-            print(gamma_2)
             if use_damping:
                 damp_fac = self.damping_factor
 
@@ -247,7 +248,6 @@ class VAMP:
                            old_gamma_2 ** (-1 / 2)) ** -2
                 r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
-            exit()
             # if torch.linalg.norm(mu_1 - mu_2).cpu().numpy() > 5e3:
             #     break
 
