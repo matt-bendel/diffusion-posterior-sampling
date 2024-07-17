@@ -170,9 +170,9 @@ class VAMP:
         mu_2, true_noise_var, used_t = self.uncond_denoiser_function(new_r_2.float(), noise_var, gamma_2, noise)
         mu_2 = self.svd.Vt(mu_2)
 
-        eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(1, self.Q)).float()
+        # eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(1, self.Q)).float()
 
-        # eta_2 = self.get_eta_2(noise_var.repeat(1, self.Q))
+        eta_2 = self.get_eta_2(noise_var.repeat(1, self.Q))
 
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
