@@ -64,9 +64,9 @@ class VAMP:
         right_term = self.svd.Vt(right_term)
 
         scaled_r_1 = r_1
-        scaled_r_1[:, :evals.shape[0]] = gamma_1[:, 0, None] * r_1[:, :evals.shape[0]]
+        scaled_r_1[:, :evals.shape[0]] = gamma_1[:, 0] * r_1[:, :evals.shape[0]]
         if self.Q > 1:
-            scaled_r_1[:, evals.shape[0]:] = gamma_1[:, 1, None] * r_1[:, evals.shape[0]:]
+            scaled_r_1[:, evals.shape[0]:] = gamma_1[:, 1] * r_1[:, evals.shape[0]:]
 
         right_term += scaled_r_1
 
@@ -75,7 +75,7 @@ class VAMP:
         mu_1 = right_term
         mu_1[:, :evals.shape[0]] = nonzero_singular_mult * right_term[:, :evals.shape[0]]
         if self.Q > 1:
-            mu_1[:, evals.shape[0]:] = ((r_sig_inv ** 2) + gamma_1[:, 1]) ** -1 * mu_1[:, evals.shape[0]:]
+            mu_1[:, evals.shape[0]:] = (r_sig_inv ** 2 + gamma_1[:, 1]) ** -1 * mu_1[:, evals.shape[0]:]
 
         return mu_1
 
@@ -130,8 +130,6 @@ class VAMP:
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
         noise = torch.randn_like(r_2)
         # noise = torch.zeros(mu_1.shape).to(mu_1.device)
-        print(gamma_2)
-        exit()
         r_2[:, :singulars.shape[0]] = ((eta_1[:, 0, None] * mu_1 - gamma_1[:, 0, None] * r_1) / gamma_2[:, 0, None] + noise * (max_g_2 - 1/gamma_2[:, 0]).sqrt())[:, :singulars.shape[0]]
         if self.Q > 1:
             r_2[:, singulars.shape[0]:] = ((eta_1[:, 1, None] * mu_1 - gamma_1[:, 1, None] * r_1) / gamma_2[:, 1,None] + noise * (max_g_2 - 1/gamma_2[:, 1]).sqrt())[:, singulars.shape[0]:]
@@ -245,10 +243,10 @@ class VAMP:
                 #            old_gamma_2 ** (-1 / 2)) ** -2
                 # r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
-            eta1s.append(1/eta_1[0, 1].cpu().numpy())
-            eta2s.append(1/eta_2[0, 1].cpu().numpy())
-            gam1s.append(1/gamma_1[0, 1].cpu().numpy())
-            gam2s.append(1/gamma_2[0, 1].cpu().numpy())
+            eta1s.append(1/eta_1[0, 0].cpu().numpy())
+            eta2s.append(1/eta_2[0, 0].cpu().numpy())
+            gam1s.append(1/gamma_1[0, 0].cpu().numpy())
+            gam2s.append(1/gamma_2[0, 0].cpu().numpy())
             mu1s.append(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256))
             mu2s.append(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256))
             r1s.append(self.svd.V(r_1).view(r_2.shape[0], 3, 256, 256))

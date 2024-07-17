@@ -109,7 +109,7 @@ def main():
     # operators = ['sr_bicubic8', 'color', 'inpainting']
     # noise_levels = [0.01, 0.01, 0.01, 0.01]
 
-    operators = ['inpainting']
+    operators = ['blur_uni']
     noise_levels = [0.01]
 
     for l in range(len(operators)):
