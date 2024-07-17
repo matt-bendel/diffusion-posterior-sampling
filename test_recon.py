@@ -20,7 +20,7 @@ from data.FFHQDataModule import FFHQDataModule
 from pytorch_lightning import seed_everything
 from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising, Deblurring2D, Colorization, SuperResolution, SRConv
 from util.inpaint.get_mask import MaskCreator
-from guided_diffusion.vamp_models_subspace import VAMP
+from guided_diffusion.vamp_models import VAMP
 
 
 def load_object(dct):
@@ -109,7 +109,7 @@ def main():
     # operators = ['sr_bicubic8', 'color', 'inpainting']
     # noise_levels = [0.01, 0.01, 0.01, 0.01]
 
-    operators = ['inpainting']
+    operators = ['sr_bicubic8']
     noise_levels = [0.01]
 
     for l in range(len(operators)):

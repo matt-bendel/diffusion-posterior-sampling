@@ -312,14 +312,14 @@ class VAMP:
         gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
 
-        gam1s = []
-        gam2s = []
-        eta1s = []
-        eta2s = []
-        mu1s = []
-        mu2s = []
-        r1s = []
-        r2s = []
+        gam1s = [[], []]
+        gam2s = [[], []]
+        eta1s = [[], []]
+        eta2s = [[], []]
+        mu1s = [[], []]
+        mu2s = [[], []]
+        r1s = [[], []]
+        r2s = [[], []]
 
         for i in range(100):
             old_gamma_1 = gamma_1.clone()
@@ -368,14 +368,14 @@ class VAMP:
 
                 # r_2 = r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum((1 / gamma_2 - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 0]
 
-            eta1s.append(1/eta_1[0, 0].cpu().numpy())
-            eta2s.append(1/eta_2[0, 0].cpu().numpy())
-            gam1s.append(1/gamma_1[0, 0].cpu().numpy())
-            gam2s.append(1/gamma_2[0, 0].cpu().numpy())
-            mu1s.append(mu_1)
-            mu2s.append(mu_2)
-            r1s.append(r_1)
-            r2s.append(r_2)
+            eta1s[0].append(1 / eta_1[0, 0].cpu().numpy())
+            eta2s[0].append(1 / eta_2[0, 0].cpu().numpy())
+            gam1s[0].append(1 / gamma_1[0, 0].cpu().numpy())
+            gam2s[0].append(1 / gamma_2[0, 0].cpu().numpy())
+            mu1s[0].append(mu_1)
+            mu2s[0].append(mu_2)
+            r1s[0].append(r_1)
+            r2s[0].append(r_2)
 
             plt.imsave(f'vamp_debug/{prob_name}/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(mu_1))
             plt.imsave(f'vamp_debug/{prob_name}/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(mu_2))
