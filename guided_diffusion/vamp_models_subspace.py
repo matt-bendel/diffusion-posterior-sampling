@@ -245,6 +245,9 @@ class VAMP:
                            old_gamma_2 ** (-1 / 2)) ** -2
                 r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
+            if torch.linalg.norm(mu_1 - mu_2).cpu().numpy() > 1e5:
+                break
+
             eta1s.append(1/eta_1[0, 0].cpu().numpy())
             eta2s.append(1/eta_2[0, 0].cpu().numpy())
             gam1s.append(1/gamma_1[0, 0].cpu().numpy())
