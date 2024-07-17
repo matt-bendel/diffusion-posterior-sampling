@@ -203,7 +203,7 @@ class VAMP:
         r1s = []
         r2s = []
 
-        for i in range(100):
+        for i in range(4):
             old_gamma_1 = gamma_1.clone()
             old_gamma_2 = gamma_2.clone()
 
