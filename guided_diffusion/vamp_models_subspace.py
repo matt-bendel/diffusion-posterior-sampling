@@ -70,7 +70,7 @@ class VAMP:
 
         right_term += scaled_r_1
 
-        nonzero_singular_mult = ((evals[None, :] + r_sig_inv ** 2) + gamma_1[:, 0]) ** -1
+        nonzero_singular_mult = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0]) ** -1
 
         mu_1 = right_term
         mu_1[:, :evals.shape[0]] = nonzero_singular_mult * right_term[:, :evals.shape[0]]
@@ -83,6 +83,8 @@ class VAMP:
     def eta_1(self, t_alpha_bar, noise_sig, gamma_1):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         evals = (self.svd.singulars() / noise_sig) ** 2
+        print(evals.shape)
+        exit()
 
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
         inv_measured = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0]) ** -1
@@ -186,12 +188,8 @@ class VAMP:
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        r_1 = self.svd.add_zeros(self.svd.Vt(x_t / torch.sqrt(t_alpha_bar)))
+        r_1 = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
         r_2 = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
-
-        print(r_1.shape)
-        print(r_2.shape)
-        exit()
 
         gamma_1 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
