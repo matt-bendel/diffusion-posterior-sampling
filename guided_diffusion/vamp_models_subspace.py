@@ -134,7 +134,7 @@ class VAMP:
         if self.Q > 1:
             r_2[:, singulars.shape[0]:] = ((eta_1[:, 1, None] * mu_1 - gamma_1[:, 1, None] * r_1) / gamma_2[:, 1,None] + noise * (max_g_2 - 1/gamma_2[:, 1]).sqrt())[:, singulars.shape[0]:]
 
-        gamma_2 = 1/max_g_2.unsqueeze(1).repeat(1, self.Q)
+        # gamma_2 = 1/max_g_2.unsqueeze(1).repeat(1, self.Q)
 
         return mu_1, r_2, gamma_2, eta_1
 
@@ -175,6 +175,7 @@ class VAMP:
         # eta_2 = self.get_eta_2(noise_var.repeat(1, self.Q))
 
         gamma_1 = eta_2 - gamma_2
+        gamma_2 = 1 / noise_var.repeat(1, self.Q)
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
         r_1[:, :singulars.shape[0]] = ((eta_2[:, 0, None] * mu_2 - gamma_2[:, 0, None] * r_2) / gamma_1[:, 0, None])[:, :singulars.shape[0]]
         if self.Q > 1:
