@@ -224,7 +224,7 @@ class VAMP:
                                old_gamma_1 ** (-1 / 2)) ** -2
                     r_1 = damp_fac * r_1 + (1 - damp_fac) * old_r_1
 
-
+            print(gamma_2)
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                                y / noise_sig,
                                                                t_alpha_bar, noise_sig, gt=gt)
@@ -247,7 +247,6 @@ class VAMP:
                            old_gamma_2 ** (-1 / 2)) ** -2
                 r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
-            print(gamma_2)
             exit()
             # if torch.linalg.norm(mu_1 - mu_2).cpu().numpy() > 5e3:
             #     break
