@@ -71,9 +71,9 @@ class VAMP:
         right_term += scaled_r_1
 
         nonzero_singular_mult = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0]) ** -1
-        print(nonzero_singular_mult[0])
+        print(nonzero_singular_mult[0, 0])
         nonzero_singular_mult = (evals.unsqueeze(0).repeat(gamma_1.shape[0], 1) + r_sig_inv ** 2 + gamma_1[:, 0]) ** -1
-        print(nonzero_singular_mult[0])
+        print(nonzero_singular_mult[0, 0])
 
         print((evals[0] + r_sig_inv ** 2 + gamma_1[0, 0]) ** -1)
         exit()
