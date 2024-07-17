@@ -134,7 +134,7 @@ class VAMP:
         if self.Q > 1:
             r_2[:, singulars.shape[0]:] = ((eta_1[:, 1, None] * mu_1 - gamma_1[:, 1, None] * r_1) / gamma_2[:, 1,None] + noise * (max_g_2 - 1/gamma_2[:, 1]).sqrt())[:, singulars.shape[0]:]
 
-        # gamma_2 = 1/max_g_2.unsqueeze(1).repeat(1, self.Q)
+        gamma_2 = 1/max_g_2.unsqueeze(1).repeat(1, self.Q)
 
         return mu_1, r_2, gamma_2, eta_1
 
@@ -170,9 +170,9 @@ class VAMP:
         mu_2, true_noise_var, used_t = self.uncond_denoiser_function(new_r_2.float(), noise_var, gamma_2, noise)
         mu_2 = self.svd.Vt(mu_2)
 
-        # eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(1, self.Q)).float()
+        eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(1, self.Q)).float()
 
-        eta_2 = self.get_eta_2(1/gamma_2)
+        # eta_2 = self.get_eta_2(1/gamma_2)
 
         gamma_1 = eta_2 - gamma_2
         r_1 = torch.zeros(mu_2.shape).to(mu_2.device)
