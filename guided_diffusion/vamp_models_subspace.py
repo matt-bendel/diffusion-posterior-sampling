@@ -163,7 +163,7 @@ class VAMP:
 
     def denoising(self, r_2, gamma_2, t, vamp_iter=0, noise=False, gt=None):
         # Max var
-        noise_var, _ = torch.max(1 / gamma_2, dim=1, keepdim=True)
+        noise_var, _ = torch.min(1 / gamma_2, dim=1, keepdim=True)
         singulars = self.svd.singulars()
 
         new_r_2 = self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256)
