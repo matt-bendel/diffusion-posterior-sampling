@@ -109,8 +109,8 @@ def main():
     operators = ['sr_bicubic8', 'color', 'inpainting']
     noise_levels = [0.01, 0.01, 0.01]
     #
-    # operators = ['sr_bicubic8']
-    # noise_levels = [0.01]
+    operators = ['inpainting']
+    noise_levels = [0.01]
 
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
