@@ -285,8 +285,7 @@ def main():
 
                                 mse1s.append(torch.nn.functional.mse_loss(v_t_ref[:, :singulars.shape[0]], v_t_out[:, :singulars.shape[0]]).item())
                                 if vamp_model.Q > 1:
-                                    mse12s.append(torch.nn.functional.mse_loss(v_t_ref[:, singulars.shape[0]:],
-                                                                              v_t_out[:, singulars.shape[0]:]).item())
+                                    mse12s.append(torch.nn.functional.mse_loss(v_t_ref[:, singulars.shape[0]:], v_t_out[:, singulars.shape[0]:]).item())
 
                             for out in mu2s[0]:
                                 v_t_ref = vamp_model.svd.Vt(ref_img)
@@ -338,9 +337,10 @@ def main():
                                 # plt.semilogy(np.arange(len(eta1s[0])), gam1s[1], color='green')
                                 # plt.semilogy(np.arange(len(eta1s[0])), gam2s[1], color='orange')
                                 plt.semilogy(np.arange(len(eta1s[0])), mse12s, linestyle='dashed', color='red')
-                                plt.semilogy(np.arange(len(eta1s[0])), mse22s, linestyle='dashed', color='blue')
-                                plt.semilogy(np.arange(len(eta1s[0])), mser12s, linestyle='dashed', color='green')
-                                plt.semilogy(np.arange(len(eta1s[0])), mser22s, linestyle='dashed', color='orange')
+                                print(mse12s)
+                                # plt.semilogy(np.arange(len(eta1s[0])), mse22s, linestyle='dashed', color='blue')
+                                # plt.semilogy(np.arange(len(eta1s[0])), mser12s, linestyle='dashed', color='green')
+                                # plt.semilogy(np.arange(len(eta1s[0])), mser22s, linestyle='dashed', color='orange')
                                 plt.xlabel('VAMP Iteration')
                                 plt.legend(
                                     ['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2', 'MSE r_1',
