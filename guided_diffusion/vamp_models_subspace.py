@@ -89,9 +89,9 @@ class VAMP:
         inv_measured = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0]) ** -1
         eta[:, 0] = inv_measured.mean(-1) ** -1
         if self.Q > 1:
-            # eta[:, 1] = r_sig_inv ** 2 + gamma_1[:, 1]
-            new_evals = (self.svd.add_zeros(evals.unsqueeze(0).repeat(gamma_1.shape[0], 1)) + r_sig_inv ** 2 + gamma_1[:, 1]) ** -1
-            eta[:, 1] = new_evals.mean(-1) ** -1
+            eta[:, 1] = r_sig_inv ** 2 + gamma_1[:, 1]
+            # new_evals = (self.svd.add_zeros(evals.unsqueeze(0).repeat(gamma_1.shape[0], 1)) + r_sig_inv ** 2 + gamma_1[:, 1]) ** -1
+            # eta[:, 1] = new_evals.mean(-1) ** -1
 
         return eta
 
@@ -237,6 +237,7 @@ class VAMP:
 
                 gamma_2_raw = gamma_2.clone().abs()
                 gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
+
                 r_2[:, :singulars.shape[0]] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum((1 / gamma_2 - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 0])[:, :singulars.shape[0]]
                 if self.Q > 1:
                     r_2[:, singulars.shape[0]:] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum(
