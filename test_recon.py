@@ -327,7 +327,7 @@ def main():
                             plt.semilogy(np.arange(len(eta1s[0])), mser2s, linestyle='dashed', color='orange')
                             plt.xlabel('VAMP Iteration')
                             plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2', 'MSE r_1', 'MSE r_2'])
-                            plt.title(measure_config['operator']['name'])
+                            plt.title(f"{measure_config['operator']['name']}; measured subspace")
                             plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/trajectories_t={t}_damp={damp}_q=0.png')
                             plt.close()
 
@@ -345,7 +345,7 @@ def main():
                                 plt.legend(
                                     ['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2', 'MSE r_1',
                                      'MSE r_2'])
-                                plt.title(measure_config['operator']['name'])
+                                plt.title(f"{measure_config['operator']['name']}; nonmeasured subspace")
                                 plt.savefig(
                                     f'vamp_debug/{measure_config["operator"]["name"]}/trajectories_t={t}_damp={damp}_q=1.png')
                                 plt.close()
