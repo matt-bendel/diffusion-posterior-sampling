@@ -173,8 +173,8 @@ class VAMP:
         mu_2 = self.svd.Vt(mu_2)
 
         eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(1, self.Q)).float()
-
-        # eta_2 = self.get_eta_2(1/gamma_2)
+        # tr = self.denoiser_tr_approx(new_r_2, gamma_2, mu_2, noise_var, noise)
+        # eta_2 = 1 / tr
 
         new_gamma_2 = 1 / noise_var.repeat(1, self.Q)
         gamma_1 = eta_2 - new_gamma_2
@@ -276,7 +276,7 @@ class VAMP:
 
 
             print(
-                f'||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}')
+                f'ITER: {i+1}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}\n')
             # if i == 1:
             #     exit()
 
