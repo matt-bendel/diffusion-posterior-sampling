@@ -204,7 +204,7 @@ class VAMP:
         mu2s = [[], []]
         r1s = [[], []]
         r2s = [[], []]
-        gam_inc_facs = 1 / np.flip(np.linspace(noise_sig ** 2, (t_alpha_bar / (1-t_alpha_bar)).cpu().numpy()))
+        gam_inc_facs = 1 / np.flip(np.linspace(noise_sig ** 2, (t_alpha_bar / (1-t_alpha_bar)).cpu().numpy(), 100))
 
         for i in range(100):
             old_gamma_1 = gamma_1.clone()
