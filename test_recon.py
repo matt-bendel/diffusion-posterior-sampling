@@ -260,7 +260,7 @@ def main():
                     # t_vals = [0, 25, 50, 100, 250, 500, 750, 999]
                     # t_vals = [25, 50, 100, 250]
                     # damping_factos = [0.1, 0.2, 0.5, 0.75, 1]
-                    t_vals = [999]
+                    t_vals = [500]
                     damping_factos = [0.1]
                     for damp in damping_factos:
                         vamp_model.damping_factor = damp
@@ -283,7 +283,7 @@ def main():
                                 v_t_ref = vamp_model.svd.Vt(ref_img)
                                 v_t_out = vamp_model.svd.Vt(out)
 
-                                mse1s.append(torch.nn.functional.mse_loss(v_t_ref, v_t_out).item())
+                                mse1s.append(torch.nn.functional.mse_loss(v_t_ref[:, :singulars.shape[0]], v_t_out[:, :singulars.shape[0]]).item())
                                 if vamp_model.Q > 1:
                                     mse12s.append(torch.nn.functional.mse_loss(v_t_ref[:, singulars.shape[0]:], v_t_out[:, singulars.shape[0]:]).item())
 
@@ -291,7 +291,7 @@ def main():
                                 v_t_ref = vamp_model.svd.Vt(ref_img)
                                 v_t_out = vamp_model.svd.Vt(out)
 
-                                mse2s.append(torch.nn.functional.mse_loss(v_t_ref, v_t_out).item())
+                                mse2s.append(torch.nn.functional.mse_loss(v_t_ref[:, :singulars.shape[0]], v_t_out[:, :singulars.shape[0]]).item())
                                 if vamp_model.Q > 1:
                                     mse22s.append(torch.nn.functional.mse_loss(v_t_ref[:, singulars.shape[0]:],
                                                                               v_t_out[:, singulars.shape[0]:]).item())
@@ -300,7 +300,7 @@ def main():
                                 v_t_ref = vamp_model.svd.Vt(ref_img)
                                 v_t_out = vamp_model.svd.Vt(out)
 
-                                mser1s.append(torch.nn.functional.mse_loss(v_t_ref, v_t_out).item())
+                                mser1s.append(torch.nn.functional.mse_loss(v_t_ref[:, :singulars.shape[0]], v_t_out[:, :singulars.shape[0]]).item())
                                 if vamp_model.Q > 1:
                                     mser12s.append(torch.nn.functional.mse_loss(v_t_ref[:, singulars.shape[0]:],
                                                                               v_t_out[:, singulars.shape[0]:]).item())
@@ -309,7 +309,7 @@ def main():
                                 v_t_ref = vamp_model.svd.Vt(ref_img)
                                 v_t_out = vamp_model.svd.Vt(out)
 
-                                mser2s.append(torch.nn.functional.mse_loss(v_t_ref, v_t_out).item())
+                                mser2s.append(torch.nn.functional.mse_loss(v_t_ref[:, :singulars.shape[0]], v_t_out[:, :singulars.shape[0]]).item())
                                 if vamp_model.Q > 1:
                                     mser22s.append(torch.nn.functional.mse_loss(v_t_ref[:, singulars.shape[0]:],
                                                                               v_t_out[:, singulars.shape[0]:]).item())
