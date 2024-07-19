@@ -333,13 +333,13 @@ def main():
                             if vamp_model.Q > 1:
                                 plt.figure()
                                 plt.semilogy(np.arange(len(eta1s[0])), eta1s[1], color='red')
-                                # plt.semilogy(np.arange(len(eta1s[0])), eta2s[1], color='blue')
-                                # plt.semilogy(np.arange(len(eta1s[0])), gam1s[1], color='green')
-                                # plt.semilogy(np.arange(len(eta1s[0])), gam2s[1], color='orange')
+                                plt.semilogy(np.arange(len(eta1s[0])), eta2s[1], color='blue')
+                                plt.semilogy(np.arange(len(eta1s[0])), gam1s[1], color='green')
+                                plt.semilogy(np.arange(len(eta1s[0])), gam2s[1], color='orange')
                                 plt.semilogy(np.arange(len(eta1s[0])), mse12s, linestyle='dashed', color='red')
-                                # plt.semilogy(np.arange(len(eta1s[0])), mse22s, linestyle='dashed', color='blue')
-                                # plt.semilogy(np.arange(len(eta1s[0])), mser12s, linestyle='dashed', color='green')
-                                # plt.semilogy(np.arange(len(eta1s[0])), mser22s, linestyle='dashed', color='orange')
+                                plt.semilogy(np.arange(len(eta1s[0])), mse22s, linestyle='dashed', color='blue')
+                                plt.semilogy(np.arange(len(eta1s[0])), mser12s, linestyle='dashed', color='green')
+                                plt.semilogy(np.arange(len(eta1s[0])), mser22s, linestyle='dashed', color='orange')
                                 plt.xlabel('VAMP Iteration')
                                 # plt.legend(
                                 #     ['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2', 'MSE r_1',
