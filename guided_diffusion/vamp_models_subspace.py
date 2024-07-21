@@ -285,7 +285,7 @@ class VAMP:
 
             # time.sleep(30)
 
-        return_val = mu_1
+        return_val = self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256)
         return return_val, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s, r1s, r2s
 
 def extract_and_expand(array, time, target):
