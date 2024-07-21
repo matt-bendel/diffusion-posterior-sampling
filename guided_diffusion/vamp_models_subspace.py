@@ -128,14 +128,6 @@ class VAMP:
 
         gamma_2 = eta_1 - gamma_1
 
-        if self.Q > 1:
-            damp_fac = 0.5
-            avg_gamma_2 = singulars.shape[0] * gamma_2[:, 0]
-            avg_gamma_2 += (self.d - singulars.shape[0]) * gamma_2[:, 1]
-            avg_gamma_2 = avg_gamma_2 / self.d
-            gamma_2 = (damp_fac * avg_gamma_2[:, None] ** (-1 / 2) + (1 - damp_fac) *
-                               gamma_2 ** (-1 / 2)) ** -2
-
         max_g_2, _ = torch.max(1/gamma_2, dim=1)
 
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
@@ -241,7 +233,15 @@ class VAMP:
                 damp_fac = self.damping_factor
 
                 gamma_2_raw = gamma_2.clone().abs()
-                gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
+                if self.Q > 1:
+                    avg_gamma_2 = singulars.shape[0] * gamma_2_raw[:, 0]
+                    avg_gamma_2 += (self.d - singulars.shape[0]) * gamma_2_raw[:, 1]
+                    avg_gamma_2 = avg_gamma_2 / self.d
+                    gamma_2 = (damp_fac * avg_gamma_2[:, None] ** (-1 / 2) + (1 - damp_fac) *
+                               old_gamma_2 ** (-1 / 2)) ** -2
+                else:
+                    gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
+
                 noise_var, _ = torch.max(1/gamma_2, dim=1)
                 r_2[:, :singulars.shape[0]] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum((noise_var - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 0])[:, :singulars.shape[0]]
                 if self.Q > 1:
