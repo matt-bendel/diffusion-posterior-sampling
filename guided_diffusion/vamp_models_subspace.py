@@ -129,7 +129,7 @@ class VAMP:
         gamma_2 = eta_1 - gamma_1
 
         if self.Q > 1:
-            damp_fac = self.damping_factor
+            damp_fac = 0.5
             avg_gamma_2 = singulars.shape[0] * gamma_2[:, 0]
             avg_gamma_2 += (self.d - singulars.shape[0]) * gamma_2[:, 1]
             avg_gamma_2 = avg_gamma_2 / self.d
