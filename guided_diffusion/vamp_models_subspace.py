@@ -133,8 +133,8 @@ class VAMP:
             avg_gamma_2 = singulars.shape[0] * gamma_2[:, 0]
             avg_gamma_2 += (self.d - singulars.shape[0]) * gamma_2[:, 1]
             avg_gamma_2 = avg_gamma_2 / self.d
-            gamma_2[:, 1] = (damp_fac * avg_gamma_2 ** (-1 / 2) + (1 - damp_fac) *
-                               gamma_2[:, 1] ** (-1 / 2)) ** -2
+            gamma_2 = (damp_fac * avg_gamma_2[:, None] ** (-1 / 2) + (1 - damp_fac) *
+                               gamma_2 ** (-1 / 2)) ** -2
 
         max_g_2, _ = torch.max(1/gamma_2, dim=1)
 
