@@ -7,7 +7,7 @@ import torch
 from tqdm.auto import tqdm
 
 # from guided_diffusion.vamp_models import Denoising, Inpainting, Deblur, VAMP
-from guided_diffusion.vamp_models import VAMP
+from guided_diffusion.vamp_models_subspace import VAMP
 from guided_diffusion.ddrm_svd import Denoising, Inpainting, Deblurring, Deblurring2D, Colorization, SuperResolution, SRConv
 from util.img_utils import clear_color
 from .posterior_mean_variance import get_mean_processor, get_var_processor
@@ -460,7 +460,7 @@ class DDPM(SpacedDiffusion):
             eta_2 = None
             pred_xstart = self.p_mean_variance(model, x, t)
         else:
-            pred_xstart, gamma_1, gamma_2, eta_1, eta_2 = vamp.run_vamp_reverse(x, y, t, noise_sig=torch.tensor(noise_sig).to(x.device), use_damping=True)
+            pred_xstart, gamma_1, gamma_2, eta_1, eta_2 = vamp.run_vamp_reverse_test(x, y, t, noise_sig=torch.tensor(noise_sig).to(x.device), prob_name='', use_damping=True)
 
         mse_1 = ((pred_xstart - truth) ** 2).sum() / (3 * 256 * 256)
         mse_2 = ((pred_xstart - truth) ** 2).sum() / (3 * 256 * 256)

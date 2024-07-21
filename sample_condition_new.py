@@ -223,20 +223,20 @@ def main():
                     sample, g1_min, g1_max, g2_min, g2_max, e1_min, e1_max, e2_min, e2_max, mse_1, mse_2 = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
                                        noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img)
 
-                x_axis = np.arange(1000)
+                # x_axis = np.arange(1000)
                 # plt.semilogy(x_axis, 1/np.array(g1_min))
                 # plt.semilogy(x_axis, 1 / np.array(g1_max))
                 # plt.semilogy(x_axis, 1 / np.array(g2_min))
                 # plt.semilogy(x_axis, 1 / np.array(g2_max))
                 # plt.semilogy(x_axis, 1 / np.array(e1_min))
                 # plt.semilogy(x_axis, 1 / np.array(e1_max))
-                plt.semilogy(x_axis, 1 / np.array(e2_min))
+                # plt.semilogy(x_axis, 1 / np.array(e2_min))
                 # plt.semilogy(x_axis, 1 / np.array(e2_max))
-                plt.semilogy(x_axis, mse_1)
+                # plt.semilogy(x_axis, mse_1)
                 # plt.semilogy(x_axis, mse_2)
                 # plt.legend(['1/min{g1}', '1/max{g1}', '1/min{g2}', '1/max{g2}', '1/min{e1}', '1/max{e1}', '1/min{e2}', '1/max{e2}', 'measured mse', 'nonmeasured mse'])
-                plt.legend(['1/min{e2}', 'mse'])
-                plt.savefig('vamp_trajectories.png')
+                # plt.legend(['1/min{e2}', 'mse'])
+                # plt.savefig('vamp_trajectories.png')
 
                 if inpainting:
                     sample = ref_img * mask + (1 - mask) * sample
