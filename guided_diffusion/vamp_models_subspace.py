@@ -130,7 +130,7 @@ class VAMP:
         if self.Q > 1:
             var1 = 1 / gamma_2[:, 0]
             var2 = 1 / gamma_2[:, 1]
-            avg_var = (var1 * singulars.shape[0] + var2 * (self.d - singulars.shape[0])) / d
+            avg_var = (var1 * singulars.shape[0] + var2 * (self.d - singulars.shape[0])) / self.d
             gamma_2[:, 1] = 1 / avg_var
 
         max_g_2, _ = torch.max(1/gamma_2, dim=1)
