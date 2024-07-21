@@ -90,9 +90,9 @@ class VAMP:
         eta[:, 0] = inv_measured.mean(-1) ** -1
         if self.Q > 1:
             eta[:, 1] = r_sig_inv ** 2 + gamma_1[:, 1]
-            new_evals = (self.svd.add_zeros(evals.unsqueeze(0).repeat(gamma_1.shape[0], 1)) + r_sig_inv ** 2 + gamma_1[:, 1]) ** -1
+            # new_evals = (self.svd.add_zeros(evals.unsqueeze(0).repeat(gamma_1.shape[0], 1)) + r_sig_inv ** 2 + gamma_1[:, 1]) ** -1
             # eta[:, 0] = new_evals.mean(-1) ** -1
-            eta[:, 1] = new_evals.mean(-1) ** -1
+            # eta[:, 1] = new_evals.mean(-1) ** -1
 
         return eta
 
