@@ -268,24 +268,6 @@ class GaussianDiffusion:
             time = torch.tensor([idx] * img.shape[0], device=device)
 
             denoise_obj = self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig, truth=truth)
-            gamma_1 = denoise_obj['gamma_1']
-            gamma_2 = denoise_obj['gamma_2']
-            eta_1 = denoise_obj['eta_1']
-            eta_2 = denoise_obj['eta_2']
-
-            mse_1.append(denoise_obj['mse_1'].cpu().numpy())
-            mse_2.append(denoise_obj['mse_2'].cpu().numpy())
-
-            gamma_1_min.append(gamma_1[0].min().cpu().numpy())
-            gamma_1_max.append(gamma_1[0].max().cpu().numpy())
-            gamma_2_min.append(gamma_2[0].min().cpu().numpy())
-            gamma_2_max.append(gamma_2[0].max().cpu().numpy())
-
-            eta_1_min.append(eta_1[0].min().cpu().numpy())
-            eta_1_max.append(eta_1[0].max().cpu().numpy())
-            eta_2_min.append(eta_2[0].min().cpu().numpy())
-            eta_2_max.append(eta_2[0].max().cpu().numpy())
-
             img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * denoise_obj['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
             img = img.detach()
 
@@ -294,7 +276,7 @@ class GaussianDiffusion:
                     file_path = f"/storage/matt_models/inpainting/dps/x_{str(idx).zfill(4)}.png"
                     plt.imsave(file_path, clear_color(img[0]))
 
-        return img, gamma_1_min, gamma_1_max, gamma_2_min, gamma_2_max, eta_1_min, eta_1_max, eta_2_min, eta_2_max, mse_1, mse_2
+        return img
 
     def denoise(self, model, x, t, y, cond, vamp, noise_sig, truth):
         raise NotImplementedError
