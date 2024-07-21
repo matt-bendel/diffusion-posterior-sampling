@@ -30,7 +30,7 @@ class VAMP:
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.2  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.1  # Factor for damping (per Saurav's suggestion)
         self.damping_factor_g1 = 0.1
         self.damping_factors = np.flip(np.linspace(0.1, 0.5, 1000))
         self.svd = svd
@@ -210,7 +210,7 @@ class VAMP:
         r1s = [[], []]
         r2s = [[], []]
 
-        for i in range(1):
+        for i in range(50):
             old_gamma_1 = gamma_1.clone()
             old_gamma_2 = gamma_2.clone()
 
