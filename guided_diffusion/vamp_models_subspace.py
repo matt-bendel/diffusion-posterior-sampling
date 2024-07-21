@@ -121,12 +121,19 @@ class VAMP:
         return x_0, ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
                 self.alphas_cumprod).to(noisy_im.device))[t], t
 
-    def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig, gamma_inc_fac, gt=None):
+    def linear_estimation(self, r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig, gt=None):
         mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(t_alpha_bar, noise_sig, gamma_1)
         singulars = self.svd.singulars()
 
-        gamma_2 = eta_1 - gamma_1 + gamma_inc_fac
+        gamma_2 = eta_1 - gamma_1
+
+        if self.Q > 1:
+            avg_gamma_2 = singulars.shape[0] * gamma_2[:, 0]
+            avg_gamma_2 += (self.d - singulars.shape[0]) * gamma_2[:, 1]
+            avg_gamma_2 = avg_gamma_2 / self.d
+            gamma_2[:, 1] = (damp_fac * avg_gamma_2 ** (-1 / 2) + (1 - damp_fac) *
+                               gamma_2[:, 1] ** (-1 / 2)) ** -2
 
         max_g_2, _ = torch.max(1/gamma_2, dim=1)
 
@@ -204,7 +211,6 @@ class VAMP:
         mu2s = [[], []]
         r1s = [[], []]
         r2s = [[], []]
-        gam_inc_facs = 1 / np.flip(np.linspace(noise_sig ** 2, (t_alpha_bar / (1-t_alpha_bar)).cpu().numpy(), 100))
 
         for i in range(100):
             old_gamma_1 = gamma_1.clone()
@@ -226,7 +232,7 @@ class VAMP:
 
             mu_1, r_2, gamma_2, eta_1 = self.linear_estimation(r_1, gamma_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                                                y / noise_sig,
-                                                               t_alpha_bar, noise_sig, gam_inc_facs[i], gt=gt)
+                                                               t_alpha_bar, noise_sig, gt=gt)
 
 
             plt.imsave(f'vamp_debug/{prob_name}/denoise_in_pre_damp/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256)))
