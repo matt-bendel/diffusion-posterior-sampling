@@ -26,7 +26,7 @@ class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
-        self.max_iters = 100
+        self.max_iters = 10
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
@@ -38,7 +38,7 @@ class VAMP:
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
-        self.rho_schedule = np.linspace(0, 1, 5) ** 4
+        self.rho_schedule = np.linspace(0, 1, self.max_iters) ** 4
         self.rho = None
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
@@ -219,7 +219,7 @@ class VAMP:
         r1s = [[], []]
         r2s = [[], []]
 
-        for i in range(5):
+        for i in range(self.max_iters):
             self.rho = self.rho_schedule[i]
             old_gamma_1 = gamma_1.clone()
             old_gamma_2 = gamma_2.clone()
