@@ -26,7 +26,7 @@ class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
-        self.max_iters = 5
+        self.max_iters = 10
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
@@ -38,7 +38,7 @@ class VAMP:
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
-        self.rho_schedule = np.linspace(0.5, 1, self.max_iters)
+        self.rho_schedule = np.linspace(0.5, 1, self.max_iters) ** 2
         self.rho = None
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
@@ -247,20 +247,20 @@ class VAMP:
             if use_damping:
                 damp_fac = self.damping_factor
 
-                if self.inpainting:
-                    gamma_2_raw = gamma_2.clone().abs()
-                    gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
+                # if self.inpainting:
+                gamma_2_raw = gamma_2.clone().abs()
+                gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
 
-                    noise_var, _ = torch.max(1/gamma_2, dim=1)
-                    r_2[:, :singulars.shape[0]] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum((noise_var - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 0])[:, :singulars.shape[0]]
-                    if self.Q > 1:
-                        r_2[:, singulars.shape[0]:] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum(
-                            (noise_var - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 1])[:,
-                                                      singulars.shape[0]:]
-                else:
-                    gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
-                           old_gamma_2 ** (-1 / 2)) ** -2
-                    r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
+                noise_var, _ = torch.max(1/gamma_2, dim=1)
+                r_2[:, :singulars.shape[0]] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum((noise_var - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 0])[:, :singulars.shape[0]]
+                if self.Q > 1:
+                    r_2[:, singulars.shape[0]:] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum(
+                        (noise_var - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 1])[:,
+                                                  singulars.shape[0]:]
+                # else:
+                #     gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
+                #            old_gamma_2 ** (-1 / 2)) ** -2
+                #     r_2 = damp_fac * r_2 + (1 - damp_fac) * old_r_2
 
             # if torch.linalg.norm(mu_1 - mu_2).cpu().numpy() > 5e3:
             #     break
