@@ -231,7 +231,7 @@ class VAMP:
 
             r_1, gamma_1, eta_2, mu_2, noise_var, true_noise_var = self.denoising(r_2, gamma_2, t, vamp_iter=i, gt=gt)
             if use_damping:
-                damp_fac = self.damping_factor
+                damp_fac = 0.1
 
                 if i > 0:
                     gamma_1 = (damp_fac * gamma_1 ** (-1 / 2) + (1 - damp_fac) *
@@ -257,6 +257,7 @@ class VAMP:
                     r_2[:, singulars.shape[0]:] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum(
                         (noise_var - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 1])[:,
                                                   singulars.shape[0]:]
+
                 # else:
                 #     gamma_2 = (damp_fac * gamma_2 ** (-1 / 2) + (1 - damp_fac) *
                 #            old_gamma_2 ** (-1 / 2)) ** -2
