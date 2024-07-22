@@ -38,7 +38,7 @@ class VAMP:
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
-        self.rho_schedule = np.linspace(0, 0.1, 100) ** 4
+        self.rho_schedule = np.linspace(0, 0.01, 100) ** 4
         self.rho = None
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
