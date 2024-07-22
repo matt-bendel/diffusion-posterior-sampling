@@ -38,6 +38,8 @@ class VAMP:
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
+        self.rho_schedule = np.linspace(0, 1, 100)
+        self.rho = None
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
         with open('eta_2_scale.npy', 'rb') as f:
@@ -125,6 +127,15 @@ class VAMP:
         mu_1 = self.f_1(r_1, gamma_1, x_t, y, t_alpha_bar, noise_sig)
         eta_1 = self.eta_1(t_alpha_bar, noise_sig, gamma_1)
         singulars = self.svd.singulars()
+        if self.Q > 1:
+            eta_1_max = eta_1[:, 0]
+            eta_1_min = eta_1[:, 1]
+
+            eta_1_max_inv = (singulars.shape[0] / self.d) ** self.rho / eta_1_max + (1 - (singulars.shape[0] / self.d) ** self.rho) / eta_1_min
+            eta_1_min_inv = ((self.d - singulars.shape[0]) / self.d) ** self.rho / eta_1_min + (1 - ((self.d - singulars.shape[0]) / self.d) ** self.rho) / eta_1_max
+
+            eta_1[:, 0] = 1 / eta_1_max_inv
+            eta_1[:, 1] = 1 / eta_1_min_inv
 
         gamma_2 = eta_1 - gamma_1
         # if self.Q > 1:
@@ -132,8 +143,6 @@ class VAMP:
             # var2 = 1 / gamma_2[:, 1]
             # avg_var = (var1 * singulars.shape[0] + var2 * (self.d - singulars.shape[0])) / self.d
             # gamma_2[:, 1] = 1 / avg_var
-
-        max_g_2, _ = torch.max(1/gamma_2, dim=1)
 
         r_2 = torch.zeros(mu_1.shape).to(mu_1.device)
         r_2[:, :singulars.shape[0]] = ((eta_1[:, 0, None] * mu_1 - gamma_1[:, 0, None] * r_1) / gamma_2[:, 0, None])[:, :singulars.shape[0]]
@@ -211,6 +220,7 @@ class VAMP:
         r2s = [[], []]
 
         for i in range(100):
+            self.rho = self.rho_schedule[i]
             old_gamma_1 = gamma_1.clone()
             old_gamma_2 = gamma_2.clone()
 
