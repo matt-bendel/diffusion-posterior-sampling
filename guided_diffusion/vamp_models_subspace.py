@@ -247,8 +247,8 @@ class VAMP:
             if use_damping:
                 damp_fac = self.damping_factor
 
-                gamma_2_raw = gamma_2.clone().abs()
-                gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
+                # gamma_2_raw = gamma_2.clone().abs()
+                # gamma_2 = (damp_fac * gamma_2_raw ** (-1 / 2) + (1 - damp_fac) * old_gamma_2 ** (-1 / 2)) ** -2
 
                 noise_var, _ = torch.max(1/gamma_2, dim=1)
                 r_2[:, :singulars.shape[0]] = (r_2 + torch.randn_like(r_2).to(r_2.device) * torch.maximum((noise_var - 1 / gamma_2_raw), torch.zeros(gamma_2.shape).to(gamma_2.device)).sqrt()[:, 0])[:, :singulars.shape[0]]
