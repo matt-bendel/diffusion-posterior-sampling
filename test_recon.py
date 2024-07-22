@@ -260,7 +260,7 @@ def main():
                     # t_vals = [0, 25, 50, 100, 250, 500, 750, 999]
                     # t_vals = [25, 50, 100, 250]
                     # damping_factos = [0.1, 0.2, 0.5, 0.75, 1]
-                    t_vals = [750]
+                    t_vals = [999]
                     damping_factos = [0.7]
                     for damp in damping_factos:
                         vamp_model.damping_factor = damp
