@@ -267,7 +267,7 @@ def main():
                         plt.imsave(f'dds_raw_x0hat_t={t}.png', clear_color(x_0))
                         Acg = lambda vec, gamma=1: vec + gamma * vamp_model.svd.Ht(vamp_model.svd.H(vec)).view(vec.shape[0], 3, 256,
                                                                                                    256)
-                        ycg = vamp_model.svd.Ht(y).view(y.shape[0], 3, 256, 256)
+                        ycg = x_0 + vamp_model.svd.Ht(y).view(y.shape[0], 3, 256, 256)
                         pred_xstart = CG(Acg, ycg, x_0.clone(), 5)
                         plt.imsave(f'dds_recon_t={t}.png', clear_color(pred_xstart))
 
