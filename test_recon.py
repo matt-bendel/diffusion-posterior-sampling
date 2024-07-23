@@ -324,6 +324,7 @@ def main():
                             plt.semilogy(np.arange(len(eta1s[0])), mse2s, linestyle='dashed', color='blue')
                             plt.semilogy(np.arange(len(eta1s[0])), mser1s, linestyle='dashed', color='green')
                             plt.semilogy(np.arange(len(eta1s[0])), mser2s, linestyle='dashed', color='orange')
+                            plt.grid()
                             plt.xlabel('VAMP Iteration')
                             plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2', 'MSE r_1', 'MSE r_2'])
                             plt.title(f"{measure_config['operator']['name']}; measured subspace")
@@ -340,6 +341,7 @@ def main():
                                 plt.semilogy(np.arange(len(eta1s[0])), mse22s, linestyle='dashed', color='blue')
                                 plt.semilogy(np.arange(len(eta1s[0])), mser12s, linestyle='dashed', color='green')
                                 plt.semilogy(np.arange(len(eta1s[0])), mser22s, linestyle='dashed', color='orange')
+                                plt.grid()
                                 plt.xlabel('VAMP Iteration')
                                 plt.legend(
                                     ['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2', 'MSE r_1',
