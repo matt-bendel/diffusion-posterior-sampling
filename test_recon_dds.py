@@ -264,6 +264,7 @@ def main():
                     for t in t_vals:
                         x_t = sampler.q_sample(x_start, t)
                         x_0 = sampler.p_mean_variance(model, x_t, torch.tensor([t]).to(x_t.device))['pred_xstart']
+                        plt.imsave(f'dds_raw_x0hat_t={t}.png', clear_color(x_0))
                         Acg = lambda vec, gamma=1: vec + gamma * vamp.svd.Ht(vamp.svd.H(vec)).view(vec.shape[0], 3, 256,
                                                                                                    256)
                         ycg = vamp.svd.Ht(y).view(y.shape[0], 3, 256, 256)
