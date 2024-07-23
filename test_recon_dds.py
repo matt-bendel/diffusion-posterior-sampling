@@ -261,13 +261,14 @@ def main():
                     # t_vals = [25, 50, 100, 250]
                     # damping_factos = [0.1, 0.2, 0.5, 0.75, 1]
                     t_vals = [999, 899, 799, 699, 599, 499, 399, 299, 199, 99]
+                    gam = 5
                     for t in t_vals:
                         x_t = sampler.q_sample(x_start, t)
                         x_0 = sampler.p_mean_variance(model, x_t, torch.tensor([t]).to(x_t.device))['pred_xstart']
                         plt.imsave(f'dds_raw_x0hat_t={t}.png', clear_color(x_0))
-                        Acg = lambda vec, gamma=1: vec + gamma * vamp_model.svd.Ht(vamp_model.svd.H(vec)).view(vec.shape[0], 3, 256,
+                        Acg = lambda vec, gamma=gam: vec + gamma * vamp_model.svd.Ht(vamp_model.svd.H(vec)).view(vec.shape[0], 3, 256,
                                                                                                    256)
-                        ycg = x_0 + vamp_model.svd.Ht(y).view(y.shape[0], 3, 256, 256)
+                        ycg = x_0 + gam * vamp_model.svd.Ht(y).view(y.shape[0], 3, 256, 256)
                         pred_xstart = CG(Acg, ycg, x_0.clone(), 5)
                         plt.imsave(f'dds_recon_t={t}.png', clear_color(pred_xstart))
 
