@@ -30,7 +30,7 @@ class VAMP:
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
-        self.damping_factor = 0.1  # Factor for damping (per Saurav's suggestion)
+        self.damping_factor = 0.65  # Factor for damping (per Saurav's suggestion)
         self.damping_factor_g1 = 0.1
         self.damping_factors = np.flip(np.linspace(0.1, 0.5, 1000))
         self.svd = svd
@@ -38,7 +38,7 @@ class VAMP:
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
-        self.rho_schedule = np.linspace(0.25, 1, self.max_iters) ** 2
+        self.rho_schedule = np.linspace(0.25, 1, self.max_iters)
         self.rho = None
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
