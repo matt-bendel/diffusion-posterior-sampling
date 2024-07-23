@@ -45,6 +45,8 @@ class VAMP:
         with open('eta_2_scale.npy', 'rb') as f:
             self.scale_factor = torch.from_numpy(np.load(f)).to(x_T.device)
 
+        print(self.scale_factor)
+
         print(self.Q)
         print('SUBSPACE!!!')
 

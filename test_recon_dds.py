@@ -12,7 +12,7 @@ import numpy as np
 from guided_diffusion.condition_methods import get_conditioning_method
 from guided_diffusion.measurements import get_noise, get_operator
 from guided_diffusion.unet import create_model
-from guided_diffusion.gaussian_diffusion_vamp import create_sampler
+from guided_diffusion.gaussian_diffusion_dds import create_sampler, CG
 from data.dataloader import get_dataset, get_dataloader
 from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
@@ -261,95 +261,14 @@ def main():
                     # t_vals = [25, 50, 100, 250]
                     # damping_factos = [0.1, 0.2, 0.5, 0.75, 1]
                     t_vals = [999, 899]
-                    damping_factos = [0.7]
-                    for damp in damping_factos:
-                        vamp_model.damping_factor = damp
-                        for t in t_vals:
-                            mse1s = []
-                            mse2s = []
-                            mser1s = []
-                            mser2s = []
-
-                            mse12s = []
-                            mse22s = []
-                            mser12s = []
-                            mser22s = []
-
-                            x_t = sampler.q_sample(x_start, t)
-                            _, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s, r1s, r2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], measure_config["operator"]["name"], ref_img, True)
-                            singulars = vamp_model.svd.singulars()
-
-                            for out in mu1s[0]:
-                                v_t_ref = vamp_model.svd.Vt(ref_img)
-                                v_t_out = vamp_model.svd.Vt(out)
-
-                                mse1s.append(torch.nn.functional.mse_loss(v_t_ref[:, :singulars.shape[0]], v_t_out[:, :singulars.shape[0]]).item())
-                                if vamp_model.Q > 1:
-                                    mse12s.append(torch.nn.functional.mse_loss(v_t_ref[:, singulars.shape[0]:], v_t_out[:, singulars.shape[0]:]).item())
-
-                            for out in mu2s[0]:
-                                v_t_ref = vamp_model.svd.Vt(ref_img)
-                                v_t_out = vamp_model.svd.Vt(out)
-
-                                mse2s.append(torch.nn.functional.mse_loss(v_t_ref[:, :singulars.shape[0]], v_t_out[:, :singulars.shape[0]]).item())
-                                if vamp_model.Q > 1:
-                                    mse22s.append(torch.nn.functional.mse_loss(v_t_ref[:, singulars.shape[0]:],
-                                                                              v_t_out[:, singulars.shape[0]:]).item())
-
-                            for out in r1s[0]:
-                                v_t_ref = vamp_model.svd.Vt(ref_img)
-                                v_t_out = vamp_model.svd.Vt(out)
-
-                                mser1s.append(torch.nn.functional.mse_loss(v_t_ref[:, :singulars.shape[0]], v_t_out[:, :singulars.shape[0]]).item())
-                                if vamp_model.Q > 1:
-                                    mser12s.append(torch.nn.functional.mse_loss(v_t_ref[:, singulars.shape[0]:],
-                                                                              v_t_out[:, singulars.shape[0]:]).item())
-
-                            for out in r2s[0]:
-                                v_t_ref = vamp_model.svd.Vt(ref_img)
-                                v_t_out = vamp_model.svd.Vt(out)
-
-                                mser2s.append(torch.nn.functional.mse_loss(v_t_ref[:, :singulars.shape[0]], v_t_out[:, :singulars.shape[0]]).item())
-                                if vamp_model.Q > 1:
-                                    mser22s.append(torch.nn.functional.mse_loss(v_t_ref[:, singulars.shape[0]:],
-                                                                              v_t_out[:, singulars.shape[0]:]).item())
-
-
-                            plt.figure()
-                            plt.semilogy(np.arange(len(eta1s[0])), eta1s[0], color='red')
-                            plt.semilogy(np.arange(len(eta1s[0])), eta2s[0], color='blue')
-                            plt.semilogy(np.arange(len(eta1s[0])), gam1s[0], color='green')
-                            plt.semilogy(np.arange(len(eta1s[0])), gam2s[0], color='orange')
-                            plt.semilogy(np.arange(len(eta1s[0])), mse1s, linestyle='dashed', color='red')
-                            plt.semilogy(np.arange(len(eta1s[0])), mse2s, linestyle='dashed', color='blue')
-                            plt.semilogy(np.arange(len(eta1s[0])), mser1s, linestyle='dashed', color='green')
-                            plt.semilogy(np.arange(len(eta1s[0])), mser2s, linestyle='dashed', color='orange')
-                            plt.xlabel('VAMP Iteration')
-                            plt.legend(['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2', 'MSE r_1', 'MSE r_2'])
-                            plt.title(f"{measure_config['operator']['name']}; measured subspace")
-                            plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/trajectories_t={t}_damp={damp}_q=0.png')
-                            plt.close()
-
-                            if vamp_model.Q > 1:
-                                plt.figure()
-                                plt.semilogy(np.arange(len(eta1s[0])), eta1s[1], color='red')
-                                plt.semilogy(np.arange(len(eta1s[0])), eta2s[1], color='blue')
-                                plt.semilogy(np.arange(len(eta1s[0])), gam1s[1], color='green')
-                                plt.semilogy(np.arange(len(eta1s[0])), gam2s[1], color='orange')
-                                plt.semilogy(np.arange(len(eta1s[0])), mse12s, linestyle='dashed', color='red')
-                                plt.semilogy(np.arange(len(eta1s[0])), mse22s, linestyle='dashed', color='blue')
-                                plt.semilogy(np.arange(len(eta1s[0])), mser12s, linestyle='dashed', color='green')
-                                plt.semilogy(np.arange(len(eta1s[0])), mser22s, linestyle='dashed', color='orange')
-                                plt.xlabel('VAMP Iteration')
-                                plt.legend(
-                                    ['1/eta_1', '1/eta_2', '1/gam_1', '1/gam_2', 'MSE mu_1', 'MSE mu_2', 'MSE r_1',
-                                     'MSE r_2'])
-                                # plt.legend(
-                                #     ['1/eta_1', 'MSE mu_1'])
-                                plt.title(f"{measure_config['operator']['name']}; nonmeasured subspace")
-                                plt.savefig(
-                                    f'vamp_debug/{measure_config["operator"]["name"]}/trajectories_t={t}_damp={damp}_q=1.png')
-                                plt.close()
+                    for t in t_vals:
+                        x_t = sampler.q_sample(x_start, t)
+                        x_0 = sampler.p_mean_variance(model, x_t, t)
+                        Acg = lambda vec, gamma=1: vec + gamma * vamp.svd.Ht(vamp.svd.H(vec)).view(vec.shape[0], 3, 256,
+                                                                                                   256)
+                        ycg = vamp.svd.Ht(y).view(y.shape[0], 3, 256, 256)
+                        pred_xstart = CG(Acg, ycg, x_0.clone(), 5)
+                        plt.imsave(f'dds_recon_t={t}.png', clear_color(pred_xstart))
 
             break
                     # sample, g1_min, g1_max, g2_min, g2_max, e1_min, e1_max, e2_min, e2_max, mse_1, mse_2 = sample_fn(x_start=x_start, measurement=y_n, record=False, save_root=out_path, mask=mask,
