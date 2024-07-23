@@ -260,7 +260,7 @@ def main():
                     # t_vals = [0, 25, 50, 100, 250, 500, 750, 999]
                     # t_vals = [25, 50, 100, 250]
                     # damping_factos = [0.1, 0.2, 0.5, 0.75, 1]
-                    t_vals = [999, 899]
+                    t_vals = [999, 899, 799, 699, 599, 499, 399, 299, 199, 99]
                     for t in t_vals:
                         x_t = sampler.q_sample(x_start, t)
                         x_0 = sampler.p_mean_variance(model, x_t, torch.tensor([t]).to(x_t.device))['pred_xstart']
