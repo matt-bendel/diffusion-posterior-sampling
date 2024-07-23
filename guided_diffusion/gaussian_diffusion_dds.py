@@ -443,7 +443,7 @@ class DDPM(SpacedDiffusion):
             pred_xstart = self.p_mean_variance(model, x, t)
         else:
             pred_xstart = self.p_mean_variance(model, x, t)['pred_xstart']
-            Acg = lambda vec, gamma=1: vec + gamma * vamp.svd.Ht(vam.svd.H(vec)).view(vec.shape[0], 3, 256, 256)
+            Acg = lambda vec, gamma=1: vec + gamma * vamp.svd.Ht(vamp.svd.H(vec)).view(vec.shape[0], 3, 256, 256)
             ycg = vamp.svd.Ht(y).view(y.shape[0], 3, 256, 256)
             pred_xstart = CG(Acg, ycg, pred_xstart.clone(), 5)
 
