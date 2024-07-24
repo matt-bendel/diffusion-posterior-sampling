@@ -269,7 +269,7 @@ def main():
                         mse22s = []
 
                         x_t = sampler.q_sample(x_start, t)
-                        _, eta1s, eta2s, mu1s, mu2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], measure_config["operator"]["name"], ref_img, True)
+                        _, eta1s, eta2s, mu1s, mu2s, gam2s = vamp_model.run_vamp_reverse_test(x_t, y, torch.tensor([t]).to(x_t.device), measure_config['noise']['sigma'], measure_config["operator"]["name"], ref_img, True)
                         singulars = vamp_model.svd.singulars()
 
                         for out in mu1s[0]:
@@ -295,9 +295,10 @@ def main():
                         plt.semilogy(np.arange(len(eta1s[0])), eta2s[0], color='blue')
                         plt.semilogy(np.arange(len(eta1s[0])), mse1s, linestyle='dashed', color='red')
                         plt.semilogy(np.arange(len(eta1s[0])), mse2s, linestyle='dashed', color='blue')
+                        plt.semilogy(np.arange(len(eta1s[0])), gam2s, color='orange')
                         plt.grid()
                         plt.xlabel('VAMP Iteration')
-                        plt.legend(['1/eta_1', '1/eta_2', 'MSE mu_1', 'MSE mu_2'])
+                        plt.legend(['1/eta_1', '1/eta_2', 'MSE mu_1', 'MSE mu_2', '1/gam2'])
                         plt.title(f"{measure_config['operator']['name']}; measured subspace")
                         plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/posterior/trajectories_t={t}_q=0.png')
                         plt.close()
@@ -308,9 +309,10 @@ def main():
                             plt.semilogy(np.arange(len(eta1s[0])), eta2s[1], color='blue')
                             plt.semilogy(np.arange(len(eta1s[0])), mse12s, linestyle='dashed', color='red')
                             plt.semilogy(np.arange(len(eta1s[0])), mse22s, linestyle='dashed', color='blue')
+                            plt.semilogy(np.arange(len(eta1s[0])), gam2s, color='orange')
                             plt.grid()
                             plt.xlabel('VAMP Iteration')
-                            plt.legend(['1/eta_1', '1/eta_2', 'MSE mu_1', 'MSE mu_2'])
+                            plt.legend(['1/eta_1', '1/eta_2', 'MSE mu_1', 'MSE mu_2', '1/gam2'])
                             # plt.legend(
                             #     ['1/eta_1', 'MSE mu_1'])
                             plt.title(f"{measure_config['operator']['name']}; nonmeasured subspace")

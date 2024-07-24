@@ -152,6 +152,7 @@ class VAMP:
 
         gamma_2_fix = torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
 
+        gamma2s = []
         eta1s = [[], []]
         eta2s = [[], []]
         mu1s = [[], []]
@@ -185,13 +186,11 @@ class VAMP:
                 v_1_measured = torch.maximum(v_1_nonmeasured, zeros)
                 mu_1_noised[:, singulars.shape[0]:] = (mu_1 + noise * v_1_measured.sqrt())[:, singulars.shape[0]:]
 
-            eta_1[:, 0] = gamma_2
-            eta_1[:, 1] = gamma_2
-
             eta1s[0].append(1 / eta_1[0, 0].cpu().numpy())
             eta2s[0].append(1 / eta_2[0, 0].cpu().numpy())
             mu1s[0].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
             mu2s[0].append(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256))
+            gamma2s.append(1 / gamma_2[0])
 
             if self.Q > 1:
                 eta1s[1].append(1 / eta_1[0, 1].cpu().numpy())
@@ -208,7 +207,7 @@ class VAMP:
                 f'ITER: {i + 1}; rho = {self.rho}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
 
         return_val = self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)
-        return return_val, eta1s, eta2s, mu1s, mu2s
+        return return_val, eta1s, eta2s, mu1s, mu2s, gamma2s
 
 
 def extract_and_expand(array, time, target):
