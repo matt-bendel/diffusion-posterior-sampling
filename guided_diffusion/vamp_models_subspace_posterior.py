@@ -28,7 +28,7 @@ class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
-        self.max_iters = 10
+        self.max_iters = 15
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
@@ -40,8 +40,7 @@ class VAMP:
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
-        self.rho_schedule = np.linspace(0.25, 1, self.max_iters) ** 4
-        self.rho = None
+        self.rho = 0.75
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
         with open('eta_2_scale.npy', 'rb') as f:
@@ -180,7 +179,6 @@ class VAMP:
         mu2s = [[], []]
 
         for i in range(self.max_iters):
-            self.rho = 0.75
             plt.imsave(
                 f'vamp_debug/{prob_name}/posterior/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
                 clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
