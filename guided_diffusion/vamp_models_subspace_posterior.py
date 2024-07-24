@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from guided_diffusion.ddrm_svd import Deblurring
 
+
 # TODO: Check if there is a bias...
 # TODO: Plot MSE on the rs
 # TODO: Verify singular values for colorization and super resolution
@@ -21,12 +22,13 @@ def normalize_np(img):
     img /= np.max(img)
     return img
 
+
 # TODO: Subspace VAMP, implement so when in subspace, DDRM transform is applied...
 class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
-        self.max_iters = 50
+        self.max_iters = 20
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
@@ -78,7 +80,6 @@ class VAMP:
 
         return mu_1
 
-
     def eta_1(self, t_alpha_bar, noise_sig, gamma_1):
         r_sig_inv = torch.sqrt(t_alpha_bar / (1 - t_alpha_bar))
         evals = (self.svd.singulars() / noise_sig) ** 2
@@ -117,7 +118,7 @@ class VAMP:
                                                                              None] * (noisy_im - noise_est)
 
         return x_0, ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
-                self.alphas_cumprod).to(noisy_im.device))[t], t
+            self.alphas_cumprod).to(noisy_im.device))[t], t
 
     def linear_estimation(self, mu_2, eta_2, x_t, y, t_alpha_bar, noise_sig):
         mu_1 = self.f_1(mu_2, eta_2, x_t, y, t_alpha_bar, noise_sig)
@@ -151,27 +152,26 @@ class VAMP:
 
         gamma_2_fix = torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
 
-        gam1s = [[], []]
-        gam2s = [[], []]
         eta1s = [[], []]
         eta2s = [[], []]
         mu1s = [[], []]
         mu2s = [[], []]
-        r1s = [[], []]
-        r2s = [[], []]
 
         for i in range(self.max_iters):
-            self.rho = 0.1
-            plt.imsave(f'vamp_debug/{prob_name}/posterior/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
+            self.rho = 0.7
+            plt.imsave(
+                f'vamp_debug/{prob_name}/posterior/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
+                clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
 
             # 1. Denoising
             mu_2, eta_2 = self.denoising(mu_1_noised, eta_1)
-            gamma_2, _ = torch.max(1 / eta_1, dim=1) # Actual denoise variance
+            gamma_2, _ = torch.max(1 / eta_1, dim=1)  # Actual denoise variance
 
             # 2. Linear Estimation
             mu_1, eta_1 = self.linear_estimation(mu_2, eta_2, x_t / torch.sqrt(1 - t_alpha_bar),
-                                                               y / noise_sig,
-                                                               t_alpha_bar, noise_sig)
+                                                 y / noise_sig,
+                                                 t_alpha_bar, noise_sig)
+
             # 3. Re-Noising
             noise = torch.randn_like(mu_1)
             zeros = torch.zeros(mu_1.shape).to(mu_1.device)
@@ -188,8 +188,8 @@ class VAMP:
             eta_1[:, 0] = gamma_2
             eta_1[:, 1] = gamma_2
 
-            eta1s[0].append(1/eta_1[0, 0].cpu().numpy())
-            eta2s[0].append(1/eta_2[0, 0].cpu().numpy())
+            eta1s[0].append(1 / eta_1[0, 0].cpu().numpy())
+            eta2s[0].append(1 / eta_2[0, 0].cpu().numpy())
             mu1s[0].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
             mu2s[0].append(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256))
 
@@ -199,14 +199,17 @@ class VAMP:
                 mu1s[1].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
                 mu2s[1].append(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256))
 
-            plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)))
-            plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256)))
+            plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
+                       clear_color(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)))
+            plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
+                       clear_color(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256)))
 
             print(
-                f'ITER: {i+1}; rho = {self.rho}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
+                f'ITER: {i + 1}; rho = {self.rho}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
 
         return_val = self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)
         return return_val, eta1s, eta2s, mu1s, mu2s
+
 
 def extract_and_expand(array, time, target):
     array = torch.from_numpy(array).to(target.device)[time].float()
