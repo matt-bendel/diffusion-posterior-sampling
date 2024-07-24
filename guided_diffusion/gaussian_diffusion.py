@@ -43,6 +43,10 @@ def create_sampler(sampler,
     betas = get_named_beta_schedule(noise_schedule, steps)
     if not timestep_respacing:
         timestep_respacing = [steps]
+
+    print(steps)
+    print(timestep_respacing)
+    exit()
          
     return sampler(use_timesteps=space_timesteps(steps, timestep_respacing),
                    betas=betas,
