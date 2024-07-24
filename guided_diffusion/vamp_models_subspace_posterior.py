@@ -162,7 +162,7 @@ class VAMP:
 
         for i in range(self.max_iters):
             self.rho = 0.2
-            # plt.imsave(f'vamp_debug/{prob_name}/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
+            plt.imsave(f'vamp_debug/{prob_name}/posterior/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
 
             # 1. Denoising
             mu_2, eta_2 = self.denoising(mu_1_noised, eta_1)
@@ -188,8 +188,6 @@ class VAMP:
             eta_1[:, 0] = gamma_2
             eta_1[:, 1] = gamma_2
 
-            # plt.imsave(f'vamp_debug/{prob_name}/denoise_in_pre_damp/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256)))
-
             eta1s[0].append(1/eta_1[0, 0].cpu().numpy())
             eta2s[0].append(1/eta_2[0, 0].cpu().numpy())
             mu1s[0].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
@@ -201,8 +199,8 @@ class VAMP:
                 mu1s[1].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
                 mu2s[1].append(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256))
 
-            # plt.imsave(f'vamp_debug/{prob_name}/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256)))
-            # plt.imsave(f'vamp_debug/{prob_name}/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256)))
+            plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)))
+            plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256)))
 
             print(
                 f'ITER: {i+1}; rho = {self.rho}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
