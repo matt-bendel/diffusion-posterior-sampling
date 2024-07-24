@@ -215,7 +215,7 @@ def main():
 
             print(e_vec)
             print(evec_prod / e_vec)
-            print(H.singulars()[0])
+            print(H.singulars()[0] ** 2)
             exit()
 
             for k in range(1):
