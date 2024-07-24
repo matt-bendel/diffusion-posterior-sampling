@@ -126,9 +126,9 @@ class VAMP:
 
         return mu_1, eta_1
 
-    def denoising(self, mu_1, eta_1):
+    def denoising(self, mu_1, gamma_2):
         # Max var
-        noise_var, _ = torch.max(1 / eta_1, dim=1, keepdim=True)
+        noise_var, _ = torch.max(1 / gamma_2, dim=1, keepdim=True)
 
         new_mu_1 = self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)
 
@@ -149,6 +149,7 @@ class VAMP:
         mu_1_noised = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
         eta_1 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
+        gamma_2 = eta_1[:, 0].unsqueeze(1)
 
         gamma_2_fix = torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
 
@@ -165,8 +166,7 @@ class VAMP:
                 clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
 
             # 1. Denoising
-            mu_2, eta_2 = self.denoising(mu_1_noised, eta_1)
-            gamma_2, _ = torch.max(1 / eta_1, dim=1)  # Actual denoise variance
+            mu_2, eta_2 = self.denoising(mu_1_noised, gamma_2)
 
             # 2. Linear Estimation
             mu_1, eta_1 = self.linear_estimation(mu_2, eta_2, x_t / torch.sqrt(1 - t_alpha_bar),
