@@ -152,26 +152,26 @@ class VAMP:
         gamma_2 = eta_1[:, 0].unsqueeze(1)
 
         gamma_2_fix = torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
-        eta_2_fix = torch.mean(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
-
-        gamma_2_fix_low = torch.min(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
-        gamma_2_fix_high = gamma_2_fix.clone()
-        gamma_2_fix = 0.5 * gamma_2_fix_low + 0.5 * gamma_2_fix_high
-        for j in range(20):
-            diff = torch.abs(
-                gamma_2_fix - (1 - torch.tensor(self.alphas_cumprod).to(gamma_2_fix.device)) / torch.tensor(
-                    self.alphas_cumprod).to(gamma_2_fix.device))
-            used_t = torch.argmin(diff, dim=0)
-            true_noise_var = ((1 - torch.tensor(self.alphas_cumprod).to(gamma_2_fix.device)) / torch.tensor(
-                self.alphas_cumprod).to(gamma_2_fix.device))[used_t]
-
-            eta_approx = 1 / (self.scale_factor[used_t] * true_noise_var.sqrt()).float()
-            if eta_approx > eta_2_fix:
-                gamma_2_fix_high = gamma_2_fix
-            else:
-                gamma_2_fix_low = gamma_2_fix
-
-            gamma_2_fix = 0.5 * gamma_2_fix_low + 0.5 * gamma_2_fix_high
+        # eta_2_fix = torch.mean(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
+        #
+        # gamma_2_fix_low = torch.min(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
+        # gamma_2_fix_high = gamma_2_fix.clone()
+        # gamma_2_fix = 0.5 * gamma_2_fix_low + 0.5 * gamma_2_fix_high
+        # for j in range(20):
+        #     diff = torch.abs(
+        #         gamma_2_fix - (1 - torch.tensor(self.alphas_cumprod).to(gamma_2_fix.device)) / torch.tensor(
+        #             self.alphas_cumprod).to(gamma_2_fix.device))
+        #     used_t = torch.argmin(diff, dim=0)
+        #     true_noise_var = ((1 - torch.tensor(self.alphas_cumprod).to(gamma_2_fix.device)) / torch.tensor(
+        #         self.alphas_cumprod).to(gamma_2_fix.device))[used_t]
+        #
+        #     eta_approx = 1 / (self.scale_factor[used_t] * true_noise_var.sqrt()).float()
+        #     if eta_approx > eta_2_fix:
+        #         gamma_2_fix_high = gamma_2_fix
+        #     else:
+        #         gamma_2_fix_low = gamma_2_fix
+        #
+        #     gamma_2_fix = 0.5 * gamma_2_fix_low + 0.5 * gamma_2_fix_high
 
         gamma2s = []
         eta1s = [[], []]
