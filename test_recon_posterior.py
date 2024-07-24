@@ -299,7 +299,7 @@ def main():
                         plt.xlabel('VAMP Iteration')
                         plt.legend(['1/eta_1', '1/eta_2', 'MSE mu_1', 'MSE mu_2'])
                         plt.title(f"{measure_config['operator']['name']}; measured subspace")
-                        plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/posterior/trajectories_t={t}_damp={damp}_q=0.png')
+                        plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/posterior/trajectories_t={t}_q=0.png')
                         plt.close()
 
                         if vamp_model.Q > 1:
@@ -315,7 +315,7 @@ def main():
                             #     ['1/eta_1', 'MSE mu_1'])
                             plt.title(f"{measure_config['operator']['name']}; nonmeasured subspace")
                             plt.savefig(
-                                f'vamp_debug/{measure_config["operator"]["name"]}/posterior/trajectories_t={t}_damp={damp}_q=1.png')
+                                f'vamp_debug/{measure_config["operator"]["name"]}/posterior/trajectories_t={t}_q=1.png')
                             plt.close()
 
             break
