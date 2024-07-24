@@ -28,7 +28,7 @@ class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
-        self.max_iters = 10
+        self.max_iters = 100
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
@@ -40,7 +40,7 @@ class VAMP:
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
-        self.rho = 0.8
+        self.rho = 0.2
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
         with open('eta_2_scale.npy', 'rb') as f:
@@ -150,7 +150,7 @@ class VAMP:
             x_t.device)
         gamma_2 = eta_1[:, 0].unsqueeze(1)
 
-        gamma_2_fix = 1#torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
+        gamma_2_fix = 1e2 # torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
 
         gamma2s = []
         eta1s = [[], []]
