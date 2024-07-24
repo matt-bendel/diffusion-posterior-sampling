@@ -299,7 +299,7 @@ def main():
                         plt.grid()
                         plt.xlabel('VAMP Iteration')
                         plt.legend(['1/eta_1', '1/eta_2', 'MSE mu_1', 'MSE mu_2', '1/gam2'])
-                        plt.title(f"{measure_config['operator']['name']}; measured subspace")
+                        plt.title(f"{measure_config['operator']['name']}; measured subspace; rho={vamp_model.rho}")
                         plt.savefig(f'vamp_debug/{measure_config["operator"]["name"]}/posterior/trajectories_t={t}_q=0.png')
                         plt.close()
 
@@ -315,7 +315,7 @@ def main():
                             plt.legend(['1/eta_1', '1/eta_2', 'MSE mu_1', 'MSE mu_2', '1/gam2'])
                             # plt.legend(
                             #     ['1/eta_1', 'MSE mu_1'])
-                            plt.title(f"{measure_config['operator']['name']}; nonmeasured subspace")
+                            plt.title(f"{measure_config['operator']['name']}; nonmeasured subspace; rho={vamp_model.rho}")
                             plt.savefig(
                                 f'vamp_debug/{measure_config["operator"]["name"]}/posterior/trajectories_t={t}_q=1.png')
                             plt.close()
