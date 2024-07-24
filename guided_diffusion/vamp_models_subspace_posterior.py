@@ -165,7 +165,7 @@ class VAMP:
             true_noise_var = ((1 - torch.tensor(self.alphas_cumprod).to(gamma_2_fix.device)) / torch.tensor(
                 self.alphas_cumprod).to(gamma_2_fix.device))[used_t]
 
-            eta_approx = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt()).float()[0]
+            eta_approx = 1 / (self.scale_factor[used_t] * true_noise_var.sqrt()).float()
             if eta_approx > eta_2_fix:
                 gamma_2_fix_high = gamma_2_fix
             else:
