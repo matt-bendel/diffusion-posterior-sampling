@@ -149,7 +149,7 @@ class VAMP:
         eta_1 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
 
-        gamma_2_fix = torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) + t_alpha_bar / (1 - t_alpha_bar))
+        gamma_2_fix = torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
 
         gam1s = [[], []]
         gam2s = [[], []]
