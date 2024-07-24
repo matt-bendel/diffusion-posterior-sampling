@@ -207,8 +207,8 @@ def main():
             # y_n = ref_img
             y_n = noiser(y_n)
 
-            tmp = torch.zeros(y_n.shape).to(y_n.device)
-            tmp[0, 0] = 1
+            tmp = torch.zeros(ref_img.shape).to(y_n.device)
+            tmp[0, 0, 0, 0] = 1
 
             e_vec = H.V(tmp)
             evec_prod = H.Ht(H.H(e_vec))
