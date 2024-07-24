@@ -159,7 +159,7 @@ class VAMP:
         gamma_2_fix = 0.5 * gamma_2_fix_low + 0.5 * gamma_2_fix_high
         for j in range(20):
             diff = torch.abs(
-                gamma_2_fix[:, 0, None] - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
+                gamma_2_fix - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
                     self.alphas_cumprod).to(noisy_im.device))
             used_t = torch.argmin(diff, dim=1)
             true_noise_var = ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
