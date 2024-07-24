@@ -28,7 +28,7 @@ class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
-        self.max_iters = 20
+        self.max_iters = 10
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
@@ -151,7 +151,27 @@ class VAMP:
             x_t.device)
         gamma_2 = eta_1[:, 0].unsqueeze(1)
 
-        gamma_2_fix = torch.mean(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
+        gamma_2_fix = torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
+        eta_2_fix = torch.mean(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
+
+        gamma_2_fix_low = torch.min(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
+        gamma_2_fix_high = gamma_2_fix.clone()
+        gamma_2_fix = 0.5 * gamma_2_fix_low + 0.5 * gamma_2_fix_high
+        for j in range(20):
+            diff = torch.abs(
+                gamma_2_fix[:, 0, None] - (1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
+                    self.alphas_cumprod).to(noisy_im.device))
+            used_t = torch.argmin(diff, dim=1)
+            true_noise_var = ((1 - torch.tensor(self.alphas_cumprod).to(noisy_im.device)) / torch.tensor(
+                self.alphas_cumprod).to(noisy_im.device))[used_t]
+
+            eta_approx = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt()).float()[0]
+            if eta_approx > eta_2_fix:
+                gamma_2_fix_high = gamma_2_fix
+            else:
+                gamma_2_fix_low = gamma_2_fix
+
+            gamma_2_fix = 0.5 * gamma_2_fix_low + 0.5 * gamma_2_fix_high
 
         gamma2s = []
         eta1s = [[], []]
@@ -160,7 +180,7 @@ class VAMP:
         mu2s = [[], []]
 
         for i in range(self.max_iters):
-            self.rho = 0.7
+            self.rho = 0.6
             plt.imsave(
                 f'vamp_debug/{prob_name}/posterior/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
                 clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
