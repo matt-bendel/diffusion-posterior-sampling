@@ -190,7 +190,7 @@ class VAMP:
             eta2s[0].append(1 / eta_2[0, 0].cpu().numpy())
             mu1s[0].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
             mu2s[0].append(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256))
-            gamma2s.append(1 / gamma_2[0])
+            gamma2s.append(1 / gamma_2[0].cpu().numpy())
 
             if self.Q > 1:
                 eta1s[1].append(1 / eta_1[0, 1].cpu().numpy())
