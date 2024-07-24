@@ -180,7 +180,7 @@ class VAMP:
         mu2s = [[], []]
 
         for i in range(self.max_iters):
-            self.rho = 0.3
+            self.rho = 0.75
             plt.imsave(
                 f'vamp_debug/{prob_name}/posterior/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
                 clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
