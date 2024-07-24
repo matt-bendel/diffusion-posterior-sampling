@@ -465,7 +465,7 @@ class DDIM(SpacedDiffusion):
         )
         # Equation 12.
         noise = torch.randn_like(x)
-        mean_pred = self.denoise(model, x, t, y, cond, vamp, noise_sig, None)
+        mean_pred = self.denoise(model, x, t, y, cond, vamp, noise_sig, None)['pred_xstart']
 
         sample = mean_pred
         if t != 0:
