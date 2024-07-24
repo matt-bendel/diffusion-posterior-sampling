@@ -129,7 +129,7 @@ class VAMP:
         # Max var
         noise_var, _ = torch.max(1 / eta_1, dim=1, keepdim=True)
 
-        new_mu_1 = self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256)
+        new_mu_1 = self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)
 
         # Denoise
         mu_2, true_noise_var, used_t = self.uncond_denoiser_function(new_mu_1.float(), noise_var)
@@ -192,14 +192,14 @@ class VAMP:
 
             eta1s[0].append(1/eta_1[0, 0].cpu().numpy())
             eta2s[0].append(1/eta_2[0, 0].cpu().numpy())
-            mu1s[0].append(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256))
-            mu2s[0].append(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256))
+            mu1s[0].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
+            mu2s[0].append(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256))
 
             if self.Q > 1:
                 eta1s[1].append(1 / eta_1[0, 1].cpu().numpy())
                 eta2s[1].append(1 / eta_2[0, 1].cpu().numpy())
-                mu1s[1].append(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256))
-                mu2s[1].append(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256))
+                mu1s[1].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
+                mu2s[1].append(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256))
 
             # plt.imsave(f'vamp_debug/{prob_name}/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256)))
             # plt.imsave(f'vamp_debug/{prob_name}/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256)))
@@ -207,7 +207,7 @@ class VAMP:
             print(
                 f'ITER: {i+1}; rho = {self.rho}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()}; gamma_1 = {gamma_1[0].cpu().numpy()}; gamma_2 = {gamma_2[0].cpu().numpy()}; gamma_1 + gamma_2 = {(gamma_1 + gamma_2)[0].cpu().numpy()}\n')
 
-        return_val = self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256)
+        return_val = self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)
         return return_val, eta1s, eta2s, mu1s, mu2s
 
 def extract_and_expand(array, time, target):
