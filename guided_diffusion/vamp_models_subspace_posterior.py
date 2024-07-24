@@ -150,7 +150,7 @@ class VAMP:
             x_t.device)
         gamma_2 = eta_1[:, 0].unsqueeze(1)
 
-        gamma_2_fix = 1e4#torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
+        gamma_2_fix = torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
 
         gamma2s = []
         eta1s = [[], []]
