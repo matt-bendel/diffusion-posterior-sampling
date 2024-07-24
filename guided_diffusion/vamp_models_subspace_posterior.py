@@ -216,8 +216,8 @@ class VAMP:
                 mu1s[1].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
                 mu2s[1].append(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256))
 
-            plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
-                       clear_color(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)))
+            # plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
+            #            clear_color(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)))
             # plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
             #            clear_color(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256)))
 
