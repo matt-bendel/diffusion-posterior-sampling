@@ -28,7 +28,7 @@ class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
-        self.max_iters = 20
+        self.max_iters = 10
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
@@ -180,7 +180,7 @@ class VAMP:
         mu2s = [[], []]
 
         for i in range(self.max_iters):
-            self.rho = 0.65
+            self.rho = 0.7
             plt.imsave(
                 f'vamp_debug/{prob_name}/posterior/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
                 clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
