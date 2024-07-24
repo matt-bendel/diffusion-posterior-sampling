@@ -12,7 +12,7 @@ import numpy as np
 from guided_diffusion.condition_methods import get_conditioning_method
 from guided_diffusion.measurements import get_noise, get_operator
 from guided_diffusion.unet import create_model
-from guided_diffusion.gaussian_diffusion_vamp import create_sampler
+from guided_diffusion.gaussian_diffusion_vamp_ddim import create_sampler
 from data.dataloader import get_dataset, get_dataloader
 from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
