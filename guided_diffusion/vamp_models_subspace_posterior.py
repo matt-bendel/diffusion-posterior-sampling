@@ -40,7 +40,7 @@ class VAMP:
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
-        self.rho = 0.75
+        self.rho = 0.95
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
         with open('eta_2_scale.npy', 'rb') as f:
@@ -216,8 +216,8 @@ class VAMP:
                 mu1s[1].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
                 mu2s[1].append(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256))
 
-            # plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
-            #            clear_color(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)))
+            plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
+                       clear_color(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)))
             # plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
             #            clear_color(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256)))
 
