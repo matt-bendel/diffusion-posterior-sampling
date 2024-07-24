@@ -456,6 +456,10 @@ class DDIM(SpacedDiffusion):
         return {'pred_xstart': pred_xstart}
 
     def p_sample(self, model, x, t, y, cond, vamp, noise_sig, eta=0.2):
+        out = self.p_mean_variance(model, x, t)
+
+        eps = self.predict_eps_from_x_start(x, t, out['pred_xstart'])
+
         alpha_bar = extract_and_expand(self.alphas_cumprod, t, x)
         alpha_bar_prev = extract_and_expand(self.alphas_cumprod_prev, t, x)
         sigma = (
@@ -465,7 +469,10 @@ class DDIM(SpacedDiffusion):
         )
         # Equation 12.
         noise = torch.randn_like(x)
-        mean_pred = self.denoise(model, x, t, y, cond, vamp, noise_sig, None)['pred_xstart']
+        mean_pred = (
+                self.denoise(model, x, t, y, cond, vamp, noise_sig, None)['pred_xstart'] * torch.sqrt(alpha_bar_prev)
+                + torch.sqrt(1 - alpha_bar_prev - sigma ** 2) * eps
+        )
 
         sample = mean_pred
         if t != 0:
