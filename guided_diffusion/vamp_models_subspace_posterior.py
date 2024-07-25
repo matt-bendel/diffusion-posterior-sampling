@@ -141,6 +141,7 @@ class VAMP:
 
     def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, gt, use_damping=False):
         mu_1 = None  # needs to exist outside of for loop scope for return
+        prev_mu_1 = None
         singulars = self.svd.singulars()
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
@@ -207,6 +208,10 @@ class VAMP:
 
             print(
                 f'ITER: {i + 1}; gamma_2 = {gamma_2[0].cpu().numpy()}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
+            if prev_mu_1 is not None and torch.linalg.norm(prev_mu_1 - mu_1) < 1e-3:
+                break
+
+            prev_mu_1 = mu_1
 
         return_val = self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)
         return return_val, eta1s, eta2s, mu1s, mu2s, gamma2s
