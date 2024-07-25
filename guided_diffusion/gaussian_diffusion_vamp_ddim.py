@@ -103,18 +103,14 @@ class GaussianDiffusion:
         self.posterior_log_variance_clipped = np.log(
             np.append(self.posterior_variance[1], self.posterior_variance[1:])
         )
-        print(betas.shape)
-        print(self.alphas_cumprod_prev.shape)
-        print(self.alphas_cumprod.shape)
-        exit()
-        self.posterior_mean_coef1 = (
-                betas * np.sqrt(self.alphas_cumprod_prev) / (1.0 - self.alphas_cumprod)
-        )
-        self.posterior_mean_coef2 = (
-                (1.0 - self.alphas_cumprod_prev)
-                * np.sqrt(alphas)
-                / (1.0 - self.alphas_cumprod)
-        )
+        # self.posterior_mean_coef1 = (
+        #         betas * np.sqrt(self.alphas_cumprod_prev) / (1.0 - self.alphas_cumprod)
+        # )
+        # self.posterior_mean_coef2 = (
+        #         (1.0 - self.alphas_cumprod_prev)
+        #         * np.sqrt(alphas)
+        #         / (1.0 - self.alphas_cumprod)
+        # )
 
         self.mean_processor = get_mean_processor(model_mean_type,
                                                  betas=betas,
