@@ -207,17 +207,6 @@ def main():
             # y_n = ref_img
             y_n = noiser(y_n)
 
-            tmp = torch.zeros(ref_img.shape).to(y_n.device)
-            tmp[0, 0, 0, 0] = 1
-
-            e_vec = H.V(tmp)
-            evec_prod = H.Ht(H.H(e_vec))
-
-            print(e_vec)
-            print(evec_prod / e_vec)
-            print(H.singulars()[0] ** 2)
-            exit()
-
             for k in range(1):
                 # Sampling
                 with torch.no_grad():
