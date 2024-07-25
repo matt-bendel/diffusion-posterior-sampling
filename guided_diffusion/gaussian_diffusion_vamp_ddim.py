@@ -335,10 +335,6 @@ def space_timesteps(num_timesteps, section_counts):
     elif isinstance(section_counts, int):
         section_counts = [section_counts]
 
-    # print(section_counts)
-    # print(num_timesteps)
-    # exit()
-
     size_per = num_timesteps // len(section_counts)
     extra = num_timesteps % len(section_counts)
     start_idx = 0
