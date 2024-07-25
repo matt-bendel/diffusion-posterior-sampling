@@ -209,8 +209,8 @@ class VAMP:
             print(
                 f'ITER: {i + 1}; gamma_2 = {gamma_2[0].cpu().numpy()}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
             if prev_mu_1 is not None:
-                print(torch.linalg.norm(prev_mu_1 - mu_1))
-                if torch.linalg.norm(prev_mu_1 - mu_1) < 1e-3:
+                print(torch.mean((prev_mu_1 - mu_1) ** 2))
+                if torch.mean((prev_mu_1 - mu_1) ** 2) < 1e-4:
                     break
 
             prev_mu_1 = mu_1
