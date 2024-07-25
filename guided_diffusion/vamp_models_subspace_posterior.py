@@ -153,7 +153,7 @@ class VAMP:
         mu_1, eta_1 = self.linear_estimation(mu_1_noised, eta_1, x_t / torch.sqrt(1 - t_alpha_bar),
                                              y / noise_sig,
                                              t_alpha_bar, noise_sig)
-        prev_mu1 = mu_1
+        prev_mu_1 = mu_1
 
         gamma2s = []
         eta1s = [[], []]
