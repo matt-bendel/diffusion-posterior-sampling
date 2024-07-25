@@ -28,7 +28,7 @@ class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
-        self.max_iters = 30
+        self.max_iters = 50
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
@@ -208,8 +208,10 @@ class VAMP:
 
             print(
                 f'ITER: {i + 1}; gamma_2 = {gamma_2[0].cpu().numpy()}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
-            if prev_mu_1 is not None and torch.linalg.norm(prev_mu_1 - mu_1) < 1e-3:
-                break
+            if prev_mu_1 is not None:
+                print(torch.linalg.norm(prev_mu_1 - mu_1) < 1e-3)
+                if torch.linalg.norm(prev_mu_1 - mu_1) < 1e-3:
+                    break
 
             prev_mu_1 = mu_1
 
