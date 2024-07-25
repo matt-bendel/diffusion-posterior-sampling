@@ -41,6 +41,7 @@ def create_sampler(sampler,
                    rescale_timesteps,
                    timestep_respacing=""):
     sampler = get_sampler(name=sampler)
+    print('here')
 
     betas = get_named_beta_schedule(noise_schedule, steps)
     new_betas = get_named_beta_schedule('linear', steps)

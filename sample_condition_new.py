@@ -80,7 +80,6 @@ def main():
 
     # Load diffusion sampler
     sampler = create_sampler(**diffusion_config)
-    print('here')
     sample_fn = partial(sampler.p_sample_loop, model=model, measurement_cond_fn=measurement_cond_fn)
 
     # Working directory
