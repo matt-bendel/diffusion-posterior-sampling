@@ -177,7 +177,7 @@ class VAMP:
             zeros = torch.zeros(mu_1.shape).to(mu_1.device)
 
             # gamma_2 = (self.rho / gamma_2_fix + (1 - self.rho) / gamma_2) ** -1
-            gamma_2 = 1.5 * gamma_2
+            gamma_2 = 2 * gamma_2
 
             v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
             v_1_measured = torch.maximum(v_1_measured, zeros)
