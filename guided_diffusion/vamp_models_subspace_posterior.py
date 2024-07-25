@@ -196,6 +196,9 @@ class VAMP:
             # 3. Denoising
             mu_2, eta_2 = self.denoising(mu_1_noised, gamma_2)
             self.nfes += 1
+            self.mu_2 = mu_2
+            self.eta_2 = eta_2
+            self.gamma_2 = gamma_2
 
             eta1s[0].append(1 / eta_1[0, 0].cpu().numpy())
             eta2s[0].append(1 / eta_2[0, 0].cpu().numpy())
@@ -219,9 +222,6 @@ class VAMP:
 
 
         return_val = self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256)
-        self.mu_2 = mu_2
-        self.eta_2 = eta_2
-        self.gamma_2 = gamma_2
         print(self.nfes)
 
         return return_val, eta1s, eta2s, mu1s, mu2s, gamma2s
