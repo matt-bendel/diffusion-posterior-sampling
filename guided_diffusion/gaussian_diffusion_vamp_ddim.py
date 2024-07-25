@@ -95,7 +95,7 @@ class GaussianDiffusion:
         self.sqrt_recipm1_alphas_cumprod = np.sqrt(1.0 / self.alphas_cumprod - 1)
 
         print(self.betas.shape)
-        print(self.alphas_cumprod_prev.shape)
+        print(self.alphas_cumprod.shape)
         exit()
         # calculations for posterior q(x_{t-1} | x_t, x_0)
         self.posterior_variance = (
