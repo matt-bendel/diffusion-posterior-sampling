@@ -41,6 +41,7 @@ class VAMP:
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
         self.rho = 2
+        self.xi = 1/25
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
         with open('eta_2_scale.npy', 'rb') as f:
@@ -179,7 +180,7 @@ class VAMP:
                 mean_eta_1 += (self.d - singulars.shape[0]) / eta_1[:, 1]
 
             mean_eta_1 = mean_eta_1 / self.d
-            if (gamma_2 > old_gamma_2 / mean_eta_1).any():
+            if (gamma_2 > self.xi / mean_eta_1).any():
                 print('BREAK')
                 break
 
