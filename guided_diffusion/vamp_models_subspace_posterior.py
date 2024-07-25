@@ -145,13 +145,15 @@ class VAMP:
 
         # t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        mu_1_noised = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
+        # mu_1_noised = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
         eta_1 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
         gamma_2 = eta_1[:, 0].unsqueeze(1)
 
         # 0. Linear Estimation
-        mu_1, eta_1 = self.linear_estimation(mu_1_noised, eta_1, x_t / torch.sqrt(1 - t_alpha_bar),
+        eta_2 = eta_1.clone()
+        eta_2[:, :] = 0.
+        mu_1, eta_1 = self.linear_estimation(mu_1_noised, eta_2, x_t / torch.sqrt(1 - t_alpha_bar),
                                              y / noise_sig,
                                              t_alpha_bar, noise_sig)
         prev_mu_1 = mu_1
@@ -198,10 +200,10 @@ class VAMP:
                 mu1s[1].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
                 mu2s[1].append(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256))
 
-            # plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
-            #            clear_color(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)))
-            # plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
-            #            clear_color(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256)))
+            plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
+                       clear_color(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)))
+            plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
+                       clear_color(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256)))
 
             print(
                 f'ITER: {i + 1}; gamma_2 = {gamma_2[0].cpu().numpy()}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
