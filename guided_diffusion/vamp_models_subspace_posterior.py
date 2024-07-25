@@ -181,6 +181,8 @@ class VAMP:
 
             mean_eta_1 = mean_eta_1 / self.d
             print(gamma_2)
+            print(self.xi)
+            print(mean_eta_1)
             print(self.xi / mean_eta_1)
             if (gamma_2 > self.xi / mean_eta_1).any():
                 gamma_2 = old_gamma_2
