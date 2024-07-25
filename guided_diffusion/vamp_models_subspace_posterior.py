@@ -141,9 +141,7 @@ class VAMP:
 
     def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, gt, use_damping=False):
         singulars = self.svd.singulars()
-        ddpm_min = (1 - self.alphas_cumprod) / self.alphas_cumprod
-        print(ddpm_min[0])
-        exit()
+        ddpm_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
@@ -213,7 +211,7 @@ class VAMP:
 
             prev_mu_1 = mu_1
             gamma_2 = 2 * gamma_2
-            gamma_2[gamma_2 > 1e4] = 1e4
+            gamma_2[gamma_2 > 1/ddpm_min] = 1/ddpm_min
 
         return_val = self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)
         return return_val, eta1s, eta2s, mu1s, mu2s, gamma2s
