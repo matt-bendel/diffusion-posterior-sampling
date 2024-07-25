@@ -41,7 +41,7 @@ class VAMP:
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
         self.rho = 2
-        self.xi = 1/100
+        self.xi = 1/250
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
         with open('eta_2_scale.npy', 'rb') as f:
@@ -145,7 +145,7 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         # 0. Initialize Values
-        if t[0] % 50 == 0: # Occasional cold start
+        if t[0] % 100 == 0: # Occasional cold start
             self.mu_2 = None
             self.eta_2 = None
             self.gamma_2 = None
