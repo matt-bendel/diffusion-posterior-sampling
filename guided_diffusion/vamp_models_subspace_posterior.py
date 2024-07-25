@@ -28,7 +28,7 @@ class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
-        self.max_iters = 10
+        self.max_iters = 20
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
@@ -151,6 +151,7 @@ class VAMP:
         gamma_2 = eta_1[:, 0].unsqueeze(1)
 
         gamma_2_fix = torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
+        # TODO: Increase gamma2 by fixed amount till we reach a fixed point...
 
         gamma2s = []
         eta1s = [[], []]
@@ -175,7 +176,9 @@ class VAMP:
             noise = torch.randn_like(mu_1)
             zeros = torch.zeros(mu_1.shape).to(mu_1.device)
 
-            gamma_2 = (self.rho / gamma_2_fix + (1 - self.rho) / gamma_2) ** -1
+            # gamma_2 = (self.rho / gamma_2_fix + (1 - self.rho) / gamma_2) ** -1
+            gamma_2 = 1.5 * gamma_2
+
             v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
             v_1_measured = torch.maximum(v_1_measured, zeros)
             mu_1_noised[:, :singulars.shape[0]] = (mu_1 + noise * v_1_measured.sqrt())[:, :singulars.shape[0]]
