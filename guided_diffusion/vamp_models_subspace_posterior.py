@@ -199,8 +199,8 @@ class VAMP:
 
             plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
                        clear_color(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)))
-            # plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
-            #            clear_color(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256)))
+            plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
+                       clear_color(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256)))
 
             print(
                 f'ITER: {i + 1}; gamma_2 = {gamma_2[0].cpu().numpy()}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
