@@ -253,11 +253,9 @@ class GaussianDiffusion:
         vamp_model = VAMP(model, self.betas_model, self.alphas_cumprod_model, 1, 1, x_start, svd, inpainting=inpainting)
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
-        vamp_iters = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
         count = 0
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
-            vamp_model.max_iters = vamp_iters[count]
 
             # denoise_obj = self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig, truth=truth)
             # img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * denoise_obj['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
@@ -336,6 +334,10 @@ def space_timesteps(num_timesteps, section_counts):
         section_counts = [int(x) for x in section_counts.split(",")]
     elif isinstance(section_counts, int):
         section_counts = [section_counts]
+
+    print(section_counts)
+    print(num_timesteps)
+    exit()
 
     size_per = num_timesteps // len(section_counts)
     extra = num_timesteps % len(section_counts)
