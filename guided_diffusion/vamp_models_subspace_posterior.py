@@ -141,6 +141,9 @@ class VAMP:
 
     def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, gt, use_damping=False):
         singulars = self.svd.singulars()
+        ddpm_min = (1 - self.alphas_cumprod) / self.alphas_cumprod
+        print(ddpm_min[0])
+        exit()
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
