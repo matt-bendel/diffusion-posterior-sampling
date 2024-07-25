@@ -140,8 +140,6 @@ class VAMP:
         return mu_2, eta_2
 
     def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, gt, use_damping=False):
-        mu_1 = None  # needs to exist outside of for loop scope for return
-        prev_mu_1 = None
         singulars = self.svd.singulars()
 
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
@@ -151,8 +149,11 @@ class VAMP:
             x_t.device)
         gamma_2 = eta_1[:, 0].unsqueeze(1)
 
-        gamma_2_fix = torch.max(self.svd.add_zeros(singulars.unsqueeze(0)) ** 2 + t_alpha_bar / (1 - t_alpha_bar))
-        # TODO: Increase gamma2 by fixed amount till we reach a fixed point...
+        # 0. Linear Estimation
+        mu_1, eta_1 = self.linear_estimation(mu_1_noised, eta_1, x_t / torch.sqrt(1 - t_alpha_bar),
+                                             y / noise_sig,
+                                             t_alpha_bar, noise_sig)
+        prev_mu1 = mu_1
 
         gamma2s = []
         eta1s = [[], []]
@@ -164,22 +165,9 @@ class VAMP:
             # plt.imsave(
             #     f'vamp_debug/{prob_name}/posterior/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
             #     clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
-
-            # 1. Denoising
-            mu_2, eta_2 = self.denoising(mu_1_noised, gamma_2)
-
-            # 2. Linear Estimation
-            mu_1, eta_1 = self.linear_estimation(mu_2, eta_2, x_t / torch.sqrt(1 - t_alpha_bar),
-                                                 y / noise_sig,
-                                                 t_alpha_bar, noise_sig)
-
             # 3. Re-Noising
             noise = torch.randn_like(mu_1)
             zeros = torch.zeros(mu_1.shape).to(mu_1.device)
-
-            # gamma_2 = (self.rho / gamma_2_fix + (1 - self.rho) / gamma_2) ** -1
-            gamma_2 = 2 * gamma_2
-            gamma_2[gamma_2 > 1e4] = 1e4
 
             v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
             v_1_measured = torch.maximum(v_1_measured, zeros)
@@ -188,6 +176,14 @@ class VAMP:
                 v_1_nonmeasured = 1 / gamma_2 - 1 / eta_1[:, 1]
                 v_1_measured = torch.maximum(v_1_nonmeasured, zeros)
                 mu_1_noised[:, singulars.shape[0]:] = (mu_1 + noise * v_1_measured.sqrt())[:, singulars.shape[0]:]
+
+            # 1. Denoising
+            mu_2, eta_2 = self.denoising(mu_1_noised, gamma_2)
+
+            # 2. Linear Estimation
+            mu_1, eta_1 = self.linear_estimation(mu_2, eta_2, x_t / torch.sqrt(1 - t_alpha_bar),
+                                                 y / noise_sig,
+                                                 t_alpha_bar, noise_sig)
 
             eta1s[0].append(1 / eta_1[0, 0].cpu().numpy())
             eta2s[0].append(1 / eta_2[0, 0].cpu().numpy())
@@ -208,12 +204,13 @@ class VAMP:
 
             print(
                 f'ITER: {i + 1}; gamma_2 = {gamma_2[0].cpu().numpy()}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
-            if prev_mu_1 is not None:
-                print(torch.mean((prev_mu_1 - mu_1) ** 2))
-                if torch.mean((prev_mu_1 - mu_1) ** 2) < 1e-4:
-                    break
+            print(torch.mean((prev_mu_1 - mu_1) ** 2))
+            if torch.mean((prev_mu_1 - mu_1) ** 2) < 1e-4:
+                break
 
             prev_mu_1 = mu_1
+            gamma_2 = 2 * gamma_2
+            gamma_2[gamma_2 > 1e4] = 1e4
 
         return_val = self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)
         return return_val, eta1s, eta2s, mu1s, mu2s, gamma2s
