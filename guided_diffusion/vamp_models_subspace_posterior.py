@@ -180,8 +180,10 @@ class VAMP:
                 mean_eta_1 += (self.d - singulars.shape[0]) / eta_1[:, 1]
 
             mean_eta_1 = mean_eta_1 / self.d
+            print(gamma_2)
+            print(self.xi / mean_eta_1)
             if (gamma_2 > self.xi / mean_eta_1).any():
-                print('BREAK')
+                gamma_2 = old_gamma_2
                 break
 
             v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
