@@ -151,8 +151,8 @@ class VAMP:
 
         if mu_2 is None:
             mu_2 = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
-            eta_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device)
-            gamma_2 = eta_2.clone() / 2
+            eta_2 = torch.zeros(x_t.shape[0], 2).to(x_t.device)
+            gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device) / 2
 
         gamma2s = []
         eta1s = [[], []]
@@ -180,7 +180,7 @@ class VAMP:
                 mean_eta_1 += (self.d - singulars.shape[0]) / eta_1[:, 1]
 
             mean_eta_1 = mean_eta_1 / self.d
-            if (gamma_2 > self.xi / mean_eta_1).any():
+            if (gamma_2 > self.xi / mean_eta_1).any() and self.eta_2 is not None:
                 gamma_2 = old_gamma_2
                 break
 
