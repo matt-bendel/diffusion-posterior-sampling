@@ -178,6 +178,7 @@ class VAMP:
 
             # gamma_2 = (self.rho / gamma_2_fix + (1 - self.rho) / gamma_2) ** -1
             gamma_2 = 2 * gamma_2
+            gamma_2[gamma_2 > 1e4] = 1e4
 
             v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
             v_1_measured = torch.maximum(v_1_measured, zeros)
