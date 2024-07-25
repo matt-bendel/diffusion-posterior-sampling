@@ -176,10 +176,11 @@ class VAMP:
             old_gamma_2 = gamma_2.clone()
             gamma_2 = self.rho * gamma_2
             mean_eta_1 = singulars.shape[0] / eta_1[:, 0]
-            print(mean_eta_1)
             if self.Q > 1:
                 mean_eta_1 += (self.d - singulars.shape[0]) / eta_1[:, 1]
-            print(mean_eta_1)
+            print(mean_eta_1 / 3)
+            print(mean_eta_1 / (3 * 256))
+            print(mean_eta_1 / (3 * 256 * 256))
 
             mean_eta_1 = mean_eta_1 / self.d
             print(gamma_2)
