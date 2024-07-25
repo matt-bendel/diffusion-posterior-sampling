@@ -139,13 +139,13 @@ class VAMP:
 
         return mu_2, eta_2
 
-    def run_vamp_reverse_test(self, x_t, y, t_alpha_bar, noise_sig, prob_name, gt, use_damping=False):
+    def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, gt, use_damping=False):
         singulars = self.svd.singulars()
         ddpm_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
 
-        # t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
+        t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
-        # mu_1_noised = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
+        mu_1_noised = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
         eta_1 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)] * self.Q).unsqueeze(0).repeat(x_t.shape[0], 1).to(
             x_t.device)
         gamma_2 = eta_1[:, 0].unsqueeze(1)
