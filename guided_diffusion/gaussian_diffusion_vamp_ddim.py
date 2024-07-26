@@ -451,7 +451,7 @@ class DDIM(SpacedDiffusion):
 
         return {'pred_xstart': pred_xstart}
 
-    def p_sample(self, model, x, t, y, cond, vamp, noise_sig, eta=0.2):
+    def p_sample(self, model, x, t, y, cond, vamp, noise_sig, eta=0.85):
         out = self.p_mean_variance(model, x, t)
 
         eps = self.predict_eps_from_x_start(x, t, out['pred_xstart'])
