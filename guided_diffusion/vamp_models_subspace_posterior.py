@@ -238,71 +238,7 @@ class VAMP:
                 f'ITER: {i + 1}; gamma_2 = {gamma_2[0].cpu().numpy()}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
 
 
-        return_val = self.svd.V(mu_2).view(mu_2.shape[0], 3, 256, 256)
-        print(self.nfes)
-
-        return return_val, eta1s, eta2s, mu1s, mu2s, gamma2s
-
-    def run_vamp_reverse_test_mu1(self, x_t, y, t, noise_sig, prob_name, gt, use_damping=False):
-        t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
-
-        # 0. Initialize Values
-        if t[0] < 500 and t[0] % 10 == 0: # Occasional cold start
-            self.mu_2 = None
-            self.eta_2 = None
-            self.gamma_2 = None
-
-        mu_1, eta_1, gamma_2 = self.initialize_vars(x_t, t_alpha_bar)
-
-        gamma2s = []
-        eta1s = [[], []]
-        eta2s = [[], []]
-        mu1s = [[], []]
-        mu2s = [[], []]
-
-        for i in range(self.max_iters):
-            # plt.imsave(
-            #     f'vamp_debug/{prob_name}/posterior/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
-            #     clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
-            # 2. Re-Noising
-            mu_1_noised, gamma_2 = self.renoising(mu_1, eta_1, gamma_2)
-            if mu_1_noised is None:
-                break
-
-            # 3. Denoising
-            mu_2, eta_2 = self.denoising(mu_1_noised, gamma_2)
-
-            # 1. Linear Estimation
-            mu_1, eta_1 = self.linear_estimation(mu_2, eta_2, x_t / torch.sqrt(1 - t_alpha_bar),
-                                                 y / noise_sig,
-                                                 t_alpha_bar, noise_sig)
-            self.nfes += 1
-            self.mu_2 = mu_1.clone()
-            self.eta_2 = eta_1.clone()
-            self.gamma_2 = gamma_2.clone()
-
-            eta1s[0].append(1 / eta_1[0, 0].cpu().numpy())
-            eta2s[0].append(1 / eta_2[0, 0].cpu().numpy())
-            mu1s[0].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
-            mu2s[0].append(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256))
-            gamma2s.append(1 / gamma_2[0].cpu().numpy())
-
-            if self.Q > 1:
-                eta1s[1].append(1 / eta_1[0, 1].cpu().numpy())
-                eta2s[1].append(1 / eta_2[0, 1].cpu().numpy())
-                mu1s[1].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
-                mu2s[1].append(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256))
-
-            # plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
-            #            clear_color(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)))
-            # plt.imsave(f'vamp_debug/{prob_name}/posterior/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
-            #            clear_color(self.svd.V(mu_2).view(mu_1.shape[0], 3, 256, 256)))
-
-            print(
-                f'ITER: {i + 1}; gamma_2 = {gamma_2[0].cpu().numpy()}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
-
-
-        return_val = self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256)
+        return_val = self.svd.V(mu_1).view(mu_2.shape[0], 3, 256, 256)
         print(self.nfes)
 
         return return_val, eta1s, eta2s, mu1s, mu2s, gamma2s
