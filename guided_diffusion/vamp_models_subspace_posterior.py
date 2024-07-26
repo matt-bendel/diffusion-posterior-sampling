@@ -140,6 +140,43 @@ class VAMP:
 
         return mu_2, eta_2
 
+    def renoising(self, mu_1, eta_1, gamma_2):
+        noise = torch.randn_like(mu_1)
+        zeros = torch.zeros(mu_1.shape).to(mu_1.device)
+
+        gamma_2 = self.rho * gamma_2
+        mean_eta_1 = singulars.shape[0] / eta_1[:, 0]
+        if self.Q > 1:
+            mean_eta_1 += (self.d - singulars.shape[0]) / eta_1[:, 1]
+
+        mean_eta_1 = mean_eta_1 / self.d
+        if (gamma_2 > self.xi / mean_eta_1).any() and self.eta_2 is not None:
+            return None, gamma_2
+
+        v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
+        v_1_measured = torch.maximum(v_1_measured, zeros)
+        mu_1_noised = torch.zeros(mu_1.shape).to(mu_1.device)
+        mu_1_noised[:, :singulars.shape[0]] = (mu_1 + noise * v_1_measured.sqrt())[:, :singulars.shape[0]]
+        if self.Q > 1:
+            v_1_nonmeasured = 1 / gamma_2 - 1 / eta_1[:, 1]
+            v_1_measured = torch.maximum(v_1_nonmeasured, zeros)
+            mu_1_noised[:, singulars.shape[0]:] = (mu_1 + noise * v_1_measured.sqrt())[:, singulars.shape[0]:]
+
+        return mu_1_noised, gamma_2
+
+    def initialize_vars(self, x_t, t_alpha_bar):
+        mu_2 = self.mu_2
+        eta_2 = self.eta_2
+        gamma_2 = self.gamma_2
+
+        if mu_2 is None:
+            mu_2 = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
+            eta_2 = torch.zeros(x_t.shape[0], 2).to(x_t.device)
+            gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(
+                x_t.device) / 2
+
+        return mu_2, eta_2, gamma_2
+
     def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, gt, use_damping=False):
         singulars = self.svd.singulars()
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
@@ -150,14 +187,7 @@ class VAMP:
         #     self.eta_2 = None
         #     self.gamma_2 = None
 
-        mu_2 = self.mu_2
-        eta_2 = self.eta_2
-        gamma_2 = self.gamma_2
-
-        if mu_2 is None:
-            mu_2 = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
-            eta_2 = torch.zeros(x_t.shape[0], 2).to(x_t.device)
-            gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(x_t.device) / 2
+        mu_2, eta_2, gamma_2 = self.initialize_vars(x_t, t_alpha_bar)
 
         gamma2s = []
         eta1s = [[], []]
@@ -175,30 +205,23 @@ class VAMP:
                                                  y / noise_sig,
                                                  t_alpha_bar, noise_sig)
             # 2. Re-Noising
-            noise = torch.randn_like(mu_1)
-            zeros = torch.zeros(mu_1.shape).to(mu_1.device)
+            mu_1_noised, gamma_2 = self.renoising(mu_1, eta_1, gamma_2)
+            if mu_1_noised is None:
+                break
 
-            old_gamma_2 = gamma_2.clone()
-            gamma_2 = self.rho * gamma_2
-            mean_eta_1 = singulars.shape[0] / eta_1[:, 0]
-            if self.Q > 1:
-                mean_eta_1 += (self.d - singulars.shape[0]) / eta_1[:, 1]
-
-            mean_eta_1 = mean_eta_1 / self.d
-            if (gamma_2 > self.xi / mean_eta_1).any() and self.eta_2 is not None:
+            if i == 0 and self.mu_2 is not None:
                 self.mu_2 = None
                 self.eta_2 = None
                 self.gamma_2 = None
-                break
 
-            v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
-            v_1_measured = torch.maximum(v_1_measured, zeros)
-            mu_1_noised = torch.zeros(mu_1.shape).to(mu_1.device)
-            mu_1_noised[:, :singulars.shape[0]] = (mu_1 + noise * v_1_measured.sqrt())[:, :singulars.shape[0]]
-            if self.Q > 1:
-                v_1_nonmeasured = 1 / gamma_2 - 1 / eta_1[:, 1]
-                v_1_measured = torch.maximum(v_1_nonmeasured, zeros)
-                mu_1_noised[:, singulars.shape[0]:] = (mu_1 + noise * v_1_measured.sqrt())[:, singulars.shape[0]:]
+                mu_2, eta_2, gamma_2 = self.initialize_vars(x_t, t_alpha_bar)
+
+                # 1. Linear Estimation
+                mu_1, eta_1 = self.linear_estimation(mu_2, eta_2, x_t / torch.sqrt(1 - t_alpha_bar),
+                                                     y / noise_sig,
+                                                     t_alpha_bar, noise_sig)
+                # 2. Re-Noising
+                mu_1_noised, gamma_2 = self.renoising(mu_1, eta_1, gamma_2)
 
             # 3. Denoising
             mu_2, eta_2 = self.denoising(mu_1_noised, gamma_2)
