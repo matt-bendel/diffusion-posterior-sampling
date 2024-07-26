@@ -251,7 +251,6 @@ class GaussianDiffusion:
         count = 0
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
-            print(time)
 
             # denoise_obj = self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig, truth=truth)
             # img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * denoise_obj['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)

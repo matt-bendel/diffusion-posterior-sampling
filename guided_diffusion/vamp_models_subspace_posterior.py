@@ -168,7 +168,7 @@ class VAMP:
 
     def initialize_vars(self, x_t, t_alpha_bar):
         mu_2 = self.mu_2
-        eta_2 = self.eta_2
+        eta_2 = torch.zeros(x_t.shape[0], 2).to(x_t.device)
         gamma_2 = self.gamma_2
 
         if mu_2 is None:
