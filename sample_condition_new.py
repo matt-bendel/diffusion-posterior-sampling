@@ -238,8 +238,8 @@ def main():
                 # plt.legend(['1/min{e2}', 'mse'])
                 # plt.savefig('vamp_trajectories.png')
 
-                if inpainting:
-                    sample = ref_img * mask + (1 - mask) * sample
+                # if inpainting:
+                #     sample = ref_img * mask + (1 - mask) * sample
                 # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
                 # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
                 y = H.H(ref_img)
