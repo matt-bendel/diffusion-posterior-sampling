@@ -145,10 +145,10 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         # 0. Initialize Values
-        if t[0] % 1 == 0: # Occasional cold start
-            self.mu_2 = None
-            self.eta_2 = None
-            self.gamma_2 = None
+        # if t[0] % 1 == 0: # Occasional cold start
+        #     self.mu_2 = None
+        #     self.eta_2 = None
+        #     self.gamma_2 = None
 
         mu_2 = self.mu_2
         eta_2 = self.eta_2
@@ -186,7 +186,9 @@ class VAMP:
 
             mean_eta_1 = mean_eta_1 / self.d
             if (gamma_2 > self.xi / mean_eta_1).any() and self.eta_2 is not None:
-                gamma_2 = old_gamma_2
+                self.mu_2 = None
+                self.eta_2 = None
+                self.gamma_2 = None
                 break
 
             v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
