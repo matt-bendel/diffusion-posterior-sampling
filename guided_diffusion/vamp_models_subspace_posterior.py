@@ -211,8 +211,6 @@ class VAMP:
                 break
 
             if i == 0 and self.mu_2 is not None:
-                print('IN')
-                exit()
                 self.mu_2 = None
                 self.eta_2 = None
                 self.gamma_2 = None
