@@ -153,6 +153,7 @@ class VAMP:
 
         mean_eta_1 = mean_eta_1 / self.d
         if (gamma_2 > self.xi / mean_eta_1).any() and self.eta_2 is not None:
+            print(gamma_2)
             return None, gamma_2
 
         v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
@@ -211,6 +212,8 @@ class VAMP:
                 break
 
             if i == 0 and self.mu_2 is not None:
+                print('IN')
+                exit()
                 self.mu_2 = None
                 self.eta_2 = None
                 self.gamma_2 = None
