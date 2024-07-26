@@ -41,7 +41,7 @@ class VAMP:
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
         self.rho = 2
-        self.xi = 1/25
+        self.xi = 1/100
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
         with open('eta_2_scale.npy', 'rb') as f:
@@ -153,7 +153,6 @@ class VAMP:
 
         mean_eta_1 = mean_eta_1 / self.d
         if (gamma_2 > self.xi / mean_eta_1).any() and self.eta_2 is not None:
-            print(gamma_2)
             return None, gamma_2
 
         v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
@@ -230,9 +229,9 @@ class VAMP:
             # 3. Denoising
             mu_2, eta_2 = self.denoising(mu_1_noised, gamma_2)
             self.nfes += 1
-            self.mu_2 = mu_2
-            self.eta_2 = eta_2
-            self.gamma_2 = gamma_2
+            self.mu_2 = mu_2.clone()
+            self.eta_2 = eta_2.clone()
+            self.gamma_2 = gamma_2.clone()
 
             eta1s[0].append(1 / eta_1[0, 0].cpu().numpy())
             eta2s[0].append(1 / eta_2[0, 0].cpu().numpy())
