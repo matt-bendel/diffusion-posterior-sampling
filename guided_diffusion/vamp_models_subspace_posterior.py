@@ -40,7 +40,7 @@ class VAMP:
         self.v_min = ((1 - self.alphas_cumprod) / self.alphas_cumprod)[0]
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
-        self.rho = 1.25
+        self.rho = 1.15
         self.xi = 1/1000
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
@@ -183,7 +183,7 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         # 0. Initialize Values
-        if t[0] < 100 and t[0] % 10 == 0: # Occasional cold start
+        if t[0] % 250 == 0 or (t[0] < 100 and t[0] % 10 == 0): # Occasional cold start
             self.mu_2 = None
             self.eta_2 = None
             self.gamma_2 = None
