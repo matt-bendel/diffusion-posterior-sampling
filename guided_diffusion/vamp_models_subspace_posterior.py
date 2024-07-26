@@ -186,9 +186,9 @@ class VAMP:
 
         # 0. Initialize Values
         # if t[0] % 200 == 0 or (t[0] < 100 and t[0] % 10 == 0): # Occasional cold start
-        #     self.mu_2 = None
-        #     self.eta_2 = None
-        #     self.gamma_2 = None
+        self.mu_2 = None
+        self.eta_2 = None
+        self.gamma_2 = None
 
         mu_2, eta_2, gamma_2 = self.initialize_vars(x_t, t_alpha_bar)
 
@@ -212,7 +212,7 @@ class VAMP:
             if mu_1_noised is None:
                 break
 
-            if i == 0:
+            if False and i == 0:
                 # 0. Initialization
                 self.mu_2 = None
                 self.eta_2 = None
