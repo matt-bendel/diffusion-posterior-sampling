@@ -183,7 +183,7 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         # 0. Initialize Values
-        if t[0] % 200 == 0 or (t[0] < 100 and t[0] % 10 == 0) or t[0] < 10: # Occasional cold start
+        if t[0] % 200 == 0 or (t[0] < 100 and t[0] % 10 == 0): # Occasional cold start
             self.mu_2 = None
             self.eta_2 = None
             self.gamma_2 = None
@@ -238,7 +238,7 @@ class VAMP:
                 f'ITER: {i + 1}; gamma_2 = {gamma_2[0].cpu().numpy()}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
 
 
-        return_val = self.svd.V(mu_2).view(mu_2.shape[0], 3, 256, 256)
+        return_val = self.svd.V(mu_1).view(mu_2.shape[0], 3, 256, 256)
         print(self.nfes)
 
         return return_val, eta1s, eta2s, mu1s, mu2s, gamma2s

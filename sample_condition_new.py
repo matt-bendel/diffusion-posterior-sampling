@@ -105,8 +105,8 @@ def main():
     operators = ['sr_bicubic4', 'sr_bicubic8', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'inpainting', 'denoising']
     noise_levels = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.]
 
-    operators = ['inpainting']
-    noise_levels = [0.01]
+    operators = ['sr_bicubic8', 'color']
+    noise_levels = [0.01, 0.01]
 
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
@@ -259,7 +259,7 @@ def main():
 
             base_im_count += sample.shape[0]
 
-            if base_im_count == 8:
+            if base_im_count == 2:
                 break
 
 if __name__ == '__main__':
