@@ -141,6 +141,8 @@ class VAMP:
         return mu_2, eta_2
 
     def renoising(self, mu_1, eta_1, gamma_2):
+        singulars = self.svd.singulars()
+
         noise = torch.randn_like(mu_1)
         zeros = torch.zeros(mu_1.shape).to(mu_1.device)
 
@@ -178,7 +180,6 @@ class VAMP:
         return mu_2, eta_2, gamma_2
 
     def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, gt, use_damping=False):
-        singulars = self.svd.singulars()
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         # 0. Initialize Values
