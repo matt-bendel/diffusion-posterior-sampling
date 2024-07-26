@@ -179,8 +179,8 @@ class VAMP:
 
         return mu_2, eta_2, gamma_2
 
-    def run_vamp_reverse_test(self, x_t, y, t, noise_sig, prob_name, gt, use_damping=False):
-        t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
+    def run_vamp_reverse_test(self, x_t, y, t_alpha_bar, noise_sig, prob_name, gt, use_damping=False):
+        # t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         # 0. Initialize Values
         # if t[0] % 200 == 0 or (t[0] < 100 and t[0] % 10 == 0): # Occasional cold start
