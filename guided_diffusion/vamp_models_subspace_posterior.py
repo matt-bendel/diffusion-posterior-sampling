@@ -183,7 +183,7 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         # 0. Initialize Values
-        if t[0] < 200 and t[0] % 25 == 0: # Occasional cold start
+        if t[0] % 500 == 0 or (t[0] < 100 and t[0] % 10 == 0): # Occasional cold start
             self.mu_2 = None
             self.eta_2 = None
             self.gamma_2 = None
