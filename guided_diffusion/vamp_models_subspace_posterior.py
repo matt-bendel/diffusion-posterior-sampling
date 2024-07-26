@@ -175,7 +175,7 @@ class VAMP:
             mu_2 = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
             eta_2 = torch.zeros(x_t.shape[0], 2).to(x_t.device)
             gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(
-                x_t.device) / 2
+                x_t.device) / self.rho
 
         return mu_2, eta_2, gamma_2
 
@@ -183,10 +183,10 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         # 0. Initialize Values
-        if t[0] % 200 == 0 or (t[0] < 100 and t[0] % 10 == 0): # Occasional cold start
-            self.mu_2 = None
-            self.eta_2 = None
-            self.gamma_2 = None
+        # if t[0] % 200 == 0 or (t[0] < 100 and t[0] % 10 == 0): # Occasional cold start
+        #     self.mu_2 = None
+        #     self.eta_2 = None
+        #     self.gamma_2 = None
 
         mu_2, eta_2, gamma_2 = self.initialize_vars(x_t, t_alpha_bar)
 
