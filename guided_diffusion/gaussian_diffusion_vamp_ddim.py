@@ -448,7 +448,7 @@ class DDIM(SpacedDiffusion):
             eta_2 = None
             pred_xstart = self.p_mean_variance(model, x, t)
         else:
-            pred_xstart, _, _, _, _, _ = vamp.run_vamp_reverse_test(x, y, extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0], noise_sig=torch.tensor(noise_sig).to(x.device), prob_name='', gt=None, use_damping=True)
+            pred_xstart, _, _, _, _, _ = vamp.run_vamp_reverse_test(x, y, extract_and_expand(self.alphas_cumprod, t, x)[0, 0, 0, 0], noise_sig=torch.tensor(noise_sig).to(x.device), prob_name='', gt=None, use_damping=True)
 
         return {'pred_xstart': pred_xstart}
 
