@@ -183,10 +183,10 @@ class VAMP:
         t_alpha_bar = extract_and_expand(self.alphas_cumprod, t, x_t)[0, 0, 0, 0]
 
         # 0. Initialize Values
-        # if t[0] % 1 == 0: # Occasional cold start
-        #     self.mu_2 = None
-        #     self.eta_2 = None
-        #     self.gamma_2 = None
+        if t[0] < 250 and t[0] % 25 == 0: # Occasional cold start
+            self.mu_2 = None
+            self.eta_2 = None
+            self.gamma_2 = None
 
         mu_2, eta_2, gamma_2 = self.initialize_vars(x_t, t_alpha_bar)
 
@@ -209,20 +209,6 @@ class VAMP:
             mu_1_noised, gamma_2 = self.renoising(mu_1, eta_1, gamma_2)
             if mu_1_noised is None:
                 break
-
-            # if i == 0 and self.mu_2 is not None:
-            #     self.mu_2 = None
-            #     self.eta_2 = None
-            #     self.gamma_2 = None
-            #
-            #     mu_2, eta_2, gamma_2 = self.initialize_vars(x_t, t_alpha_bar)
-            #
-            #     # 1. Linear Estimation
-            #     mu_1, eta_1 = self.linear_estimation(mu_2, eta_2, x_t / torch.sqrt(1 - t_alpha_bar),
-            #                                          y / noise_sig,
-            #                                          t_alpha_bar, noise_sig)
-            #     # 2. Re-Noising
-            #     mu_1_noised, gamma_2 = self.renoising(mu_1, eta_1, gamma_2)
 
             # 3. Denoising
             mu_2, eta_2 = self.denoising(mu_1_noised, gamma_2)
