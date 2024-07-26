@@ -169,7 +169,8 @@ class VAMP:
     def initialize_vars(self, x_t, t_alpha_bar):
         mu_2 = self.mu_2
         eta_2 = torch.zeros(x_t.shape[0], 2).to(x_t.device)
-        gamma_2 = self.gamma_2
+        gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(
+            x_t.device) / self.rho
 
         if mu_2 is None:
             mu_2 = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
