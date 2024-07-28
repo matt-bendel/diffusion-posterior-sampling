@@ -351,6 +351,8 @@ def space_timesteps(num_timesteps, section_counts):
             cur_idx += frac_stride
         all_steps += taken_steps
         start_idx += size
+    print(all_steps)
+    exit()
     return set(all_steps)
 
 
