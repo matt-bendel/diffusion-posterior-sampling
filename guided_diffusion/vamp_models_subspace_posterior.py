@@ -148,9 +148,7 @@ class VAMP:
 
         gamma_2 = self.rho * gamma_2
         max_prec = self.alphas_cumprod[0] / (1 - self.alphas_cumprod[0])
-        print(max_prec)
-        exit()
-        torch.minimum(gamma_2, torch.ones(gamma_2.shape).to(gamma_2.device) * max_prec)
+        gamma_2 = torch.minimum(gamma_2, torch.ones(gamma_2.shape).to(gamma_2.device) * max_prec)
         mean_eta_1 = singulars.shape[0] / eta_1[:, 0]
         if self.Q > 1:
             mean_eta_1 += (self.d - singulars.shape[0]) / eta_1[:, 1]
