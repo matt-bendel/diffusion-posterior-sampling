@@ -352,7 +352,7 @@ def space_timesteps(num_timesteps, section_counts):
         all_steps += taken_steps
         start_idx += size
 
-    all_steps = [1000, 887, 758, 604, 411, 203, 74, 23, 6, 1]
+    all_steps = [999, 947, 893, 834, 772, 704, 629, 546, 454, 353, 253, 166, 103, 61, 35, 19, 10, 4, 1, 0]
     return set(all_steps)
 
 
