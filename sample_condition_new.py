@@ -105,8 +105,8 @@ def main():
     operators = ['sr_bicubic4', 'sr_bicubic8', 'blur_uni', 'blur_gauss', 'blur_aniso', 'color', 'sr4', 'sr8', 'inpainting', 'denoising']
     noise_levels = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.]
 
-    operators = ['inpainting', 'sr_bicubic8', 'color']
-    noise_levels = [0.01, 0.01, 0.01]
+    operators = ['sr_bicubic8']
+    noise_levels = [0.01]
 
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
@@ -177,9 +177,9 @@ def main():
                         return 0
 
                 k = np.zeros((factor * 4))
-                for i in range(factor * 4):
-                    x = (1 / factor) * (i - np.floor(factor * 4 / 2) + 0.5)
-                    k[i] = bicubic_kernel(x)
+                for q in range(factor * 4):
+                    x = (1 / factor) * (q - np.floor(factor * 4 / 2) + 0.5)
+                    k[q] = bicubic_kernel(x)
                 k = k / np.sum(k)
                 kernel = torch.from_numpy(k).float().to(device)
                 H = SRConv(kernel / kernel.sum(), 3, 256, device, stride=factor)
