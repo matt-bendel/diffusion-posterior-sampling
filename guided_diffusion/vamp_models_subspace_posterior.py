@@ -25,7 +25,7 @@ def normalize_np(img):
 
 # TODO: Subspace VAMP, implement so when in subspace, DDRM transform is applied...
 class VAMP:
-    def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False):
+    def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False, rho=1.25):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
         self.max_iters = 5
@@ -41,7 +41,7 @@ class VAMP:
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
         self.rho = 1.25
-        self.xi = 1/25
+        # self.xi = 0.25
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
         with open('eta_2_scale.npy', 'rb') as f:
@@ -153,9 +153,9 @@ class VAMP:
         if self.Q > 1:
             mean_eta_1 += (self.d - singulars.shape[0]) / eta_1[:, 1]
 
-        mean_eta_1 = mean_eta_1 / self.d
-        if (gamma_2 > self.xi / mean_eta_1).any() and self.eta_2 is not None:
-            return None, gamma_2
+        # mean_eta_1 = mean_eta_1 / self.d
+        # if (gamma_2 > self.xi / mean_eta_1).any() and self.eta_2 is not None:
+        #     return None, gamma_2
 
         v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
         v_1_measured = torch.maximum(v_1_measured, zeros)

@@ -245,7 +245,13 @@ class GaussianDiffusion:
         else:
             svd = Denoising(x_start.shape[1], x_start.shape[2], x_start.device)
 
-        vamp_model = VAMP(model, self.betas_model, self.alphas_cumprod_model, 1, 1, x_start, svd, inpainting=inpainting)
+        tDDIM = 20
+        max_iters = 100 // tDDIM
+        rho = (self.alphas_cumprod[0] / (1 - self.alphas_cumprod[0])) / (self.alphas_cumprod[-1] / (1 - self.sqrt_alphas_cumprod[-1])) ** (1/(tDDIM - 1))
+        rho = rho ** (1 / max_iters)
+        print(rho)
+        exit()
+        vamp_model = VAMP(model, self.betas_model, self.alphas_cumprod_model, max_iters, 1, x_start, svd, inpainting=inpainting, rho=rho)
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         count = 0
@@ -352,7 +358,7 @@ def space_timesteps(num_timesteps, section_counts):
         all_steps += taken_steps
         start_idx += size
 
-    all_steps = [999, 958, 916, 871, 824, 775, 722, 665, 603, 535, 462, 383, 302, 226, 160, 109, 73, 47, 30, 19, 11, 6, 3, 1, 0]
+    all_steps = [999, 947, 893, 834, 772, 704, 629, 546, 454, 353, 253, 166, 103, 61, 35, 19, 10, 4, 1, 0]
 
     return set(all_steps)
 
