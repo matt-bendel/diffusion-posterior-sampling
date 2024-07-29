@@ -246,6 +246,7 @@ class GaussianDiffusion:
             svd = Denoising(x_start.shape[1], x_start.shape[2], x_start.device)
 
         tDDIM = 25
+        max_iters = 100 // tDDIM
         base_rho = ((self.alphas_cumprod[0] / (1 - self.alphas_cumprod[0])) / (self.alphas_cumprod[-1] / (1 - self.alphas_cumprod[-1]))) ** (1/(tDDIM - 1))
         vamp_model = VAMP(model, self.betas_model, self.alphas_cumprod_model, max_iters, 1, x_start, svd, inpainting=inpainting, rho=1.25)
 
