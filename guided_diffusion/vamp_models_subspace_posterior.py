@@ -153,9 +153,9 @@ class VAMP:
         if self.Q > 1:
             mean_eta_1 += (self.d - singulars.shape[0]) / eta_1[:, 1]
 
-        # mean_eta_1 = mean_eta_1 / self.d
-        # if (gamma_2 > self.xi / mean_eta_1).any() and self.eta_2 is not None:
-        #     return None, gamma_2
+        mean_eta_1 = mean_eta_1 / self.d
+        if (gamma_2 > self.xi / mean_eta_1).any() and self.eta_2 is not None:
+            return None, gamma_2
 
         v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
         v_1_measured = torch.maximum(v_1_measured, zeros)
