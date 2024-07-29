@@ -253,12 +253,12 @@ class GaussianDiffusion:
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         count = 0
         for idx in pbar:
-            max_iters = 4
+            max_iters = 3
 
-            if idx < 40:
+            if idx < 35:
                 max_iters = 2
 
-            if idx < 15:
+            if idx < 10:
                 max_iters = 1
 
             rho = base_rho ** (1 / max_iters)
