@@ -28,7 +28,7 @@ class VAMP:
     def __init__(self, model, betas, alphas_cumprod, max_iters, K, x_T, svd, inpainting=False, rho=1.25):
         self.model = model
         self.alphas_cumprod = alphas_cumprod
-        self.max_iters = 4
+        self.max_iters = max_iters
         self.K = 1
         self.delta = 1e-4
         self.power = 0.5
