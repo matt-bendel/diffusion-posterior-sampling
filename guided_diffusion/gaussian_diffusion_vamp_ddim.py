@@ -245,23 +245,50 @@ class GaussianDiffusion:
         else:
             svd = Denoising(x_start.shape[1], x_start.shape[2], x_start.device)
 
-        tDDIM = 50
-        max_iters = 1#100 // tDDIM
-        rho = ((self.alphas_cumprod[0] / (1 - self.alphas_cumprod[0])) / (self.alphas_cumprod[-1] / (1 - self.alphas_cumprod[-1]))) ** (1/(tDDIM - 1))
-        rho = rho ** (1 / max_iters)
+        tDDIM = 25
+        base_rho = ((self.alphas_cumprod[0] / (1 - self.alphas_cumprod[0])) / (self.alphas_cumprod[-1] / (1 - self.alphas_cumprod[-1]))) ** (1/(tDDIM - 1))
         print(rho)
         vamp_model = VAMP(model, self.betas_model, self.alphas_cumprod_model, max_iters, 1, x_start, svd, inpainting=inpainting, rho=rho)
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         count = 0
         for idx in pbar:
+            max_iters = 1
+            rho = base_rho ** (1 / max_iters)
+            vamp_model.max_iters = max_iters
+            vamp_model.rho = rho
+
+            if idx < 20:
+                max_iters = 2
+                rho = base_rho ** (1 / max_iters)
+                vamp_model.max_iters = max_iters
+                vamp_model.rho = rho
+
+            if idx < 15:
+                max_iters = 3
+                rho = base_rho ** (1 / max_iters)
+                vamp_model.max_iters = max_iters
+                vamp_model.rho = rho
+
+            if idx < 10:
+                max_iters = 4
+                rho = base_rho ** (1 / max_iters)
+                vamp_model.max_iters = max_iters
+                vamp_model.rho = rho
+
+            if idx < 5:
+                max_iters = 5
+                rho = base_rho ** (1 / max_iters)
+                vamp_model.max_iters = max_iters
+                vamp_model.rho = rho
+
             time = torch.tensor([idx] * img.shape[0], device=device)
 
-            denoise_obj = self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig, truth=truth)
-            img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * denoise_obj['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
-            img = img.detach()
+            # denoise_obj = self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig, truth=truth)
+            # img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * denoise_obj['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
+            # img = img.detach()
 
-            # img = self.p_sample(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig)['sample'].detach()
+            img = self.p_sample(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig)['sample'].detach()
 
             if record:
                 if idx % 50 == 0:
@@ -357,7 +384,7 @@ def space_timesteps(num_timesteps, section_counts):
         all_steps += taken_steps
         start_idx += size
 
-    # all_steps = [999, 979, 959, 939, 918, 896, 874, 851, 828, 804, 780, 754, 728, 701, 673, 644, 613, 581, 548, 514, 478, 440, 401, 362, 322, 283, 245, 210, 177, 149, 123, 102, 83, 68, 55, 44, 36, 28, 23, 18, 14, 10, 8, 6, 5, 4, 3, 2, 1, 0]
+    all_steps = [999, 958, 916, 871, 824, 775, 722, 665, 603, 535, 462, 383, 302, 226, 160, 109, 73, 47, 30, 19, 11, 6, 3, 1, 0]
 
     return set(all_steps)
 

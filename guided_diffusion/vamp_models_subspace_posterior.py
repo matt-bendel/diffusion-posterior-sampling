@@ -214,21 +214,6 @@ class VAMP:
             if mu_1_noised is None:
                 break
 
-            if False and i == 0:
-                # 0. Initialization
-                self.mu_2 = None
-                self.eta_2 = None
-                self.gamma_2 = None
-
-                mu_2, eta_2, gamma_2 = self.initialize_vars(x_t, t_alpha_bar)
-
-                # 1. Linear Estimation
-                mu_1, eta_1 = self.linear_estimation(mu_2, eta_2, x_t / torch.sqrt(1 - t_alpha_bar),
-                                                     y / noise_sig,
-                                                     t_alpha_bar, noise_sig)
-                # 2. Re-Noising
-                mu_1_noised, gamma_2 = self.renoising(mu_1, eta_1, gamma_2)
-
             # 3. Denoising
             mu_2, eta_2 = self.denoising(mu_1_noised, gamma_2)
             self.nfes += 1
