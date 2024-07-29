@@ -257,11 +257,11 @@ class GaussianDiffusion:
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
 
-            # denoise_obj = self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig, truth=truth)
-            # img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * denoise_obj['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
-            # img = img.detach()
+            denoise_obj = self.denoise(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig, truth=truth)
+            img = extract_and_expand(self.rho_t, time, img) * img + extract_and_expand(self.xi_t, time, img) * denoise_obj['pred_xstart'] + extract_and_expand(self.sigma_t, time, img) * torch.randn_like(img)
+            img = img.detach()
 
-            img = self.p_sample(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig)['sample'].detach()
+            # img = self.p_sample(x=img, t=time, model=model, y=measurement, cond=True, vamp=vamp_model, noise_sig=noise_sig)['sample'].detach()
 
             if record:
                 if idx % 50 == 0:
