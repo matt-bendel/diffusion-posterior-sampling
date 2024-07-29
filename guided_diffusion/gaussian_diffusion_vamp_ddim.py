@@ -253,34 +253,23 @@ class GaussianDiffusion:
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         count = 0
         for idx in pbar:
-            max_iters = 1
-            rho = base_rho ** (1 / max_iters)
-            vamp_model.max_iters = max_iters
-            vamp_model.rho = rho
+            max_iters = 5
 
             if idx < 20:
-                max_iters = 2
-                rho = base_rho ** (1 / max_iters)
-                vamp_model.max_iters = max_iters
-                vamp_model.rho = rho
+                max_iters = 4
 
             if idx < 15:
                 max_iters = 3
-                rho = base_rho ** (1 / max_iters)
-                vamp_model.max_iters = max_iters
-                vamp_model.rho = rho
 
             if idx < 10:
-                max_iters = 4
-                rho = base_rho ** (1 / max_iters)
-                vamp_model.max_iters = max_iters
-                vamp_model.rho = rho
+                max_iters = 2
 
             if idx < 5:
-                max_iters = 5
-                rho = base_rho ** (1 / max_iters)
-                vamp_model.max_iters = max_iters
-                vamp_model.rho = rho
+                max_iters = 1
+
+            rho = base_rho ** (1 / max_iters)
+            vamp_model.max_iters = max_iters
+            vamp_model.rho = rho
 
             time = torch.tensor([idx] * img.shape[0], device=device)
 
