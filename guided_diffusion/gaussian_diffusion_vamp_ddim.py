@@ -247,8 +247,7 @@ class GaussianDiffusion:
 
         tDDIM = 25
         base_rho = ((self.alphas_cumprod[0] / (1 - self.alphas_cumprod[0])) / (self.alphas_cumprod[-1] / (1 - self.alphas_cumprod[-1]))) ** (1/(tDDIM - 1))
-        print(rho)
-        vamp_model = VAMP(model, self.betas_model, self.alphas_cumprod_model, max_iters, 1, x_start, svd, inpainting=inpainting, rho=rho)
+        vamp_model = VAMP(model, self.betas_model, self.alphas_cumprod_model, max_iters, 1, x_start, svd, inpainting=inpainting, rho=1.25)
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         count = 0
