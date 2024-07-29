@@ -255,7 +255,7 @@ class GaussianDiffusion:
         for idx in pbar:
             max_iters = 7
 
-            if idx < 40:
+            if idx < 20:
                 max_iters = 1
 
             rho = base_rho ** (1 / max_iters)
