@@ -247,7 +247,7 @@ class GaussianDiffusion:
 
         tDDIM = 20
         max_iters = 100 // tDDIM
-        rho = ((self.alphas_cumprod[-1] / (1 - self.alphas_cumprod[-1])) / (self.alphas_cumprod[0] / (1 - self.sqrt_alphas_cumprod[0]))) ** (1/(tDDIM - 1))
+        rho = ((self.alphas_cumprod[0] / (1 - self.alphas_cumprod[0])) / (self.alphas_cumprod[-1] / (1 - self.alphas_cumprod[-1]))) ** (1/(tDDIM - 1))
         rho = rho ** (1 / max_iters)
         print(rho)
         exit()
