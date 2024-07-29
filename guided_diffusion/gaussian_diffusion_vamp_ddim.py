@@ -245,7 +245,7 @@ class GaussianDiffusion:
         else:
             svd = Denoising(x_start.shape[1], x_start.shape[2], x_start.device)
 
-        tDDIM = 25
+        tDDIM = 100
         max_iters = 100 // tDDIM
         rho = ((self.alphas_cumprod[0] / (1 - self.alphas_cumprod[0])) / (self.alphas_cumprod[-1] / (1 - self.alphas_cumprod[-1]))) ** (1/(tDDIM - 1))
         rho = rho ** (1 / max_iters)
