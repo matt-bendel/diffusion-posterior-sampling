@@ -41,7 +41,6 @@ class VAMP:
         self.mask = svd.mask.to(x_T.device)
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
         self.rho = rho
-        self.xi = 1/25
         self.tau = 5e-2
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
@@ -153,10 +152,6 @@ class VAMP:
         mean_eta_1 = singulars.shape[0] / eta_1[:, 0]
         if self.Q > 1:
             mean_eta_1 += (self.d - singulars.shape[0]) / eta_1[:, 1]
-
-        # mean_eta_1 = mean_eta_1 / self.d
-        # if (gamma_2 > self.xi / mean_eta_1).any() and self.eta_2 is not None:
-        #     return None, gamma_2
 
         v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
         v_1_measured = torch.maximum(v_1_measured, zeros)
