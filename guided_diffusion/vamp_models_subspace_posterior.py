@@ -202,7 +202,7 @@ class VAMP:
         mu2s = [[], []]
 
         for i in range(self.max_iters):
-            mu_2_old = self.mu_2.clone()
+            mu_2_old = self.mu_2.clone() if self.mu_2 is not None else None
             # plt.imsave(
             #     f'vamp_debug/{prob_name}/posterior/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
             #     clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
