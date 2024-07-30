@@ -253,10 +253,9 @@ class GaussianDiffusion:
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         count = 0
         for idx in pbar:
-            max_iters = 7
-
-            if idx < 20:
-                max_iters = 1
+            max_iters = 5
+            # if idx < 20:
+            #     max_iters = 1
 
             rho = base_rho ** (1 / max_iters)
             vamp_model.max_iters = max_iters
@@ -364,7 +363,8 @@ def space_timesteps(num_timesteps, section_counts):
         all_steps += taken_steps
         start_idx += size
 
-    all_steps = [999, 979, 959, 939, 918, 896, 874, 851, 828, 804, 780, 754, 728, 701, 673, 644, 613, 581, 548, 514, 478, 440, 401, 362, 322, 283, 245, 210, 177, 149, 123, 102, 83, 68, 55, 44, 36, 28, 23, 18, 14, 10, 8, 6, 5, 4, 3, 2, 1, 0]
+    # all_steps = [999, 979, 959, 939, 918, 896, 874, 851, 828, 804, 780, 754, 728, 701, 673, 644, 613, 581, 548, 514, 478, 440, 401, 362, 322, 283, 245, 210, 177, 149, 123, 102, 83, 68, 55, 44, 36, 28, 23, 18, 14, 10, 8, 6, 5, 4, 3, 2, 1, 0]
+    all_steps = [999, 947, 893, 834, 772, 704, 629, 546, 454, 353, 253, 166, 103, 61, 35, 19, 10, 4, 1, 0]
 
     return set(all_steps)
 

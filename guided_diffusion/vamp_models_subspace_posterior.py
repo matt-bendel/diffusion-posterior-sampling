@@ -42,6 +42,7 @@ class VAMP:
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
         self.rho = rho
         self.xi = 1/25
+        self.tau = 1e-3
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
         with open('eta_2_scale.npy', 'rb') as f:
@@ -175,7 +176,7 @@ class VAMP:
         # torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(
         #     x_t.device) / self.rho
 
-        if mu_2 is None:
+        if eta_2 is None:
             mu_2 = self.svd.Vt(x_t / torch.sqrt(t_alpha_bar))
             eta_2 = torch.zeros(x_t.shape[0], 2).to(x_t.device)
             gamma_2 = torch.tensor([t_alpha_bar / (1 - t_alpha_bar)]).unsqueeze(0).repeat(x_t.shape[0], 1).to(
@@ -188,7 +189,7 @@ class VAMP:
 
         # 0. Initialize Values
         # if t[0] % 200 == 0 or (t[0] < 100 and t[0] % 10 == 0): # Occasional cold start
-        self.mu_2 = None
+        # self.mu_2 = None
         self.eta_2 = None
         self.gamma_2 = None
 
@@ -201,6 +202,7 @@ class VAMP:
         mu2s = [[], []]
 
         for i in range(self.max_iters):
+            mu_2_old = self.mu_2.clone()
             # plt.imsave(
             #     f'vamp_debug/{prob_name}/posterior/denoise_in/denoise_in_t={t[0].cpu().numpy()}_vamp_iter={i}.png',
             #     clear_color(self.svd.V(mu_1_noised).view(mu_1_noised.shape[0], 3, 256, 256)))
@@ -211,15 +213,17 @@ class VAMP:
                                                  t_alpha_bar, noise_sig)
             # 2. Re-Noising
             mu_1_noised, gamma_2 = self.renoising(mu_1, eta_1, gamma_2)
-            if mu_1_noised is None:
-                break
 
             # 3. Denoising
             mu_2, eta_2 = self.denoising(mu_1_noised, gamma_2)
+
             self.nfes += 1
             self.mu_2 = mu_2.clone()
             self.eta_2 = eta_2.clone()
             self.gamma_2 = gamma_2.clone()
+
+            if mu_2_old is not None and torch.linalg.mean((mu_2 - mu_2_old) ** 2) < self.tau:
+                break
 
             eta1s[0].append(1 / eta_1[0, 0].cpu().numpy())
             eta2s[0].append(1 / eta_2[0, 0].cpu().numpy())
