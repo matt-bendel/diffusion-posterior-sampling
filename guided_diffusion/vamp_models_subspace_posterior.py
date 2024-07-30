@@ -42,7 +42,7 @@ class VAMP:
         self.noise_sig_schedule = np.linspace(0.01, 0.5, 1000)
         self.rho = rho
         self.xi = 1/25
-        self.tau = 1e-3
+        self.tau = 1e-4
         self.d = 3 * 256 * 256
         self.Q = 2 if self.d - self.svd.singulars().shape[0] > 0 else 1
         with open('eta_2_scale.npy', 'rb') as f:
@@ -222,10 +222,6 @@ class VAMP:
             self.eta_2 = eta_2.clone()
             self.gamma_2 = gamma_2.clone()
 
-            if mu_2_old is not None and torch.mean((mu_2 - mu_2_old) ** 2) < self.tau:
-                print(torch.mean((mu_2 - mu_2_old) ** 2))
-                break
-
             eta1s[0].append(1 / eta_1[0, 0].cpu().numpy())
             eta2s[0].append(1 / eta_2[0, 0].cpu().numpy())
             mu1s[0].append(self.svd.V(mu_1).view(mu_1.shape[0], 3, 256, 256))
@@ -245,6 +241,9 @@ class VAMP:
 
             print(
                 f'ITER: {i + 1}; gamma_2 = {gamma_2[0].cpu().numpy()}; ||mu_1 - mu_2|| = {torch.linalg.norm(mu_1 - mu_2).cpu().numpy()}; eta_1 = {eta_1[0].cpu().numpy()}; eta_2 = {eta_2[0].cpu().numpy()};\n')
+
+            if mu_2_old is not None and torch.mean((mu_2 - mu_2_old) ** 2) < self.tau:
+                break
 
 
         return_val = self.svd.V(mu_2).view(mu_2.shape[0], 3, 256, 256)
