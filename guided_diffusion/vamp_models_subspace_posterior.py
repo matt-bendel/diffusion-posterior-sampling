@@ -223,6 +223,7 @@ class VAMP:
             self.gamma_2 = gamma_2.clone()
 
             if mu_2_old is not None and torch.mean((mu_2 - mu_2_old) ** 2) < self.tau:
+                print(torch.mean((mu_2 - mu_2_old) ** 2))
                 break
 
             eta1s[0].append(1 / eta_1[0, 0].cpu().numpy())
