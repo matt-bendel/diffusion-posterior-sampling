@@ -110,7 +110,7 @@ def main():
     noise_levels = [0.01, 0.01, 0.01]
 
     operators = ['denoising']
-    noise_levels = [0.01]
+    noise_levels = [0.1]
 
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
