@@ -476,7 +476,7 @@ class DDIM(SpacedDiffusion):
         )
 
         sample = mean_pred
-        if t != 0:
+        if t[0] != 0:
             sample += sigma * noise
 
         return {"sample": sample, "pred_xstart": out["pred_xstart"]}
