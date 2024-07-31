@@ -245,6 +245,8 @@ class GaussianDiffusion:
         else:
             svd = Denoising(x_start.shape[1], x_start.shape[2], x_start.device)
 
+        pbar = tqdm(list(range(self.num_timesteps))[::-1])
+        count = 0
         for idx in pbar:
             img = self.p_sample(x=img, t=time, model=model, y=measurement, cond=True, svd=svd, noise_sig=noise_sig)['sample'].detach()
 
