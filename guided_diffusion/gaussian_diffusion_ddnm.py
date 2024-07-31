@@ -469,8 +469,7 @@ class DDIM(SpacedDiffusion):
         # Equation 12.
         noise = torch.randn_like(x)
         pred_x_start = out["pred_xstart"]
-        pred_x_start = svd.H_pinv(y) + pred_x_start - svd.H_pinv(svd.H(pred_x_start))
-        pred_x_start = pred_x_start.view(pred_x_start.shape[0], 3, 256, 256)
+        pred_x_start = svd.H_pinv(y).view(pred_x_start.shape[0], 3, 256, 256) + pred_x_start - svd.H_pinv(svd.H(pred_x_start)).view(pred_x_start.shape[0], 3, 256, 256)
         mean_pred = (
                 pred_x_start * torch.sqrt(alpha_bar_prev)
                 + torch.sqrt(1 - alpha_bar_prev - sigma ** 2) * eps
