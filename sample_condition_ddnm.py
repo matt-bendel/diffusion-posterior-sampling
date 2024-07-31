@@ -209,7 +209,7 @@ def main():
                     if i == 0 and j == 0:
                         plt.imsave(f'/storage/matt_models/inpainting/ddnm/test_{i}.png',
                                    clear_color(sample[j].unsqueeze(0)))
-                        plt.imsave(f'/storage/matt_models/inpainting/ddnm/test_y_{i}.pnh', clear_color(y[j].unsqueeze(0)))
+                        plt.imsave(f'/storage/matt_models/inpainting/ddnm/test_y_{i}.png', clear_color(y[j].unsqueeze(0)))
 
             base_im_count += sample.shape[0]
 
