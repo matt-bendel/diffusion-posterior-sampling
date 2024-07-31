@@ -248,11 +248,13 @@ class GaussianDiffusion:
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         count = 0
         for idx in pbar:
+            time = torch.tensor([idx] * img.shape[0], device=device)
+
             img = self.p_sample(x=img, t=time, model=model, y=measurement, cond=True, svd=svd, noise_sig=noise_sig)['sample'].detach()
 
             if record:
                 if idx % 50 == 0:
-                    file_path = f"/storage/matt_models/inpainting/dps/x_{str(idx).zfill(4)}.png"
+                    file_path = f"/storage/matt_models/inpainting/ddnm/x_{str(idx).zfill(4)}.png"
                     plt.imsave(file_path, clear_color(img[0]))
 
             count += 1
