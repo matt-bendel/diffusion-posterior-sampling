@@ -206,14 +206,13 @@ def main():
                     torch.save(mask[j].detach().cpu(),
                                f'/storage/matt_models/inpainting/ddnm/test_20k/image_{base_im_count + j}_mask.pt')
 
-                    if i == 0:
+                    if j == 0:
                         plt.imsave(f'/storage/matt_models/inpainting/ddnm/test_{j}.png',
                                    clear_color(sample[j].unsqueeze(0)))
                         plt.imsave(f'/storage/matt_models/inpainting/ddnm/test_y_{j}.png', clear_color(y[j].unsqueeze(0)))
 
             base_im_count += sample.shape[0]
 
-            exit()
             # if base_im_count == 20:
             #     break
 
