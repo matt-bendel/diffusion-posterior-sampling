@@ -285,8 +285,8 @@ class VAMP:
                 r1s[1].append(self.svd.V(r_1).view(r_2.shape[0], 3, 256, 256))
                 r2s[1].append(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256))
 
-            # plt.imsave(f'vamp_debug/{prob_name}/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256)))
-            # plt.imsave(f'vamp_debug/{prob_name}/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256)))
+            plt.imsave(f'vamp_debug/{prob_name}/mu_1_v_step/mu_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256)))
+            plt.imsave(f'vamp_debug/{prob_name}/mu_2_v_step/mu_2_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(mu_2).view(r_2.shape[0], 3, 256, 256)))
             # plt.imsave(f'vamp_debug/{prob_name}/r1s/r_1_t={t[0].cpu().numpy()}_vamp_iter={i}.png', clear_color(self.svd.V(r_2).view(r_2.shape[0], 3, 256, 256)))
 
 
@@ -297,6 +297,7 @@ class VAMP:
 
             # time.sleep(30)
 
+        exit()
         return_val = self.svd.V(mu_1).view(r_2.shape[0], 3, 256, 256)
         return return_val, eta1s, eta2s, gam1s, gam2s, mu1s, mu2s, r1s, r2s
 
