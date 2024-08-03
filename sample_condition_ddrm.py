@@ -211,7 +211,6 @@ def main():
                                    clear_color(sample[j].unsqueeze(0)))
                         plt.imsave(f'/storage/matt_models/inpainting/ddrm/test_y_{j}.png', clear_color(y[j].unsqueeze(0)))
 
-                exit()
 
             base_im_count += sample.shape[0]
 
