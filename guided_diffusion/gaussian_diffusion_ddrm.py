@@ -288,7 +288,7 @@ class GaussianDiffusion:
         count = 0
         for idx in pbar:
             t = torch.tensor([idx] * img.shape[0], device=device)
-            out = self.p_mean_variance(model, xt, t)
+            out = self.p_mean_variance(model, xt.float(), t)
 
             at = extract_and_expand(self.alphas_cumprod, t, x)
             at_next = extract_and_expand(self.alphas_cumprod_prev, t, x)
@@ -341,7 +341,7 @@ class GaussianDiffusion:
             if record:
                 if idx % 5 == 0:
                     file_path = f"/storage/matt_models/inpainting/ddnm/x_{str(idx).zfill(4)}.png"
-                    plt.imsave(file_path, clear_color(img[0]))
+                    plt.imsave(file_path, clear_color(x0[0]))
 
             count += 1
 
