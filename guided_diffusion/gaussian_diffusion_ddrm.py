@@ -339,8 +339,8 @@ class GaussianDiffusion:
             x0 = x0_t.clone()
 
             if record:
-                if idx % 2 == 0:
-                    file_path = f"/storage/matt_models/inpainting/ddnm/x_{str(idx).zfill(4)}.png"
+                if idx % 5 == 0:
+                    file_path = f"/storage/matt_models/inpainting/ddrm/x_{str(idx).zfill(4)}.png"
                     plt.imsave(file_path, clear_color(x0[0]))
 
             count += 1
