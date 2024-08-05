@@ -216,7 +216,7 @@ def main():
                         plt.imsave(f'/storage/matt_models/inpainting/ddnm/test_y_{j}.png', clear_color(y[j].unsqueeze(0)))
 
             base_im_count += sample.shape[0]
-            if base_im_count == 3:
+            if base_im_count == 10:
                 exit()
 
             # if base_im_count == 20:
