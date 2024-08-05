@@ -114,6 +114,10 @@ def main():
         for i, data in enumerate(test_loader):
             logger.info(f"Inference for image {i}")
             y, x, mask, mean, std = data[0]
+            img_inds = [5907, 9350, 1816, 4372, 11835, 1079, 15312, 14879, 8206, 4940, 17884, 14344, 1965, 3722, 14086,
+                        18843, 14547, 5340, 10731, 11841, 15439, 17479, 5606, 1538, 11212, 13777, 5048, 4303, 246, 5932]
+            if i not in img_inds:
+                continue
 
             y = x + torch.rand_like(x) * measure_config['noise']['sigma']
 
