@@ -67,6 +67,7 @@ class VAMP:
         scaled_r_1 = torch.zeros(right_term.shape).to(right_term.device)
         print(r_1.shape)
         print(gamma_1.shape)
+        print(scaled_r_1.shape)
         exit()
         scaled_r_1[:, :evals.shape[0]] = gamma_1[:, 0] * r_1[:, :evals.shape[0]]
         if self.Q > 1:
