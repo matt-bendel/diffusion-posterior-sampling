@@ -85,7 +85,7 @@ class VAMP:
         evals = (self.svd.singulars() / noise_sig) ** 2
 
         eta = torch.zeros(gamma_1.shape[0], self.Q).to(gamma_1.device)
-        inv_measured = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0]) ** -1
+        inv_measured = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0, None]) ** -1
         eta[:, 0] = inv_measured.mean(-1) ** -1
         if self.Q > 1:
             eta[:, 1] = r_sig_inv ** 2 + gamma_1[:, 1]
