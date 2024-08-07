@@ -106,7 +106,7 @@ def main():
     noise_levels = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.]
 
     operators = ['color']
-    noise_levels = [0.001]
+    noise_levels = [0.01]
 
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
