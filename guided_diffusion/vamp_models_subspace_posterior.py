@@ -71,12 +71,12 @@ class VAMP:
 
         right_term += scaled_r_1
 
-        nonzero_singular_mult = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0]) ** -1
+        nonzero_singular_mult = (evals[None, :] + r_sig_inv ** 2 + gamma_1[:, 0, None]) ** -1
 
         mu_1 = torch.zeros(right_term.shape).to(right_term.device)
         mu_1[:, :evals.shape[0]] = nonzero_singular_mult * right_term[:, :evals.shape[0]]
         if self.Q > 1:
-            mu_1[:, evals.shape[0]:] = (r_sig_inv ** 2 + gamma_1[:, 1]) ** -1 * right_term[:, evals.shape[0]:]
+            mu_1[:, evals.shape[0]:] = (r_sig_inv ** 2 + gamma_1[:, 1, None]) ** -1 * right_term[:, evals.shape[0]:]
 
         return mu_1
 
