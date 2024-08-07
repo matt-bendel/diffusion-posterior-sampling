@@ -136,11 +136,7 @@ class VAMP:
         mu_2, true_noise_var, used_t = self.uncond_denoiser_function(new_mu_1.float(), noise_var)
         mu_2 = self.svd.Vt(mu_2)
 
-        eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var[0].unsqueeze(0).sqrt().repeat(1, self.Q)).float()
-        print(used_t.shape)
-        print(true_noise_var.shape)
-        print(eta_2.shape)
-        exit()
+        eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var[0].unsqueeze(0).sqrt().repeat(new_mu_1.shape[0], self.Q)).float()
 
         return mu_2, eta_2
 
