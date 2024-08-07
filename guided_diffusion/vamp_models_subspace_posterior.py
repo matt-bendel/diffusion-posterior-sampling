@@ -137,6 +137,8 @@ class VAMP:
         mu_2 = self.svd.Vt(mu_2)
 
         eta_2 = 1 / (self.scale_factor[used_t[0]] * true_noise_var.sqrt().repeat(1, self.Q)).float()
+        print(used_t.shape)
+        print(true_noise_var.shape)
         print(eta_2.shape)
         exit()
 
