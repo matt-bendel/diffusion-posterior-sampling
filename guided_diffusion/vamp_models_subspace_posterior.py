@@ -156,11 +156,11 @@ class VAMP:
         v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
         v_1_measured = torch.maximum(v_1_measured, zeros)
         mu_1_noised = torch.zeros(mu_1.shape).to(mu_1.device)
-        mu_1_noised[:, :singulars.shape[0]] = (mu_1 + noise * v_1_measured.sqrt()[:, None, None, None])[:, :singulars.shape[0]]
+        mu_1_noised[:, :singulars.shape[0]] = (mu_1 + noise * v_1_measured.sqrt()[:, None])[:, :singulars.shape[0]]
         if self.Q > 1:
             v_1_nonmeasured = 1 / gamma_2 - 1 / eta_1[:, 1]
             v_1_measured = torch.maximum(v_1_nonmeasured, zeros)
-            mu_1_noised[:, singulars.shape[0]:] = (mu_1 + noise * v_1_measured.sqrt()[:, None, None, None])[:, singulars.shape[0]:]
+            mu_1_noised[:, singulars.shape[0]:] = (mu_1 + noise * v_1_measured.sqrt()[:, None])[:, singulars.shape[0]:]
 
         return mu_1_noised, gamma_2
 
