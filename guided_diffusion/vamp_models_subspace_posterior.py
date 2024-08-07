@@ -153,7 +153,8 @@ class VAMP:
         if self.Q > 1:
             mean_eta_1 += (self.d - singulars.shape[0]) / eta_1[:, 1]
 
-        v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0]
+        v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0, None]
+        print(v_1_measured.shape)
         print(gamma_2.shape)
         v_1_measured = torch.maximum(v_1_measured, zeros)
         mu_1_noised = torch.zeros(mu_1.shape).to(mu_1.device)
