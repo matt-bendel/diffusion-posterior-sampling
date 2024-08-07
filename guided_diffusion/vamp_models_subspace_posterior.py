@@ -144,7 +144,7 @@ class VAMP:
         singulars = self.svd.singulars()
 
         noise = torch.randn_like(mu_1)
-        zeros = torch.zeros(mu_1.shape[0]).to(mu_1.device)
+        zeros = torch.zeros(mu_1.shape[0], 1).to(mu_1.device)
 
         gamma_2 = self.rho * gamma_2
         max_prec = self.alphas_cumprod[0] / (1 - self.alphas_cumprod[0])
@@ -154,8 +154,6 @@ class VAMP:
             mean_eta_1 += (self.d - singulars.shape[0]) / eta_1[:, 1]
 
         v_1_measured = 1 / gamma_2 - 1 / eta_1[:, 0, None]
-        print(v_1_measured.shape)
-        print(gamma_2.shape)
         v_1_measured = torch.maximum(v_1_measured, zeros)
         mu_1_noised = torch.zeros(mu_1.shape).to(mu_1.device)
         print(mu_1.shape)
