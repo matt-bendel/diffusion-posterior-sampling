@@ -110,6 +110,7 @@ def main():
                 plt.savefig(f'y_{i}_{k}_test.png')
 
             ref_img = x.to(device)
+            x = x.to(device)
 
             mask = mask.to(device)
             mask = torch.ones(mask.shape).to(device)
