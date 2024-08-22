@@ -3,6 +3,7 @@ import os
 import argparse
 import yaml
 import types
+import lpips
 
 import torch
 import torchvision.transforms as transforms
@@ -18,6 +19,7 @@ from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
 from data.FFHQDataModule import FFHQDataModule
 from pytorch_lightning import seed_everything
+from torchmetrics.functional import peak_signal_noise_ratio
 
 
 def load_object(dct):
@@ -89,6 +91,7 @@ def main():
     dm = FFHQDataModule(load_object(task_config))
     dm.setup()
     test_loader = dm.test_dataloader()
+    loss_fn_vgg = lpips.LPIPS(net='vgg').cuda()
 
     lpips_vals = []
     psnr_vals = []
