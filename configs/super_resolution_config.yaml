@@ -1,7 +1,13 @@
+checkpoint_dir: "/storage/matt_models/inpainting/"
+data_path: "/storage/FFHQ/ffhq256"
+data_path_test: "/storage/FFHQ/ffhq256_900_if"
+batch_size: 1
+image_size: 256
+
 conditioning:
   method: ps
   params:
-    scale: 0.3
+    scale: 1.0
 
 data:
   name: ffhq
@@ -15,4 +21,4 @@ measurement:
   
   noise: 
     name: gaussian
-    sigma: 0.0
+    sigma: 0.05

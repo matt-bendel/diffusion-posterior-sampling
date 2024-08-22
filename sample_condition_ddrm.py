@@ -3,6 +3,7 @@ import os
 import argparse
 import yaml
 import types
+import lpips
 
 import torch
 import torchvision.transforms as transforms
@@ -20,6 +21,7 @@ from data.FFHQDataModule import FFHQDataModule
 from pytorch_lightning import seed_everything
 from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising, Deblurring2D, Colorization, SuperResolution, SRConv
 from util.inpaint.get_mask import MaskCreator
+from torchmetrics.functional import peak_signal_noise_ratio
 
 
 def load_object(dct):
@@ -105,6 +107,11 @@ def main():
     operators = ['inpainting']
     noise_levels = [0.0]
 
+    loss_fn_vgg = lpips.LPIPS(net='vgg').cuda()
+
+    lpips_vals = []
+    psnr_vals = []
+
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
         measure_config['operator']['name'] = operators[l]
@@ -114,20 +121,15 @@ def main():
         for i, data in enumerate(test_loader):
             logger.info(f"Inference for image {i}")
             y, x, mask, mean, std = data[0]
-            img_inds = [5907, 9350, 1816, 4372, 11835, 1079, 15312, 14879, 8206, 4940, 17884, 14344, 1965, 3722, 14086,
-                        18843, 14547, 5340, 10731, 11841, 15439, 17479, 5606, 1538, 11212, 13777, 5048, 4303, 246, 5932]
-            if i not in img_inds:
-                base_im_count += y.shape[0]
-                continue
 
             y = x + torch.rand_like(x) * measure_config['noise']['sigma']
 
             ref_img = x.to(device)
 
             # mask = mask.to(device)
-            mask = torch.zeros(mask.shape)
-            mask[0] = torch.load(f'/storage/matt_models/inpainting/dps/test_20k/image_{base_im_count}_mask.pt')
-            mask = mask.cuda()
+            mask = mask.to(device)
+            mask = torch.ones(mask.shape).to(device)
+            mask[:, :, 64:192, 64:192] = 0
 
             measurement_cond_fn = None #partial(cond_method.conditioning, mask=mask)
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
@@ -203,6 +205,9 @@ def main():
                     sample = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path, mask=mask,
                                        noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img)
 
+                lpips_vals.append(loss_fn_vgg(sample, x).mean().detach().cpu().numpy())
+                psnr_vals.append(peak_signal_noise_ratio(sample, x).mean().detach().cpu().numpy())
+
                 y = H.H(ref_img)
                 if inpainting or coloring:
                     y = H.Ht(y).view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2], ref_img.shape[3])
@@ -210,21 +215,12 @@ def main():
                     y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2] if not sr else ref_img.shape[2] // blur_by, ref_img.shape[3] if not sr else ref_img.shape[2] // blur_by)
 
                 for j in range(sample.shape[0]):
-                    torch.save(sample[j].detach().cpu(),
-                               f'/storage/matt_models/inpainting/ddrm/test_20k/image_{base_im_count + j}_sample_{k}.pt')
-                    torch.save(mask[j].detach().cpu(),
-                               f'/storage/matt_models/inpainting/ddrm/test_20k/image_{base_im_count + j}_mask.pt')
+                    plt.imsave(f'/storage/matt_models/dps/ffhq/inp_box/image_{i * y.shape[0] + j}.png',
+                               clear_color(sample[j].unsqueeze(0)))
 
-                    if j == 0:
-                        plt.imsave(f'/storage/matt_models/inpainting/ddrm/test_{j}.png',
-                                   clear_color(sample[j].unsqueeze(0)))
-                        plt.imsave(f'/storage/matt_models/inpainting/ddrm/test_y_{j}.png', clear_color(y[j].unsqueeze(0)))
+        print(f'Avg. LPIPS: {np.mean(lpips_vals)} +/- {np.std(lpips_vals) / len(lpips_vals)}')
+        print(f'Avg. PSNR: {np.mean(psnr_vals)} +/- {np.std(psnr_vals) / len(psnr_vals)}')
 
-
-            base_im_count += sample.shape[0]
-
-            if base_im_count == 10:
-                break
 
 if __name__ == '__main__':
     main()
