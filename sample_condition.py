@@ -90,6 +90,9 @@ def main():
     dm.setup()
     test_loader = dm.test_dataloader()
 
+    lpips_vals = []
+    psnr_vals = []
+
     # Do Inference
     print(len(test_loader))
     for k in range(1):
@@ -106,6 +109,8 @@ def main():
             ref_img = x.to(device)
 
             mask = mask.to(device)
+            mask = torch.ones(mask.shape).to(device)
+            mask[:, :, 64:192, 64:192] = 0
 
             measurement_cond_fn = partial(cond_method.conditioning, mask=mask)
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
@@ -119,16 +124,19 @@ def main():
             sample = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path)
             print(sample.shape)
 
+            lpips_vals.append(loss_fn_vgg(sample, x).mean().detach().cpu().numpy())
+            psnr_vals.append(peak_signal_noise_ratio(sample, x).mean().detach().cpu().numpy())
+
             # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
             # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
             for j in range(sample.shape[0]):
-                torch.save(sample[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test_20k/image_{base_im_count+j}_sample_{k}.pt')
-                torch.save(mask[j].detach().cpu(), f'/storage/matt_models/inpainting/dps/test_20k/image_{base_im_count+j}_mask.pt')
-
-                if i == 0 and j == 0:
-                    plt.imsave(f'/storage/matt_models/inpainting/dps/test_{i}.png', clear_color(sample[j].unsqueeze(0)))
+                plt.imsave(f'/storage/matt_models/dps/inp_box/image_{i * y.shape[0] + j}.png',
+                           clear_color(sample[j].unsqueeze(0)))
 
             base_im_count += sample.shape[0]
+
+        print(f'Avg. LPIPS: {np.mean(lpips_vals)} +/- {np.std(lpips_vals) / len(lpips_vals)}')
+        print(f'Avg. PSNR: {np.mean(psnr_vals)} +/- {np.std(psnr_vals) / len(psnr_vals)}')
 
 if __name__ == '__main__':
     main()
