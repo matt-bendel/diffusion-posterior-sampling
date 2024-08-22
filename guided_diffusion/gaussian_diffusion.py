@@ -44,10 +44,6 @@ def create_sampler(sampler,
     if not timestep_respacing:
         timestep_respacing = [steps]
 
-    print(steps)
-    print(timestep_respacing)
-    exit()
-         
     return sampler(use_timesteps=space_timesteps(steps, timestep_respacing),
                    betas=betas,
                    model_mean_type=model_mean_type,
