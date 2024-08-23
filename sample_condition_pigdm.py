@@ -225,6 +225,8 @@ def main():
                     plt.imsave(f'/storage/matt_models/pigdm/ffhq/{deg}{"_noisy" if measure_config["noise"]["sigma"] > 0 else "" }/image_{i * y.shape[0] + j}.png',
                                clear_color(sample[j].unsqueeze(0)))
 
+                exit()
+
         print(f'Avg. LPIPS: {np.mean(lpips_vals)} +/- {np.std(lpips_vals) / len(lpips_vals)}')
         print(f'Avg. PSNR: {np.mean(psnr_vals)} +/- {np.std(psnr_vals) / len(psnr_vals)}')
 
