@@ -443,7 +443,7 @@ class DDIM(SpacedDiffusion):
         )
 
         if noise_sig > 0:
-            mean_pred += alpha_bar[0, 0, 0, 0].sqrt() * grad_term * (r_t ** 2) * (1 / (1 + v)).sqrt()
+            mean_pred += alpha_bar[0, 0, 0, 0].sqrt() * grad_term * (1 / (1 + v)).sqrt()
         else:
             mean_pred += alpha_bar[0, 0, 0, 0].sqrt() * alpha_bar_prev[0, 0, 0, 0].sqrt() * grad_term
 
