@@ -107,6 +107,9 @@ def main():
     # BLUR DAMPING: 0.1
 
     operators = ['inpainting']
+    # operators = ['blur_gauss']
+    # operators = ['sr_bicubic4']
+
     noise_levels = [0.0]
 
     loss_fn_vgg = lpips.LPIPS(net='vgg').cuda()
@@ -173,10 +176,11 @@ def main():
             elif measure_config['operator']['name'] == 'blur_uni':
                 H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
             elif measure_config['operator']['name'] == 'blur_gauss':
-                sigma = 10
-                pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
-                kernel = torch.Tensor([pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2)]).to(device)
-                H = Deblurring(kernel / kernel.sum(), 3, 256, device)
+                sigma = 3.0
+                pdf = lambda x: torch.exp(-0.5 * (x / sigma) ** 2)
+                kernel = pdf(torch.arange(61) - 30).to(device)
+                kernel = kernel / kernel.sum()
+                H = Deblurring(kernel, 3, 256, device)
             elif measure_config['operator']['name'] == 'blur_aniso':
                 sigma = 20
                 pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
