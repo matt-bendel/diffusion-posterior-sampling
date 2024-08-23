@@ -130,6 +130,7 @@ def main():
             y = x + torch.rand_like(x) * measure_config['noise']['sigma']
 
             ref_img = x.to(device)
+            x = x.to(device)
 
             # mask = mask.to(device)
             mask = mask.to(device)
