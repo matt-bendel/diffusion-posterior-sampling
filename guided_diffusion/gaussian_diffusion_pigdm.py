@@ -417,13 +417,17 @@ class DDIM(SpacedDiffusion):
         pred_x_start = out["pred_xstart"]
 
         if noise_sig > 0:
-            ddpm_var = (1 - alpha_bar) / alpha_bar
-            r_t = torch.sqrt(ddpm_var / (ddpm_var + 1))[0, 0, 0, 0]
+            v = ((1 - alpha_bar_prev) / (1 - alpha_bar)) * (1 - alpha_bar / alpha_bar_prev)
+            r_t = torch.sqrt(v / (v + 1))[0, 0, 0, 0]
             I_scale = noise_sig ** 2 / (r_t ** 2)
+            singulars = H.singulars()
 
             meas_diff = y - H.H(pred_x_start)
             V_H_meas_diff = H.Vt(H.add_zeros(meas_diff))
-            inv_term_meas_diff = H.V((H.add_zeros(H.singulars().unsqueeze(0).repeat(meas_diff.shape[0], 1) ** 2) + I_scale) ** -1 * V_H_meas_diff)
+            Lam_V_H_meas_diff = V_H_meas_diff
+            Lam_V_H_meas_diff[:, :singulars.shape[0]] = Lam_V_H_meas_diff[:, :singulars.shape[0]] / (singulars ** 2 + I_scale)
+            Lam_V_H_meas_diff[:, singulars.shape[0]:] = Lam_V_H_meas_diff[:, singulars.shape[0]:] / I_scale
+            inv_term_meas_diff = H.V(Lam_V_H_meas_diff)
 
             g = (H.Ht(inv_term_meas_diff).detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
         else:
@@ -439,7 +443,7 @@ class DDIM(SpacedDiffusion):
 
         sample = mean_pred
         if t[0] != 0:
-            sample += alpha_bar[0, 0, 0, 0].sqrt() * grad_term
+            sample += alpha_bar[0, 0, 0, 0].sqrt() * alpha_bar_prev[0, 0, 0, 0].sqrt() * grad_term
             sample += sigma * noise
 
         return {"sample": sample, "pred_xstart": out["pred_xstart"]}
