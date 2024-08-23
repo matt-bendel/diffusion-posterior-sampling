@@ -77,7 +77,9 @@ class H_functions:
         """
         temp = self.Ut(vec)
         singulars = self.singulars()
-        temp[:, :singulars.shape[0]] = temp[:, :singulars.shape[0]] / singulars
+        singulars_inv = singulars
+        singulars_inv[singulars > 0] = 1 / singulars[singulars > 0]
+        temp[:, :singulars.shape[0]] = temp[:, :singulars.shape[0]] * singulars_inv
         return self.V(self.add_zeros(temp))
 
 
