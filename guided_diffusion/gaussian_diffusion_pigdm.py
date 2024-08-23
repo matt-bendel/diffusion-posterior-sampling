@@ -439,7 +439,7 @@ class DDIM(SpacedDiffusion):
 
         sample = mean_pred
         if t[0] != 0:
-            sample += alpha_bar[0, 0, 0, 0].sqrt() * alpha_bar_prev[0, 0, 0, 0].sqrt() * grad_term
+            sample += alpha_bar[0, 0, 0, 0].sqrt() * grad_term
             sample += sigma * noise
 
         return {"sample": sample, "pred_xstart": out["pred_xstart"]}
