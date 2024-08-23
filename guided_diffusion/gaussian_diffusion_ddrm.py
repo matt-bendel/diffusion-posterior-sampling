@@ -195,6 +195,8 @@ class GaussianDiffusion:
         img = x_start
         device = x_start.device
 
+        print(noise_sig)
+
         inpainting = False
         if meas_type == 'inpainting':
             inpainting = True
