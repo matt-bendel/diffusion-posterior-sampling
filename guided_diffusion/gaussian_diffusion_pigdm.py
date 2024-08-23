@@ -200,6 +200,9 @@ class GaussianDiffusion:
         count = 0
         img = torch.tensor(self.alphas_cumprod[-1]).to(x_start.device).sqrt() * svd.H_pinv(measurement).view(*x_start.size())
         img += torch.tensor(1 - self.alphas_cumprod[-1]).to(x_start.device).sqrt() * torch.randn_like(img)
+        file_path = f"/storage/matt_models/pigdm/ffhq/x_start.png"
+        plt.imsave(file_path, clear_color(svd.H_pinv(measurement).view(*x_start.size())[0]))
+
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
 
@@ -418,7 +421,7 @@ class DDIM(SpacedDiffusion):
             scale = 1. # TODO
             g = H.Ht(H.H(H.Ht(meas_diff)) + scale * meas_diff)
         else:
-            g = ((H.H_pinv(y) - H.H_pinv(H.H(pred_x_start))).reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
+            g = ((H.H_pinv(y) - H.H_pinv(H.H(pred_x_start))).detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
 
         grad_term = torch.autograd.grad(g, x)[0]
         grad_term = grad_term.detach()
