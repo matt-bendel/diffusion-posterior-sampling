@@ -188,7 +188,8 @@ class GaussianDiffusion:
                       mask=None,
                       noise_sig=0.001,
                       meas_type=None,
-                      truth=None):
+                      truth=None,
+                      svd=False):
         """
         The function used for sampling from noise.
         """
@@ -197,56 +198,56 @@ class GaussianDiffusion:
 
         print(noise_sig)
 
-        inpainting = False
-        if meas_type == 'inpainting':
-            inpainting = True
-            missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
-            missing_g = missing_r + 1
-            missing_b = missing_g + 1
-            missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
-            svd = Inpainting(x_start.shape[1], x_start.shape[2], missing, mask, x_start.device)
-        elif meas_type[:10] == 'sr_bicubic':
-            factor = int(meas_type[10:])
-            def bicubic_kernel(x, a=-0.5):
-                if abs(x) <= 1:
-                    return (a + 2) * abs(x) ** 3 - (a + 3) * abs(x) ** 2 + 1
-                elif 1 < abs(x) and abs(x) < 2:
-                    return a * abs(x) ** 3 - 5 * a * abs(x) ** 2 + 8 * a * abs(x) - 4 * a
-                else:
-                    return 0
-
-            k = np.zeros((factor * 4))
-            for i in range(factor * 4):
-                x = (1 / factor) * (i - np.floor(factor * 4 / 2) + 0.5)
-                k[i] = bicubic_kernel(x)
-            k = k / np.sum(k)
-            kernel = torch.from_numpy(k).float().to(x_start.device)
-            svd = SRConv(kernel / kernel.sum(), x_start.shape[1], x_start.shape[2], x_start.device, stride=factor)
-        elif meas_type == 'blur_uni':
-            svd = Deblurring(torch.Tensor([1 / 9] * 9).to(x_start.device), x_start.shape[1], x_start.shape[2], x_start.device)
-        elif meas_type == 'blur_gauss':
-            sigma = 3.0
-            pdf = lambda x: torch.exp(-0.5 * (x / sigma) ** 2)
-            kernel = pdf(torch.arange(61) - 30).to(device)
-            kernel = kernel / kernel.sum()
-            svd = Deblurring(kernel, 3, 256, x_start.device)
-        elif meas_type == 'blur_aniso':
-            sigma = 20
-            pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
-            kernel2 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
-                x_start.device)
-            sigma = 1
-            pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
-            kernel1 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
-                x_start.device)
-            svd = Deblurring2D(kernel1 / kernel1.sum(), kernel2 / kernel2.sum(), x_start.shape[1], x_start.shape[2], x_start.device)
-        elif meas_type == 'color':
-            svd = Colorization(x_start.shape[2], x_start.device)
-        elif meas_type[:2] == 'sr':
-            blur_by = int(meas_type[2:])
-            svd = SuperResolution(x_start.shape[1], x_start.shape[2], blur_by, x_start.device)
-        else:
-            svd = Denoising(x_start.shape[1], x_start.shape[2], x_start.device)
+        # inpainting = False
+        # if meas_type == 'inpainting':
+        #     inpainting = True
+        #     missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
+        #     missing_g = missing_r + 1
+        #     missing_b = missing_g + 1
+        #     missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
+        #     svd = Inpainting(x_start.shape[1], x_start.shape[2], missing, mask, x_start.device)
+        # elif meas_type[:10] == 'sr_bicubic':
+        #     factor = int(meas_type[10:])
+        #     def bicubic_kernel(x, a=-0.5):
+        #         if abs(x) <= 1:
+        #             return (a + 2) * abs(x) ** 3 - (a + 3) * abs(x) ** 2 + 1
+        #         elif 1 < abs(x) and abs(x) < 2:
+        #             return a * abs(x) ** 3 - 5 * a * abs(x) ** 2 + 8 * a * abs(x) - 4 * a
+        #         else:
+        #             return 0
+        #
+        #     k = np.zeros((factor * 4))
+        #     for i in range(factor * 4):
+        #         x = (1 / factor) * (i - np.floor(factor * 4 / 2) + 0.5)
+        #         k[i] = bicubic_kernel(x)
+        #     k = k / np.sum(k)
+        #     kernel = torch.from_numpy(k).float().to(x_start.device)
+        #     svd = SRConv(kernel / kernel.sum(), x_start.shape[1], x_start.shape[2], x_start.device, stride=factor)
+        # elif meas_type == 'blur_uni':
+        #     svd = Deblurring(torch.Tensor([1 / 9] * 9).to(x_start.device), x_start.shape[1], x_start.shape[2], x_start.device)
+        # elif meas_type == 'blur_gauss':
+        #     sigma = 3.0
+        #     pdf = lambda x: torch.exp(-0.5 * (x / sigma) ** 2)
+        #     kernel = pdf(torch.arange(61) - 30).to(device)
+        #     kernel = kernel / kernel.sum()
+        #     svd = Deblurring(kernel, 3, 256, x_start.device)
+        # elif meas_type == 'blur_aniso':
+        #     sigma = 20
+        #     pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
+        #     kernel2 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
+        #         x_start.device)
+        #     sigma = 1
+        #     pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
+        #     kernel1 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
+        #         x_start.device)
+        #     svd = Deblurring2D(kernel1 / kernel1.sum(), kernel2 / kernel2.sum(), x_start.shape[1], x_start.shape[2], x_start.device)
+        # elif meas_type == 'color':
+        #     svd = Colorization(x_start.shape[2], x_start.device)
+        # elif meas_type[:2] == 'sr':
+        #     blur_by = int(meas_type[2:])
+        #     svd = SuperResolution(x_start.shape[1], x_start.shape[2], blur_by, x_start.device)
+        # else:
+        #     svd = Denoising(x_start.shape[1], x_start.shape[2], x_start.device)
 
         y = measurement.clone()
         x = x_start.clone()

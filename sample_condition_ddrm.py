@@ -212,7 +212,7 @@ def main():
                 with torch.no_grad():
                     x_start = torch.randn(ref_img.shape, device=device)
                     sample = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path, mask=mask,
-                                       noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img).float()
+                                       noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img, svd=H).float()
 
                 lpips_vals.append(loss_fn_vgg(sample, ref_img).mean().detach().cpu().numpy())
                 psnr_vals.append(peak_signal_noise_ratio(sample, ref_img).mean().detach().cpu().numpy())
