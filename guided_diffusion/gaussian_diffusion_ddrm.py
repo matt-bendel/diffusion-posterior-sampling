@@ -282,7 +282,7 @@ class GaussianDiffusion:
         etaC = 0.85
 
         # setup iteration variables
-        xt = svd.V(init_y.view(x.size(0), -1)).view(*x.size())
+        xt = svd.V(init_y.view(x.size(0), -1).float()).view(*x.size())
         x0 = xt.clone()
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
