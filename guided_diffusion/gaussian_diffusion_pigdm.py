@@ -207,7 +207,7 @@ class GaussianDiffusion:
 
             if record:
                 if idx % 10 == 0:
-                    file_path = f"/storage/matt_models/inpainting/ddnm/x_{str(idx).zfill(4)}.png"
+                    file_path = f"/storage/matt_models/inpainting/pigdm/x_{str(idx).zfill(4)}.png"
                     plt.imsave(file_path, clear_color(img[0]))
 
             count += 1
