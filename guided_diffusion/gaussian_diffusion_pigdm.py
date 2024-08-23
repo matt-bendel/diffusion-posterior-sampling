@@ -418,8 +418,11 @@ class DDIM(SpacedDiffusion):
 
         if noise_sig > 0:
             meas_diff = y - H.H(pred_x_start)
-            scale = 1. # TODO
-            g = H.Ht(H.H(H.Ht(meas_diff)) + scale * meas_diff)
+            V_H_meas_diff = H.Vh(meas_diff)
+            I_scale = 1. # TODO
+
+            inv_term_meas_diff = H.V((H.add_zeros(H.singulars().unsqueeze(0).repeat(meas_diff.shape[0], 1) ** 2) + I_scale) ** -1 * V_H_meas_diff)
+            g = (H.Ht(inv_term_meas_diff).detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
         else:
             g = ((H.H_pinv(y) - H.H_pinv(H.H(pred_x_start))).detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
 
@@ -429,7 +432,7 @@ class DDIM(SpacedDiffusion):
         mean_pred = (
                 pred_x_start * torch.sqrt(alpha_bar_prev)
                 + torch.sqrt(1 - alpha_bar_prev - sigma ** 2) * eps
-                + alpha_bar[0, 0, 0, 0].sqrt() * grad_term
+                + alpha_bar[0, 0, 0, 0].sqrt() * alpha_bar_prev[0, 0, 0, 0].sqrt() * grad_term
         )
 
         sample = mean_pred
