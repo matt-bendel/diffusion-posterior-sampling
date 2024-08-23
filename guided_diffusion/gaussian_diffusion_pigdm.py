@@ -417,14 +417,14 @@ class DDIM(SpacedDiffusion):
         pred_x_start = out["pred_xstart"]
 
         if noise_sig > 0:
-            print('pigdm...')
-            meas_diff = y - H.H(pred_x_start)
-            V_H_meas_diff = H.Vt(H.add_zeros(meas_diff))
             ddpm_var = (1 - alpha_bar) / alpha_bar
             r_t = torch.sqrt(ddpm_var / (ddpm_var + 1))[0, 0, 0, 0]
             I_scale = noise_sig ** 2 / (r_t ** 2)
 
+            meas_diff = y - H.H(pred_x_start)
+            V_H_meas_diff = H.Vt(H.add_zeros(meas_diff))
             inv_term_meas_diff = H.V((H.add_zeros(H.singulars().unsqueeze(0).repeat(meas_diff.shape[0], 1) ** 2) + I_scale) ** -1 * V_H_meas_diff)
+
             g = (H.Ht(inv_term_meas_diff).detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
         else:
             g = ((H.H_pinv(y) - H.H_pinv(H.H(pred_x_start))).detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
@@ -435,11 +435,11 @@ class DDIM(SpacedDiffusion):
         mean_pred = (
                 pred_x_start * torch.sqrt(alpha_bar_prev)
                 + torch.sqrt(1 - alpha_bar_prev - sigma ** 2) * eps
-                + alpha_bar[0, 0, 0, 0].sqrt() * alpha_bar_prev[0, 0, 0, 0].sqrt() * grad_term
         )
 
         sample = mean_pred
         if t[0] != 0:
+            sample += alpha_bar[0, 0, 0, 0].sqrt() * alpha_bar_prev[0, 0, 0, 0].sqrt() * grad_term
             sample += sigma * noise
 
         return {"sample": sample, "pred_xstart": out["pred_xstart"]}
