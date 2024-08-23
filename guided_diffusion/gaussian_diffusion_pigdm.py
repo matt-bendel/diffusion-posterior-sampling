@@ -419,7 +419,7 @@ class DDIM(SpacedDiffusion):
         if noise_sig > 0:
             print('pigdm...')
             meas_diff = y - H.H(pred_x_start)
-            V_H_meas_diff = H.Vt(meas_diff)
+            V_H_meas_diff = H.Vt(H.add_zeros(meas_diff))
             ddpm_var = (1 - alpha_bar) / alpha_bar
             r_t = torch.sqrt(ddpm_var / (ddpm_var + 1))[0, 0, 0, 0]
             I_scale = noise_sig ** 2 / (r_t ** 2)
