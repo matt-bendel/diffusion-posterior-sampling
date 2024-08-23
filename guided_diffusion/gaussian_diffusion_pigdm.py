@@ -443,7 +443,10 @@ class DDIM(SpacedDiffusion):
         )
 
         if noise_sig > 0:
-            mean_pred += alpha_bar[0, 0, 0, 0].sqrt() * grad_term * (1 / (1 + v)).sqrt()
+            coeff = alpha_bar_prev[0, 0, 0, 0].sqrt()
+            coeff = coeff - torch.sqrt(1 - alpha_bar_prev - sigma ** 2)[0, 0, 0, 0] * alpha_bar[0, 0, 0, 0].sqrt() / (1 - alpha_bar[0, 0, 0, 0]).sqrt()
+            coeff = coeff * alpha_bar[0, 0, 0, 0].sqrt()
+            mean_pred += coeff * grad_term
         else:
             mean_pred += alpha_bar[0, 0, 0, 0].sqrt() * alpha_bar_prev[0, 0, 0, 0].sqrt() * grad_term
 
