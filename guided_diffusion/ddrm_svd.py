@@ -443,10 +443,6 @@ class SRConv(H_functions):
 # Deblurring
 class Deblurring(H_functions):
     def mat_by_img(self, M, v):
-        print(v.shape)
-        print(M.shape)
-        print(self.img_dim)
-        print(self.channels)
         return torch.matmul(M, v.reshape(v.shape[0] * self.channels, self.img_dim,
                                          self.img_dim)).reshape(v.shape[0], self.channels, M.shape[0], self.img_dim)
 

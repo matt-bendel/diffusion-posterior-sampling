@@ -423,14 +423,11 @@ class DDIM(SpacedDiffusion):
             singulars = H.singulars()
 
             meas_diff = y - H.H(pred_x_start)
-            V_H_meas_diff = H.Vt(H.add_zeros(meas_diff))
-            Lam_V_H_meas_diff = V_H_meas_diff
+            U_H_meas_diff = H.Ut(meas_diff)
+            Lam_V_H_meas_diff = U_H_meas_diff
             Lam_V_H_meas_diff[:, :singulars.shape[0]] = Lam_V_H_meas_diff[:, :singulars.shape[0]] / (singulars ** 2 + I_scale)
             Lam_V_H_meas_diff[:, singulars.shape[0]:] = Lam_V_H_meas_diff[:, singulars.shape[0]:] / I_scale
-            inv_term_meas_diff = H.V(Lam_V_H_meas_diff)
-            print(inv_term_meas_diff.shape)
-            print(H.H(pred_x_start).shape)
-            exit()
+            inv_term_meas_diff = H.U(Lam_V_H_meas_diff)
 
             g = (H.Ht(inv_term_meas_diff).detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
         else:
