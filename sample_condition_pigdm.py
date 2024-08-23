@@ -224,7 +224,7 @@ def main():
                     y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2] if not sr else ref_img.shape[2] // blur_by, ref_img.shape[3] if not sr else ref_img.shape[2] // blur_by)
 
                 for j in range(sample.shape[0]):
-                    plt.imsave(f'/storage/matt_models/pigdm/ffhq/{deg}/image_{i * y.shape[0] + j}.png',
+                    plt.imsave(f'/storage/matt_models/pigdm/ffhq/{deg}{"_noisy" if measure_config["noise"]["sigma"] > 0 else "" }/image_{i * y.shape[0] + j}.png',
                                clear_color(sample[j].unsqueeze(0)))
 
         print(f'Avg. LPIPS: {np.mean(lpips_vals)} +/- {np.std(lpips_vals) / len(lpips_vals)}')

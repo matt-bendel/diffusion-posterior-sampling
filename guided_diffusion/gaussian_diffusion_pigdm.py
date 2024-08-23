@@ -422,8 +422,6 @@ class DDIM(SpacedDiffusion):
         grad_term = torch.autograd.grad(g, x)[0]
         grad_term = grad_term.detach()
 
-        grad_term_scale = 1.0
-
         mean_pred = (
                 pred_x_start * torch.sqrt(alpha_bar_prev)
                 + torch.sqrt(1 - alpha_bar_prev - sigma ** 2) * eps
