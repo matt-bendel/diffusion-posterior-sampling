@@ -346,8 +346,6 @@ class GaussianDiffusion:
 
             count += 1
 
-        print(x0.shape)
-
         return x0
 
     def denoise(self, model, x, t, y, cond, vamp, noise_sig, truth):
