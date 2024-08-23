@@ -208,10 +208,8 @@ def main():
 
             for k in range(1):
                 # Sampling
-                sample = None
-                with torch.no_grad():
-                    x_start = torch.randn(ref_img.shape, device=device)
-                    sample = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path, mask=mask,
+                x_start = torch.randn(ref_img.shape, device=device)
+                sample = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path, mask=mask,
                                        noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img, svd=H).float()
 
                 lpips_vals.append(loss_fn_vgg(sample, ref_img).mean().detach().cpu().numpy())
