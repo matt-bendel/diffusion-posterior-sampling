@@ -415,10 +415,10 @@ class DDIM(SpacedDiffusion):
         # Equation 12.
         noise = torch.randn_like(x)
         pred_x_start = out["pred_xstart"]
+        v = ((1 - alpha_bar_prev) / (1 - alpha_bar)) * (1 - alpha_bar / alpha_bar_prev)
+        r_t = torch.sqrt(v / (v + 1))[0, 0, 0, 0]
 
         if noise_sig > 0:
-            v = ((1 - alpha_bar_prev) / (1 - alpha_bar)) * (1 - alpha_bar / alpha_bar_prev)
-            r_t = torch.sqrt(v / (v + 1))[0, 0, 0, 0]
             I_scale = noise_sig ** 2 / (r_t ** 2)
             singulars = H.singulars()
 
@@ -439,11 +439,16 @@ class DDIM(SpacedDiffusion):
         mean_pred = (
                 pred_x_start * torch.sqrt(alpha_bar_prev)
                 + torch.sqrt(1 - alpha_bar_prev - sigma ** 2) * eps
+
         )
+
+        if noise_sig > 0:
+            mean_pred += alpha_bar[0, 0, 0, 0].sqrt() * grad_term * (r_t ** 2) * (1 / (1 + v)).sqrt()
+        else:
+            mean_pred += alpha_bar[0, 0, 0, 0].sqrt() * alpha_bar_prev[0, 0, 0, 0].sqrt() * grad_term
 
         sample = mean_pred
         if t[0] != 0:
-            sample += alpha_bar[0, 0, 0, 0].sqrt() * alpha_bar_prev[0, 0, 0, 0].sqrt() * grad_term
             sample += sigma * noise
 
         return {"sample": sample, "pred_xstart": out["pred_xstart"]}
