@@ -198,8 +198,8 @@ class GaussianDiffusion:
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         count = 0
-        img = self.alphas_cumprod[-1].sqrt() * svd.H_pinv(measurement).view(*x_start.size())
-        img += (1 - self.alphas_cumprod[-1]).sqrt() * torch.randn_like(img)
+        img = torch.tensor(self.alphas_cumprod[-1]).to(x_start.device).sqrt() * svd.H_pinv(measurement).view(*x_start.size())
+        img += torch.tensor(1 - self.alphas_cumprod[-1]).to(x_start.device).sqrt() * torch.randn_like(img)
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
 
