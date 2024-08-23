@@ -106,8 +106,8 @@ def main():
     # SR DAMPING: 0.2
     # BLUR DAMPING: 0.1
 
-    # operators = ['inpainting']
-    operators = ['blur_gauss']
+    operators = ['inpainting']
+    # operators = ['blur_gauss']
     # operators = ['sr_bicubic4']
 
     noise_levels = [0.05]
