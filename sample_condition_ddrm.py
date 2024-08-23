@@ -110,7 +110,7 @@ def main():
     operators = ['blur_gauss']
     # operators = ['sr_bicubic4']
 
-    noise_levels = [0.0]
+    noise_levels = [0.05]
 
     loss_fn_vgg = lpips.LPIPS(net='vgg').cuda()
 
@@ -224,7 +224,7 @@ def main():
                     y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2] if not sr else ref_img.shape[2] // blur_by, ref_img.shape[3] if not sr else ref_img.shape[2] // blur_by)
 
                 for j in range(sample.shape[0]):
-                    plt.imsave(f'/storage/matt_models/ddrm/ffhq/{deg}/image_{i * y.shape[0] + j}.png',
+                    plt.imsave(f'/storage/matt_models/ddrm/ffhq/{deg}_noisy/image_{i * y.shape[0] + j}.png',
                                clear_color(sample[j].unsqueeze(0)))
 
         print(f'Avg. LPIPS: {np.mean(lpips_vals)} +/- {np.std(lpips_vals) / len(lpips_vals)}')
