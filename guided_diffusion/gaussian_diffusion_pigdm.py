@@ -428,6 +428,9 @@ class DDIM(SpacedDiffusion):
             Lam_V_H_meas_diff[:, :singulars.shape[0]] = Lam_V_H_meas_diff[:, :singulars.shape[0]] / (singulars ** 2 + I_scale)
             Lam_V_H_meas_diff[:, singulars.shape[0]:] = Lam_V_H_meas_diff[:, singulars.shape[0]:] / I_scale
             inv_term_meas_diff = H.V(Lam_V_H_meas_diff)
+            print(inv_term_meas_diff.shape)
+            print(H.H(pred_x_start).shape)
+            exit()
 
             g = (H.Ht(inv_term_meas_diff).detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
         else:

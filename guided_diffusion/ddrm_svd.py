@@ -447,7 +447,6 @@ class Deblurring(H_functions):
         print(M.shape)
         print(self.img_dim)
         print(self.channels)
-        exit()
         return torch.matmul(M, v.reshape(v.shape[0] * self.channels, self.img_dim,
                                          self.img_dim)).reshape(v.shape[0], self.channels, M.shape[0], self.img_dim)
 
