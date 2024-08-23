@@ -57,6 +57,8 @@ def main():
     # Load configurations
     model_config = load_yaml(args.model_config)
     diffusion_config = load_yaml(args.diffusion_config)
+    diffusion_config["timestep_respacing"] = 'ddim20'
+    diffusion_config["sampler"] = 'ddim'
     task_config = load_yaml(args.task_config)
 
     # assert model_config['learn_sigma'] == diffusion_config['learn_sigma'], \
@@ -139,8 +141,10 @@ def main():
             sr = False
             coloring = False
             blur_by = 1
+            deg = measure_config['operator']['name']
 
             if measure_config['operator']['name'] == 'inpainting':
+                deg = 'inp_box'
                 missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
                 missing_g = missing_r + 1
                 missing_b = missing_g + 1
@@ -215,7 +219,7 @@ def main():
                     y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2] if not sr else ref_img.shape[2] // blur_by, ref_img.shape[3] if not sr else ref_img.shape[2] // blur_by)
 
                 for j in range(sample.shape[0]):
-                    plt.imsave(f'/storage/matt_models/dps/ffhq/inp_box/image_{i * y.shape[0] + j}.png',
+                    plt.imsave(f'/storage/matt_models/ddrm/ffhq/{deg}/image_{i * y.shape[0] + j}.png',
                                clear_color(sample[j].unsqueeze(0)))
 
         print(f'Avg. LPIPS: {np.mean(lpips_vals)} +/- {np.std(lpips_vals) / len(lpips_vals)}')
