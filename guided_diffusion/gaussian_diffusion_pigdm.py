@@ -397,6 +397,7 @@ class DDPM(SpacedDiffusion):
 class DDIM(SpacedDiffusion):
     def p_sample(self, model, x, t, y, cond, H, noise_sig, eta=0.85):
         eta = 1.0
+        x = x.clone().requires_grad_(True)
         out = self.p_mean_variance(model, x, t)
 
         eps = self.predict_eps_from_x_start(x, t, out['pred_xstart'])
