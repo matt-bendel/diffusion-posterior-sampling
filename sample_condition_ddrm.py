@@ -122,85 +122,85 @@ def main():
         measure_config['operator']['name'] = operators[l]
         noiser = get_noise(**measure_config['noise'])
 
+        # Forward measurement model (Ax + n)
+        inpainting = False
+        sr = False
+        coloring = False
+        blur_by = 1
+        deg = measure_config['operator']['name']
+
+        mask = torch.ones(1, 3, 256, 256).to(device)
+        mask[:, :, 64:192, 64:192] = 0
+
+        if measure_config['operator']['name'] == 'inpainting':
+            deg = 'inp_box'
+            missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
+            missing_g = missing_r + 1
+            missing_b = missing_g + 1
+            missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
+            H = Inpainting(3, 256, missing, mask, device)
+            inpainting = True
+        elif measure_config['operator']['name'][:10] == 'sr_bicubic':
+            sr = True
+            factor = int(measure_config['operator']['name'][10:])
+            blur_by = factor
+
+            def bicubic_kernel(x, a=-0.5):
+                if abs(x) <= 1:
+                    return (a + 2) * abs(x) ** 3 - (a + 3) * abs(x) ** 2 + 1
+                elif 1 < abs(x) and abs(x) < 2:
+                    return a * abs(x) ** 3 - 5 * a * abs(x) ** 2 + 8 * a * abs(x) - 4 * a
+                else:
+                    return 0
+
+            k = np.zeros((factor * 4))
+            for q in range(factor * 4):
+                x = (1 / factor) * (q - np.floor(factor * 4 / 2) + 0.5)
+                k[q] = bicubic_kernel(x)
+            k = k / np.sum(k)
+            kernel = torch.from_numpy(k).float().to(device)
+            H = SRConv(kernel / kernel.sum(), 3, 256, device, stride=factor)
+        elif measure_config['operator']['name'] == 'blur_uni':
+            H = Deblurring(torch.Tensor([1 / 9] * 9).to(device), 3, 256, device)
+        elif measure_config['operator']['name'] == 'blur_gauss':
+            sigma = 3.0
+            pdf = lambda x: torch.exp(-0.5 * (x / sigma) ** 2)
+            kernel = pdf(torch.arange(61) - 30).to(device)
+            kernel = kernel / kernel.sum()
+            H = Deblurring(kernel, 3, 256, device)
+        elif measure_config['operator']['name'] == 'blur_aniso':
+            sigma = 20
+            pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
+            kernel2 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
+                device)
+            sigma = 1
+            pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
+            kernel1 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
+                device)
+            H = Deblurring2D(kernel1 / kernel1.sum(), kernel2 / kernel2.sum(), 3,
+                             256, device)
+        elif measure_config['operator']['name'] == 'color':
+            coloring = True
+            H = Colorization(256, device)
+        elif measure_config['operator']['name'][:2] == 'sr':
+            sr = True
+            blur_by = int(measure_config['operator']['name'][2:])
+            H = SuperResolution(3, 256, blur_by, device)
+        else:
+            H = Denoising(3, 256, device)
+
         base_im_count = 0
         for i, data in enumerate(test_loader):
             logger.info(f"Inference for image {i}")
-            y, x, mask, mean, std = data[0]
+            y, x, _, mean, std = data[0]
 
             y = x + torch.rand_like(x) * measure_config['noise']['sigma']
 
             ref_img = x.to(device)
 
-            # mask = mask.to(device)
-            mask = mask.to(device)
-            mask = torch.ones(mask.shape).to(device)
-            mask[:, :, 64:192, 64:192] = 0
 
             measurement_cond_fn = None #partial(cond_method.conditioning, mask=mask)
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
-
-            # Forward measurement model (Ax + n)
-            inpainting = False
-            sr = False
-            coloring = False
-            blur_by = 1
-            deg = measure_config['operator']['name']
-
-            if measure_config['operator']['name'] == 'inpainting':
-                deg = 'inp_box'
-                missing_r = torch.nonzero(mask[0, 0].reshape(-1) == 0).long().reshape(-1) * 3
-                missing_g = missing_r + 1
-                missing_b = missing_g + 1
-                missing = torch.cat([missing_r, missing_g, missing_b], dim=0)
-                H = Inpainting(3, 256, missing, mask, device)
-                inpainting = True
-            elif measure_config['operator']['name'][:10] == 'sr_bicubic':
-                sr = True
-                factor = int(measure_config['operator']['name'][10:])
-                blur_by = factor
-                def bicubic_kernel(x, a=-0.5):
-                    if abs(x) <= 1:
-                        return (a + 2) * abs(x) ** 3 - (a + 3) * abs(x) ** 2 + 1
-                    elif 1 < abs(x) and abs(x) < 2:
-                        return a * abs(x) ** 3 - 5 * a * abs(x) ** 2 + 8 * a * abs(x) - 4 * a
-                    else:
-                        return 0
-
-                k = np.zeros((factor * 4))
-                for q in range(factor * 4):
-                    x = (1 / factor) * (q - np.floor(factor * 4 / 2) + 0.5)
-                    k[q] = bicubic_kernel(x)
-                k = k / np.sum(k)
-                kernel = torch.from_numpy(k).float().to(device)
-                H = SRConv(kernel / kernel.sum(), 3, 256, device, stride=factor)
-            elif measure_config['operator']['name'] == 'blur_uni':
-                H = Deblurring(torch.Tensor([1/9] * 9).to(device), 3, 256, device)
-            elif measure_config['operator']['name'] == 'blur_gauss':
-                sigma = 3.0
-                pdf = lambda x: torch.exp(-0.5 * (x / sigma) ** 2)
-                kernel = pdf(torch.arange(61) - 30).to(device)
-                kernel = kernel / kernel.sum()
-                H = Deblurring(kernel, 3, 256, device)
-            elif measure_config['operator']['name'] == 'blur_aniso':
-                sigma = 20
-                pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
-                kernel2 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
-                    device)
-                sigma = 1
-                pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
-                kernel1 = torch.Tensor([pdf(-4), pdf(-3), pdf(-2), pdf(-1), pdf(0), pdf(1), pdf(2), pdf(3), pdf(4)]).to(
-                    device)
-                H = Deblurring2D(kernel1 / kernel1.sum(), kernel2 / kernel2.sum(), 3,
-                                       256, device)
-            elif measure_config['operator']['name'] == 'color':
-                coloring = True
-                H = Colorization(256, device)
-            elif measure_config['operator']['name'][:2] == 'sr':
-                sr = True
-                blur_by = int(measure_config['operator']['name'][2:])
-                H = SuperResolution(3, 256, blur_by, device)
-            else:
-                H = Denoising(3, 256, device)
 
             # y_n = operator.forward(ref_img, mask=mask)
             y_n = H.H(ref_img)
