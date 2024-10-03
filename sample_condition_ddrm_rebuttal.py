@@ -223,8 +223,8 @@ def main():
 
             base_im_count += sample.shape[0]
 
-            if base_im_count == 10:
-                break
+            # if base_im_count == 10:
+            #     break
 
 if __name__ == '__main__':
     main()
