@@ -7,7 +7,7 @@ image_size: 256
 conditioning:
   method: ps
   params:
-    scale: 1.8
+    scale: 1.0
 
 data:
   name: ffhq
@@ -21,4 +21,4 @@ measurement:
   
   noise: 
     name: gaussian
-    sigma: 0.0
+    sigma: 0.05

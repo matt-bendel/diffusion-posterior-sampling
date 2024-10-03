@@ -12,7 +12,7 @@ import numpy as np
 from guided_diffusion.condition_methods import get_conditioning_method
 from guided_diffusion.measurements import get_noise, get_operator
 from guided_diffusion.unet import create_model
-from guided_diffusion.gaussian_diffusion_ddnm import create_sampler
+from guided_diffusion.gaussian_diffusion_ddrm import create_sampler
 from data.dataloader import get_dataset, get_dataloader
 from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
@@ -211,21 +211,20 @@ def main():
 
                 for j in range(sample.shape[0]):
                     torch.save(sample[j].detach().cpu(),
-                               f'/storage/matt_models/inpainting/ddnm/test_20k/image_{base_im_count + j}_sample_{k}.pt')
+                               f'/storage/matt_models/inpainting/ddrm/test_20k/image_{base_im_count + j}_sample_{k}.pt')
                     torch.save(mask[j].detach().cpu(),
-                               f'/storage/matt_models/inpainting/ddnm/test_20k/image_{base_im_count + j}_mask.pt')
+                               f'/storage/matt_models/inpainting/ddrm/test_20k/image_{base_im_count + j}_mask.pt')
 
                     if j == 0:
-                        plt.imsave(f'/storage/matt_models/inpainting/ddnm/test_{j}.png',
+                        plt.imsave(f'/storage/matt_models/inpainting/ddrm/test_{j}.png',
                                    clear_color(sample[j].unsqueeze(0)))
-                        plt.imsave(f'/storage/matt_models/inpainting/ddnm/test_y_{j}.png', clear_color(y[j].unsqueeze(0)))
+                        plt.imsave(f'/storage/matt_models/inpainting/ddrm/test_y_{j}.png', clear_color(y[j].unsqueeze(0)))
+
 
             base_im_count += sample.shape[0]
-            if base_im_count == 10:
-                exit()
 
-            # if base_im_count == 20:
-            #     break
+            if base_im_count == 10:
+                break
 
 if __name__ == '__main__':
     main()
