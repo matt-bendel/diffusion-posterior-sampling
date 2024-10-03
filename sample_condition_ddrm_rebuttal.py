@@ -57,6 +57,9 @@ def main():
     diffusion_config = load_yaml(args.diffusion_config)
     task_config = load_yaml(args.task_config)
 
+    diffusion_config['sampler'] = 'ddim'
+    diffusion_config['timestep_respacing'] = 20
+
     # assert model_config['learn_sigma'] == diffusion_config['learn_sigma'], \
     # "learn_sigma must be the same for model and diffusion configuartion."
 
