@@ -70,7 +70,8 @@ class FFHQDataModule(pl.LightningDataModule):
         full_data = datasets.ImageFolder(self.args.data_path, transform=transform)
 
         # Split into 1k val set for lr tune
-        test_data = datasets.ImageFolder('/storage/FFHQ/ffhq256_firetest', transform=transform)
+        # test_data = datasets.ImageFolder('/storage/FFHQ/ffhq256_firetest', transform=transform)
+        test_data = torch.utils.data.Subset(full_data, range(50000, 70000))
 
         lr_tune = torch.utils.data.Subset(full_data, range(50000, 50050))
 
