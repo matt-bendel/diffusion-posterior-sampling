@@ -84,7 +84,7 @@ class FFHQDataModule(pl.LightningDataModule):
             generator=torch.Generator().manual_seed(0)
         )
 
-        self.train, self.validate, self.test = train_data, dev_data, test_data
+        self.train, self.validate, self.test_data = train_data, dev_data, test_data
 
         # self.full_data, self.lr_tune_data, self.test_data = full_data, lr_tune, test_data
 
