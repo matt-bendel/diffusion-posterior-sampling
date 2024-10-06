@@ -76,7 +76,7 @@ class FFHQDataModule(pl.LightningDataModule):
         # lr_tune = torch.utils.data.Subset(full_data, range(50000, 50050))
 
         transform = transforms.Compose([transforms.ToTensor(), DataTransform(self.args)])
-        train_val_dataset = datasets.ImageFolder('/storage/FFHQ/ffhq256', transform=transform)
+        train_val_dataset = datasets.ImageFolder('/storage/FFHQ/ffhq256_49k_if', transform=transform)
         test_data = datasets.ImageFolder('/storage/FFHQ/ffhq256_900_if', transform=transform)
 
         train_data, dev_data = torch.utils.data.random_split(
