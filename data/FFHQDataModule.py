@@ -66,16 +66,27 @@ class FFHQDataModule(pl.LightningDataModule):
 
     def setup(self, stage: Optional[str] = None):
         # Assign train/val datasets for use in dataloaders
-        transform = transforms.Compose([transforms.ToTensor(), DataTransform(self.args)])
-        full_data = datasets.ImageFolder(self.args.data_path, transform=transform)
-
+        # transform = transforms.Compose([transforms.ToTensor(), DataTransform(self.args)])
+        # full_data = datasets.ImageFolder(self.args.data_path, transform=transform)
+        #
         # Split into 1k val set for lr tune
         # test_data = datasets.ImageFolder('/storage/FFHQ/ffhq256_firetest', transform=transform)
-        test_data = torch.utils.data.Subset(full_data, range(50000, 70000))
+        # test_data = torch.utils.data.Subset(full_data, range(50000, 70000))
+        #
+        # lr_tune = torch.utils.data.Subset(full_data, range(50000, 50050))
 
-        lr_tune = torch.utils.data.Subset(full_data, range(50000, 50050))
+        transform = transforms.Compose([transforms.ToTensor(), DataTransform(self.args)])
+        train_val_dataset = datasets.ImageFolder(self.args.data_path, transform=transform)
+        test_data = datasets.ImageFolder(self.args.data_path_test, transform=transform)
 
-        self.full_data, self.lr_tune_data, self.test_data = full_data, lr_tune, test_data
+        train_data, dev_data = torch.utils.data.random_split(
+            train_val_dataset, [45000, 4000],
+            generator=torch.Generator().manual_seed(0)
+        )
+
+        self.train, self.validate, self.test = train_data, dev_data, test_data
+
+        # self.full_data, self.lr_tune_data, self.test_data = full_data, lr_tune, test_data
 
     # define your dataloaders
     # again, here defined for train, validate and test, not for predict as the project is not there yet.
