@@ -111,7 +111,7 @@ def main():
             ref_img = x.to(device)
 
             mask = torch.zeros(mask.shape)
-            mask[0] = torch.load(f'/storage/matt_models/inpainting/dps/test_20k/image_{base_im_count}_mask.pt')
+            mask[0] = torch.load(f'/storage/matt_models/inpainting/dps/test/image_{base_im_count}_mask.pt')
             mask = mask.cuda()
 
             measurement_cond_fn = partial(cond_method.conditioning, mask=mask)
