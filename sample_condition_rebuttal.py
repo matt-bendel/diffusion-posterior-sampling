@@ -93,7 +93,7 @@ def main():
     # Do Inference
     print(len(test_loader))
 
-    for k in range(5):
+    for k in range(10):
         base_im_count = 0
         for i, data in enumerate(test_loader):
             logger.info(f"Inference for image {i}")
