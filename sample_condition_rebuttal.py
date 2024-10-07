@@ -99,6 +99,8 @@ def main():
             logger.info(f"Inference for image {i}")
             y, x, mask, mean, std = data[0]
             img_inds = [765, 241, 454, 828, 477, 52, 503, 47, 623, 729, 42, 345, 614, 54, 489, 349, 287, 833, 342, 73, 633, 873, 387, 350, 109, 805, 376, 404, 590, 672]
+            img_inds = [765, 241, 454, 828, 477, 109, 287, 342, 387, 623, 633, 729, 805, 503]
+
             if i not in img_inds:
                 base_im_count += y.shape[0]
                 continue
