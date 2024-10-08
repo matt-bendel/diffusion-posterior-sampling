@@ -55,7 +55,7 @@ class DataTransform:
         top = int(np.ceil((height - new_height) / 2))
         bottom = height - int(np.floor((height - new_height) / 2))
 
-        center_cropped_img = img[..., top:bottom, left:right]
+        center_cropped_img = gt_im[..., top:bottom, left:right]
         print(center_cropped_img.shape)
         exit()
 
