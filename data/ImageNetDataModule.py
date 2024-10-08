@@ -60,7 +60,7 @@ class DataTransform:
         mean = torch.tensor([0.5, 0.5, 0.5])
         std = torch.tensor([0.5, 0.5, 0.5])
         gt = (gt_im - mean[:, None, None]) / std[:, None, None]
-        masked_im = gt * mask
+        masked_im = gt
 
         return masked_im.float(), gt.float(), mask.float(), mean.float(), std.float()
 
