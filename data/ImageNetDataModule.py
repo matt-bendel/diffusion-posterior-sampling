@@ -43,10 +43,6 @@ class DataTransform:
         # arr[256 // 4: 3 * 256 // 4, 256 // 4: 3 * 256 // 4] = 0
         # mask = torch.tensor(np.reshape(arr, (256, 256)), dtype=torch.float).repeat(3, 1, 1)
 
-        # TODO: Process imagenet gt...
-        print(gt_im.shape)
-        exit()
-
         width = gt_im.shape[2]
         height = gt_im.shape[1]
 
@@ -60,7 +56,8 @@ class DataTransform:
         bottom = height - int(np.floor((height - new_height) / 2))
 
         center_cropped_img = img[..., top:bottom, left:right]
-
+        print(center_cropped_img.shape)
+        exit()
 
         mean = torch.tensor([0.5, 0.5, 0.5])
         std = torch.tensor([0.5, 0.5, 0.5])
