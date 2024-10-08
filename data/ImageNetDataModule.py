@@ -89,7 +89,8 @@ class ImageNetDataModule(pl.LightningDataModule):
         transform = transforms.Compose([transforms.ToTensor(), DataTransform(self.args)])
 
         # Split into 1k val set for lr tune
-        test_data = datasets.ImageFolder('/storage/ImageNet/imagenet_1k_val', transform=transform)
+        full_data = datasets.ImageFolder('/storage/ImageNet/imagenet_1k_val', transform=transform)
+        test_data = torch.utils.data.Subset(full_data, range(0, 1000))
 
         self.full_data, self.lr_tune_data, self.test_data = test_data, test_data, test_data
 
