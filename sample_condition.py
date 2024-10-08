@@ -18,6 +18,7 @@ from data.dataloader import get_dataset, get_dataloader
 from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
 from data.FFHQDataModule import FFHQDataModule
+from data.ImageNetDataModule import ImageNetDataModule
 from pytorch_lightning import seed_everything
 from torchmetrics.functional import peak_signal_noise_ratio
 
@@ -39,6 +40,7 @@ def main():
     parser.add_argument('--task_config', type=str)
     parser.add_argument('--gpu', type=int, default=0)
     parser.add_argument('--save_dir', type=str, default='./results')
+    parser.add_argument('--imagenet', action='store_true')
     args = parser.parse_args()
     seed_everything(1, workers=True)
    
@@ -86,8 +88,11 @@ def main():
         os.makedirs(os.path.join(out_path, img_dir), exist_ok=True)
 
     # Prepare dataloader
+    if args.imagenet:
+        dm = ImageNetDataModule(load_object(task_config))
+    else:
+        dm = FFHQDataModule(load_object(task_config))
 
-    dm = FFHQDataModule(load_object(task_config))
     dm.setup()
     test_loader = dm.test_dataloader()
     loss_fn_vgg = lpips.LPIPS(net='vgg').cuda()
@@ -133,7 +138,7 @@ def main():
             # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
             # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
             for j in range(sample.shape[0]):
-                plt.imsave(f'/storage/matt_models/dps/ffhq/sr_bicubic4/image_{i * y.shape[0] + j}.png',
+                plt.imsave(f'/storage/matt_models/dps/{"imagenet" if args.imagenet else "ffhq"}/sr_bicubic4/image_{i * y.shape[0] + j}.png',
                            clear_color(sample[j].unsqueeze(0)))
 
             base_im_count += sample.shape[0]

@@ -18,6 +18,7 @@ from data.dataloader import get_dataset, get_dataloader
 from util.img_utils import clear_color, mask_generator
 from util.logger import get_logger
 from data.FFHQDataModule import FFHQDataModule
+from data.ImageNetDataModule import ImageNetDataModule
 from pytorch_lightning import seed_everything
 from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising, Deblurring2D, Colorization, SuperResolution, SRConv
 from util.inpaint.get_mask import MaskCreator
@@ -43,6 +44,7 @@ def main():
     parser.add_argument('--task_config', type=str)
     parser.add_argument('--gpu', type=int, default=0)
     parser.add_argument('--save_dir', type=str, default='./results')
+    parser.add_argument('--imagenet', action='store_true')
     args = parser.parse_args()
     seed_everything(1, workers=True)
 
@@ -94,7 +96,11 @@ def main():
 
     # Prepare dataloader
 
-    dm = FFHQDataModule(load_object(task_config))
+    if args.imagenet:
+        dm = ImageNetDataModule(load_object(task_config))
+    else:
+        dm = FFHQDataModule(load_object(task_config))
+
     dm.setup()
     test_loader = dm.test_dataloader()
 
@@ -224,7 +230,7 @@ def main():
                     y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2] if not sr else ref_img.shape[2] // blur_by, ref_img.shape[3] if not sr else ref_img.shape[2] // blur_by)
 
                 for j in range(sample.shape[0]):
-                    plt.imsave(f'/storage/matt_models/ddrm/ffhq/{deg}/image_{i * y.shape[0] + j}.png',
+                    plt.imsave(f'/storage/matt_models/ddrm/{"imagenet" if args.imagenet else "ffhq"}/{deg}/image_{i * y.shape[0] + j}.png',
                                clear_color(sample[j].unsqueeze(0)))
 
         print(f'Avg. LPIPS: {np.mean(lpips_vals)} +/- {np.std(lpips_vals) / len(lpips_vals)}')

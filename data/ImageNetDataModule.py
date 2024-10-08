@@ -3,6 +3,7 @@ from torchvision import datasets, transforms
 import pytorch_lightning as pl
 from typing import Optional
 from util.inpaint.get_mask import MaskCreator
+from util.img_utils import center_crop
 
 import pathlib
 import cv2
@@ -42,6 +43,25 @@ class DataTransform:
         # arr[256 // 4: 3 * 256 // 4, 256 // 4: 3 * 256 // 4] = 0
         # mask = torch.tensor(np.reshape(arr, (256, 256)), dtype=torch.float).repeat(3, 1, 1)
 
+        # TODO: Process imagenet gt...
+        print(gt_im.shape)
+        exit()
+
+        width = gt_im.shape[2]
+        height = gt_im.shape[1]
+
+        new_width = 256
+        new_height = 256
+
+        left = int(np.ceil((width - new_width) / 2))
+        right = width - int(np.floor((width - new_width) / 2))
+
+        top = int(np.ceil((height - new_height) / 2))
+        bottom = height - int(np.floor((height - new_height) / 2))
+
+        center_cropped_img = img[..., top:bottom, left:right]
+
+
         mean = torch.tensor([0.5, 0.5, 0.5])
         std = torch.tensor([0.5, 0.5, 0.5])
         gt = (gt_im - mean[:, None, None]) / std[:, None, None]
@@ -50,7 +70,7 @@ class DataTransform:
         return masked_im.float(), gt.float(), mask.float(), mean.float(), std.float()
 
 
-class FFHQDataModule(pl.LightningDataModule):
+class ImageNetDataModule(pl.LightningDataModule):
     """
     DataModule used for semantic segmentation in geometric generalization project
     """
@@ -67,14 +87,11 @@ class FFHQDataModule(pl.LightningDataModule):
     def setup(self, stage: Optional[str] = None):
         # Assign train/val datasets for use in dataloaders
         transform = transforms.Compose([transforms.ToTensor(), DataTransform(self.args)])
-        full_data = datasets.ImageFolder(self.args.data_path, transform=transform)
 
         # Split into 1k val set for lr tune
-        test_data = datasets.ImageFolder('/storage/FFHQ/ffhq256_firetest', transform=transform)
+        test_data = datasets.ImageFolder('/storage/ImageNet/imagenet_1k_val', transform=transform)
 
-        lr_tune = torch.utils.data.Subset(full_data, range(50000, 50050))
-
-        self.full_data, self.lr_tune_data, self.test_data = full_data, lr_tune, test_data
+        self.full_data, self.lr_tune_data, self.test_data = test_data, test_data, test_data
 
     # define your dataloaders
     # again, here defined for train, validate and test, not for predict as the project is not there yet.
