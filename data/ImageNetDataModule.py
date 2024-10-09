@@ -43,7 +43,7 @@ class DataTransform:
         # arr = np.ones((256, 256))
         # arr[256 // 4: 3 * 256 // 4, 256 // 4: 3 * 256 // 4] = 0
         # mask = torch.tensor(np.reshape(arr, (256, 256)), dtype=torch.float).repeat(3, 1, 1)
-        pil_image = Image.fromarray(np.transpose(gt_im, (1, 2, 0)))
+        pil_image = Image.fromarray(np.transpose(gt_im.numpy(), (1, 2, 0)))
         image_size = 256
 
         while min(*pil_image.size) >= 2 * image_size:
