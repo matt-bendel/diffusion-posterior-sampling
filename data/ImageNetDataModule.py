@@ -61,8 +61,7 @@ class DataTransform:
         crop_x = (arr.shape[1] - image_size) // 2
         gt_im = np.transpose(arr[crop_y: crop_y + image_size, crop_x: crop_x + image_size, :], (2, 0, 1))
 
-        # TODO: between -1,1
-        gt = gt_im / 127.5 - 1
+        gt = torch.tensor(gt_im / 127.5 - 1)
 
         mean = torch.tensor([0.5, 0.5, 0.5])
         std = torch.tensor([0.5, 0.5, 0.5])
