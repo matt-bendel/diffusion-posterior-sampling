@@ -43,7 +43,7 @@ class DataTransform:
         # arr = np.ones((256, 256))
         # arr[256 // 4: 3 * 256 // 4, 256 // 4: 3 * 256 // 4] = 0
         # mask = torch.tensor(np.reshape(arr, (256, 256)), dtype=torch.float).repeat(3, 1, 1)
-        pil_image = Image.fromarray(np.transpose(gt_im.numpy(), (1, 2, 0)))
+        pil_image = Image.fromarray(np.uint8(np.transpose(gt_im.numpy(), (1, 2, 0)) * 255))
         image_size = 256
 
         while min(*pil_image.size) >= 2 * image_size:
@@ -61,9 +61,12 @@ class DataTransform:
         crop_x = (arr.shape[1] - image_size) // 2
         gt_im = np.transpose(arr[crop_y: crop_y + image_size, crop_x: crop_x + image_size, :], (2, 0, 1))
 
+        # TODO: between -1,1
+        gt = gt_im / 127.5 - 1
+
         mean = torch.tensor([0.5, 0.5, 0.5])
         std = torch.tensor([0.5, 0.5, 0.5])
-        gt = (gt_im - mean[:, None, None]) / std[:, None, None]
+        # gt = (gt_im - mean[:, None, None]) / std[:, None, None]
         masked_im = gt
 
         return masked_im.float(), gt.float(), mask.float(), mean.float(), std.float()
