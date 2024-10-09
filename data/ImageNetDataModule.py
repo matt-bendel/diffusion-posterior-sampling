@@ -4,6 +4,7 @@ import pytorch_lightning as pl
 from typing import Optional
 from util.inpaint.get_mask import MaskCreator
 from util.img_utils import center_crop
+from PIL import Image
 
 import pathlib
 import cv2
@@ -42,20 +43,23 @@ class DataTransform:
         # arr = np.ones((256, 256))
         # arr[256 // 4: 3 * 256 // 4, 256 // 4: 3 * 256 // 4] = 0
         # mask = torch.tensor(np.reshape(arr, (256, 256)), dtype=torch.float).repeat(3, 1, 1)
+        pil_image = Image.fromarray(np.transpose(gt_im, (1, 2, 0)))
+        image_size = 256
 
-        width = gt_im.shape[2]
-        height = gt_im.shape[1]
+        while min(*pil_image.size) >= 2 * image_size:
+            pil_image = pil_image.resize(
+                tuple(x // 2 for x in pil_image.size), resample=Image.BOX
+            )
 
-        new_width = 256
-        new_height = 256
+        scale = image_size / min(*pil_image.size)
+        pil_image = pil_image.resize(
+            tuple(round(x * scale) for x in pil_image.size), resample=Image.BICUBIC
+        )
 
-        left = int(np.ceil((width - new_width) / 2))
-        right = width - int(np.floor((width - new_width) / 2))
-
-        top = int(np.ceil((height - new_height) / 2))
-        bottom = height - int(np.floor((height - new_height) / 2))
-
-        gt_im = gt_im[..., top:bottom, left:right]
+        arr = np.array(pil_image)
+        crop_y = (arr.shape[0] - image_size) // 2
+        crop_x = (arr.shape[1] - image_size) // 2
+        gt_im = np.transpose(arr[crop_y: crop_y + image_size, crop_x: crop_x + image_size, :], (2, 0, 1))
 
         mean = torch.tensor([0.5, 0.5, 0.5])
         std = torch.tensor([0.5, 0.5, 0.5])
