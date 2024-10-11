@@ -138,7 +138,7 @@ def main():
             # plt.imsave(os.path.join(out_path, 'input', fname), clear_color(y_n))
             # plt.imsave(os.path.join(out_path, 'label', fname), clear_color(ref_img))
             for j in range(sample.shape[0]):
-                plt.imsave(f'/storage/matt_models/dps/{"imagenet" if args.imagenet else "ffhq"}/blur_gauss_noisy/image_{i * y.shape[0] + j}.png',
+                plt.imsave(f'/storage/matt_models/dps/{"imagenet" if args.imagenet else "ffhq"}/sr_bicubic4_noisy/image_{i * y.shape[0] + j}.png',
                            clear_color(sample[j].unsqueeze(0)))
 
             base_im_count += sample.shape[0]

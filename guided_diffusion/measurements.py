@@ -86,6 +86,7 @@ class SuperResolutionOperator(LinearOperator):
     def project(self, data, measurement, **kwargs):
         return data - self.transpose(self.forward(data)) + self.transpose(measurement)
 
+
 @register_operator(name='motion_blur')
 class MotionBlurOperator(LinearOperator):
     def __init__(self, kernel_size, intensity, device):
@@ -132,6 +133,7 @@ class GaussialBlurOperator(LinearOperator):
 
     def get_kernel(self):
         return self.kernel.view(1, 1, self.kernel_size, self.kernel_size)
+
 
 @register_operator(name='inpainting')
 class InpaintingOperator(LinearOperator):
