@@ -105,6 +105,14 @@ def main():
         y, x, _, mean, std = data[0]
 
         # TODO: Save x...
+        if i < 1000:
+            plt.imsave(
+                f'/storage/imagenet_val/{i:05}.png',
+                clear_color(x[0].unsqueeze(0)))
+
+        plt.imsave(
+            f'/storage/imagenet_ref/{i:05}.png',
+            clear_color(x[0].unsqueeze(0)))
 
 
 if __name__ == '__main__':
