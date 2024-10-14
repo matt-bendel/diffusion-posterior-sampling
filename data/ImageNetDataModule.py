@@ -93,7 +93,7 @@ class ImageNetDataModule(pl.LightningDataModule):
         full_data = datasets.ImageFolder('/storage/ImageNet', transform=transform)
         test_data = torch.utils.data.Subset(full_data, range(0, 1000))
 
-        self.full_data, self.lr_tune_data, self.test_data = test_data, test_data, test_data
+        self.full_data, self.lr_tune_data, self.test_data = full_data, test_data, test_data
 
     # define your dataloaders
     # again, here defined for train, validate and test, not for predict as the project is not there yet.
