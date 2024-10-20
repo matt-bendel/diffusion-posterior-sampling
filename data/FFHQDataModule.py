@@ -66,18 +66,18 @@ class FFHQDataModule(pl.LightningDataModule):
 
     def setup(self, stage: Optional[str] = None):
         # Assign train/val datasets for use in dataloaders
-        # transform = transforms.Compose([transforms.ToTensor(), DataTransform(self.args)])
+        transform = transforms.Compose([transforms.ToTensor(), DataTransform(self.args)])
         # full_data = datasets.ImageFolder(self.args.data_path, transform=transform)
         #
         # Split into 1k val set for lr tune
-        # test_data = datasets.ImageFolder('/storage/FFHQ/ffhq256_firetest', transform=transform)
+        test_data = datasets.ImageFolder('/storage/FFHQ/ffhq256_firetest', transform=transform)
         # test_data = torch.utils.data.Subset(full_data, range(50000, 70000))
         #
         # lr_tune = torch.utils.data.Subset(full_data, range(50000, 50050))
 
-        transform = transforms.Compose([transforms.ToTensor(), DataTransform(self.args)])
+        # transform = transforms.Compose([transforms.ToTensor(), DataTransform(self.args)])
         train_val_dataset = datasets.ImageFolder('/storage/FFHQ/ffhq256_49k_if', transform=transform)
-        test_data = datasets.ImageFolder('/storage/FFHQ/ffhq256_900_if', transform=transform)
+        # test_data = datasets.ImageFolder('/storage/FFHQ/ffhq256_900_if', transform=transform)
 
         train_data, dev_data = torch.utils.data.random_split(
             train_val_dataset, [45000, 4000],
