@@ -199,12 +199,12 @@ class GaussianDiffusion:
                                       x_0_hat=out['pred_xstart'])
             img = img.detach_()
 
-            prior_score = - out['noise'] / torch.sqrt(1 - extract_and_expand(self.alphas_cumprod, t, out['noise']))
+            prior_score = - out['noise'] / torch.sqrt(1 - extract_and_expand(self.alphas_cumprod, time, out['noise']))
             likelihood_score = norm_grad
 
             posterior_score = prior_score + likelihood_score
 
-            pred_clean_im = (x_t + (1 - extract_and_expand(self.alphas_cumprod, t, x_t)) * posterior_score) / extract_and_expand(self.sqrt_alphas_cumprod, t, x_t)
+            pred_clean_im = (x_t + (1 - extract_and_expand(self.alphas_cumprod, time, x_t)) * posterior_score) / extract_and_expand(self.sqrt_alphas_cumprod, time, x_t)
             file_path = f"/storage/matt_models/inpainting/dps/cond_mean/x_cond_mean_{str(idx).zfill(4)}.png"
             plt.imsave(file_path, clear_color(pred_clean_im[0]))
            
