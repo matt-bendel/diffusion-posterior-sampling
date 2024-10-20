@@ -85,7 +85,7 @@ class PosteriorSampling(ConditioningMethod):
     def conditioning(self, x_prev, x_t, x_0_hat, measurement, **kwargs):
         norm_grad, norm = self.grad_and_value(x_prev=x_prev, x_0_hat=x_0_hat, measurement=measurement, **kwargs)
         x_t -= norm_grad * self.scale
-        return x_t, norm
+        return x_t, norm, self.scale * norm_grad
         
 @register_conditioning_method(name='ps+')
 class PosteriorSamplingPlus(ConditioningMethod):

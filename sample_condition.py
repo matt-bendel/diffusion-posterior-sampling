@@ -105,6 +105,9 @@ def main():
     for k in range(1):
         base_im_count = 0
         for i, data in enumerate(test_loader):
+            if i == 0:
+                continue
+
             logger.info(f"Inference for image {i}")
             y, x, mask, mean, std = data[0]
 
@@ -131,6 +134,7 @@ def main():
             x_start = torch.randn(ref_img.shape, device=device).requires_grad_()
             sample = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path)
             print(sample.shape)
+            exit()
 
             lpips_vals.append(loss_fn_vgg(sample, x).mean().detach().cpu().numpy())
             psnr_vals.append(peak_signal_noise_ratio(sample, x).mean().detach().cpu().numpy())

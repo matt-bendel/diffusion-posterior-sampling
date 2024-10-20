@@ -183,7 +183,8 @@ class GaussianDiffusion:
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
-            
+            x_t = img.clone()
+
             img = img.requires_grad_()
             out = self.p_sample(x=img, t=time, model=model)
             
@@ -191,12 +192,21 @@ class GaussianDiffusion:
             noisy_measurement = self.q_sample(measurement, t=time)
 
             # TODO: how can we handle argument for different condition method?
-            img, distance = measurement_cond_fn(x_t=out['sample'],
+            img, distance, norm_grad = measurement_cond_fn(x_t=out['sample'],
                                       measurement=measurement,
                                       noisy_measurement=noisy_measurement,
                                       x_prev=img,
                                       x_0_hat=out['pred_xstart'])
             img = img.detach_()
+
+            prior_score = - out['noise'] / torch.sqrt(1 - extract_and_expand(self.alphas_cumprod, t, out['noise']))
+            likelihood_score = norm_grad
+
+            posterior_score = prior_score + likelihood_score
+
+            pred_clean_im = (x_t + (1 - extract_and_expand(self.alphas_cumprod, t, x_t)) * posterior_score) / extract_and_expand(self.sqrt_alphas_cumprod, t, x_t)
+            file_path = f"/storage/matt_models/inpainting/dps/cond_mean/x_cond_mean_{str(idx).zfill(4)}.png"
+            plt.imsave(file_path, clear_color(pred_clean_im[0]))
            
             pbar.set_postfix({'distance': distance.item()}, refresh=False)
             if record:
@@ -229,7 +239,8 @@ class GaussianDiffusion:
         return {'mean': model_mean,
                 'variance': model_variance,
                 'log_variance': model_log_variance,
-                'pred_xstart': pred_xstart}
+                'pred_xstart': pred_xstart,
+                'noise': model_output}
 
     
     def _scale_timesteps(self, t):
@@ -370,7 +381,7 @@ class DDPM(SpacedDiffusion):
         if t[0] != 0:  # no noise when t == 0
             sample += torch.exp(0.5 * out['log_variance']) * noise
 
-        return {'sample': sample, 'pred_xstart': out['pred_xstart']}
+        return {'sample': sample, 'pred_xstart': out['pred_xstart'], 'noise': out['noise']}
     
 
 @register_sampler(name='ddim')
