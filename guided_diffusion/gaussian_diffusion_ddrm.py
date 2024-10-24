@@ -226,7 +226,7 @@ class GaussianDiffusion:
         # elif meas_type == 'blur_uni':
         #     svd = Deblurring(torch.Tensor([1 / 9] * 9).to(x_start.device), x_start.shape[1], x_start.shape[2], x_start.device)
         # elif meas_type == 'blur_gauss':
-        #     sigma = 3.0
+        #     sigma = np.sqrt(3.0)
         #     pdf = lambda x: torch.exp(-0.5 * (x / sigma) ** 2)
         #     kernel = pdf(torch.arange(61) - 30).to(device)
         #     kernel = kernel / kernel.sum()
