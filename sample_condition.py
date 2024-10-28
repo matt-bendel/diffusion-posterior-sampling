@@ -105,9 +105,6 @@ def main():
     for k in range(1):
         base_im_count = 0
         for i, data in enumerate(test_loader):
-            if i == 0:
-                continue
-
             logger.info(f"Inference for image {i}")
             y, x, mask, mean, std = data[0]
 
