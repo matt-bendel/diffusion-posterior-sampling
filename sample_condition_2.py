@@ -125,8 +125,6 @@ def main():
 
             # Forward measurement model (Ax + n)
             y = operator.forward(ref_img, mask=mask)
-            plt.imsave('tmp_y.png', clear_color(y[0].unsqueeze(0)))
-            exit()
             y_n = noiser(y)
 
             # Sampling
