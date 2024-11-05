@@ -174,7 +174,7 @@ def main():
             kernel = pdf(torch.arange(61) - 30).to(device)
             kernel = kernel / kernel.sum()
             H = Deblurring(kernel, 3, 256, device)
-        elif args.deg == 'blur_motion':
+        elif measure_config['operator']['name'] == 'blur_motion':
             H = MotionBlurOperator(61, 0.5, 3, 256, device)
         elif measure_config['operator']['name'] == 'blur_aniso':
             sigma = 20
