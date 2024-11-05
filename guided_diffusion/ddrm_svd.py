@@ -306,6 +306,108 @@ class Colorization(H_functions):
         return temp
 
 
+class MotionBlurOperator(H_functions):
+    def __init__(self, kk, intensity, channels, img_dim, device, ready_kernel=None):
+        d = img_dim ** 2  # number of pixels
+
+        # vectorization functions
+        d_sqrt = int(np.sqrt(d))
+
+        self.img_dim = img_dim
+        self.channels = channels
+        self.s_star = 1.0
+        self.kernel_size = kk
+        self.pad_size = 64
+        # self.pad_size = 0
+
+        if ready_kernel is not None:
+            kernel = ready_kernel
+        else:
+            kernel = Kernel(size=(kk, kk), intensity=intensity)
+            kernel = torch.tensor(kernel.kernelMatrix).numpy()
+
+        dzp = d_sqrt + self.pad_size  # padded image is dzp-by-dzp
+        kh = int((kk - 1) / 2)
+        off = int(dzp / 2) - kh
+        Gzp = np.zeros((dzp, dzp))  # zero-pad to size dzp-by-dzp
+        Gzp[off:off + kk, off:off + kk] = kernel  # peak at center
+        Gzp = np.fft.ifftshift(Gzp)  # peak at (0,0)
+        self.fftGzp = torch.tensor(np.real(np.fft.fft2(Gzp))).to(device).unsqueeze(0).repeat(self.channels, 1, 1)  # complex with zero-valued imaginary part
+
+        self.sing = self.fftGzp.reshape(-1)
+
+    def im2vec(self, im):
+        return im.reshape(im.shape[0], -1).clone()
+
+    def vec2im(self, vec):
+        return vec.reshape(vec.shape[0], self.channels, self.img_dim, self.img_dim)
+
+    def pad(self, im, p):
+        # replicate-padding function and its adjoint
+        return F.pad(im, (p, p, p, p), mode='replicate')
+
+    def padT(self, im, p):
+        new_im = im.clone()
+
+        if p != 0:
+            new_im[:, :, p, :] = torch.sum(new_im[:, :, :p + 1, :], dim=2)
+            new_im[:, :, -p - 1, :] = torch.sum(new_im[:, :,  -p - 1:, :], dim=2)
+            new_im[:, :, :, p] = torch.sum(new_im[:, :, :, :p + 1], dim=3)
+            new_im[:, :, :, -p - 1] = torch.sum(new_im[:, :, :, -p - 1:], dim=3)
+            new_im = new_im[:, :, p:-p, p:-p]
+
+        return new_im
+
+    def unpad(self, im, p):
+        return im[:, :, p:-p, p:-p]
+
+    def unpadT(self, im, p):
+        return F.pad(im, (p, p, p, p), mode='constant', value=0.)
+
+    def H(self, vec):
+        pd = lambda X: self.pad(X, self.pad_size // 2)
+        upd = lambda X: self.unpad(X, self.pad_size // 2)
+
+        return self.im2vec(upd(torch.real(torch.fft.ifft2(self.fftGzp[None, :, :, :] * torch.fft.fft2(pd(self.vec2im(vec))))))).float()
+
+    def H_pinv(self, vec):
+        pdT = lambda X: self.padT(X, self.pad_size // 2)
+        updT = lambda X: self.unpadT(X, self.pad_size // 2)
+        pinv_vals = self.fftGzp.clone()
+        pinv_vals[self.fftGzp > 0] = 1 / self.fftGzp[self.fftGzp > 0]
+
+        return self.im2vec(pdT(torch.real(torch.fft.ifft2(pinv_vals[None, :, :, :] * torch.fft.fft2(updT(self.vec2im(vec))))))).float()
+
+    def Ht(self, vec):
+        pdT = lambda X: self.padT(X, self.pad_size // 2)
+        updT = lambda X: self.unpadT(X, self.pad_size // 2)
+
+        return self.im2vec(pdT(torch.real(torch.fft.ifft2(self.fftGzp[None, :, :, :] * torch.fft.fft2(updT(self.vec2im(vec))))))).float()
+
+    # def H(self, vec):
+    #     return self.im2vec(torch.real(torch.fft.ifft2(self.fftGzp[None, :, :, :] * torch.fft.fft2(self.vec2im(vec))))).float()
+    #
+    # def Ht(self, vec):
+    #     return self.im2vec(torch.real(torch.fft.ifft2(self.fftGzp[None, :, :, :] * torch.fft.fft2(self.vec2im(vec))))).float()
+
+    def V(self, vec):
+        return self.im2vec(torch.fft.ifft2(self.vec2im(vec)))
+
+    def Vt(self, vec):
+        return self.im2vec(torch.fft.fft2(self.vec2im(vec)))
+
+    def U(self, vec):
+        return self.img_dim * self.im2vec(torch.fft.ifft2(self.vec2im(vec)))
+
+    def Ut(self, vec):
+        return (1 / self.img_dim) * self.im2vec(torch.fft.fft2(self.vec2im(vec)))
+
+    def singulars(self):
+        return self.sing
+
+    def add_zeros(self, vec):
+        return vec.clone()
+
 # Walsh-Hadamard Compressive Sensing
 class WalshHadamardCS(H_functions):
     def fwht(self, vec):  # the Fast Walsh Hadamard Transform is the same as its inverse

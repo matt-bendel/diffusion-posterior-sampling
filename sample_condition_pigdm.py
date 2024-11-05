@@ -20,7 +20,7 @@ from util.logger import get_logger
 from data.FFHQDataModule import FFHQDataModule
 from data.ImageNetDataModule import ImageNetDataModule
 from pytorch_lightning import seed_everything
-from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising, Deblurring2D, Colorization, SuperResolution, SRConv
+from guided_diffusion.ddrm_svd import Deblurring, Inpainting, Denoising, Deblurring2D, Colorization, SuperResolution, SRConv, MotionBlurOperator
 from util.inpaint.get_mask import MaskCreator
 from torchmetrics.functional import peak_signal_noise_ratio
 
@@ -112,11 +112,11 @@ def main():
     # SR DAMPING: 0.2
     # BLUR DAMPING: 0.1
 
-    operators = ['inpainting']
+    operators = ['blur_motion']
     # operators = ['blur_gauss']
     # operators = ['sr_bicubic4']
 
-    noise_levels = [0.05]
+    noise_levels = [0.0]
 
     loss_fn_vgg = lpips.LPIPS(net='vgg').cuda()
 
@@ -174,6 +174,8 @@ def main():
             kernel = pdf(torch.arange(61) - 30).to(device)
             kernel = kernel / kernel.sum()
             H = Deblurring(kernel, 3, 256, device)
+        elif args.deg == 'blur_motion':
+            H = MotionBlurOperator(61, 0.5, 3, 256, device)
         elif measure_config['operator']['name'] == 'blur_aniso':
             sigma = 20
             pdf = lambda x: torch.exp(torch.Tensor([-0.5 * (x / sigma) ** 2]))
