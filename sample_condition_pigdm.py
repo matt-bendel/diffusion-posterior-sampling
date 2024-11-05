@@ -206,6 +206,9 @@ def main():
 
             ref_img = x.to(device)
 
+            if measure_config['operator']['name'] == 'blur_motion' and i == 0:
+                H = MotionBlurOperator(61, 0.5, 3, 256, device)
+
 
             measurement_cond_fn = None #partial(cond_method.conditioning, mask=mask)
             sample_fn = partial(sample_fn, measurement_cond_fn=measurement_cond_fn)
