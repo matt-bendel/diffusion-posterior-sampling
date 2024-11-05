@@ -376,12 +376,7 @@ class MotionBlurOperator(H_functions):
         return self.im2vec(upd(torch.real(torch.fft.ifft2(self.fftGzp[None, :, :, :] * torch.fft.fft2(pd(self.vec2im(vec))))))).float()
 
     def H_pinv(self, vec):
-        pdT = lambda X: self.padT(X, self.pad_size // 2)
-        updT = lambda X: self.unpadT(X, self.pad_size // 2)
-        pinv_vals = self.fftGzp.clone()
-        pinv_vals[self.fftGzp > 0] = 1 / self.fftGzp[self.fftGzp > 0]
-
-        return self.im2vec(pdT(torch.real(torch.fft.ifft2(pinv_vals[None, :, :, :] * torch.fft.fft2(updT(self.vec2im(vec))))))).float()
+        return self.H(vec)
 
     def Ht(self, vec):
         pdT = lambda X: self.padT(X, self.pad_size // 2)
