@@ -182,6 +182,7 @@ class GaussianDiffusion:
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         count = 0
+        return_ims = []
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
             x_t = img.clone()
@@ -207,8 +208,9 @@ class GaussianDiffusion:
 
             if (idx + 1) in [250, 500, 750]:
                 pred_clean_im = (x_t + (1 - extract_and_expand(self.alphas_cumprod, time, x_t)) * posterior_score) / extract_and_expand(self.sqrt_alphas_cumprod, time, x_t)
-                file_path = f"tmp_intermediate_dps_{str(idx).zfill(4)}.png"
-                plt.imsave(file_path, clear_color(pred_clean_im[0]))
+                # file_path = f"tmp_intermediate_dps_{str(idx).zfill(4)}.png"
+                # plt.imsave(file_path, clear_color(pred_clean_im[0]))
+                return_ims.append(pred_clean_im[0])
            
             pbar.set_postfix({'distance': distance.item()}, refresh=False)
             if record:
@@ -216,7 +218,7 @@ class GaussianDiffusion:
                     file_path = f"/storage/matt_models/inpainting/dps/x_{str(idx).zfill(4)}.png"
                     plt.imsave(file_path, clear_color(img[0]))
 
-        return img       
+        return img, return_ims
         
     def p_sample(self, model, x, t):
         raise NotImplementedError

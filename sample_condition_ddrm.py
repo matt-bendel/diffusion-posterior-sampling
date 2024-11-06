@@ -223,7 +223,7 @@ def main():
                                        noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img, svd=H)
                     im_count = 0
                     for im in return_ims:
-                        plt.imsave(f'motivation_fig/interediate_ddrm_{i}_{im_count}.png', clear_color(im))
+                        plt.imsave(f'motivation_fig/intermediate_ddrm_{i}_{im_count}.png', clear_color(im))
                         im_count += 1
 
                     continue
