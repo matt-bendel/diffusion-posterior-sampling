@@ -342,10 +342,9 @@ class GaussianDiffusion:
             xt = (at_next.sqrt()[0, 0, 0, 0] * xt_mod_next).view(*x.shape)
             x0 = x0_t.clone()
 
-            if record:
-                if idx % 5 == 0:
-                    file_path = f"/storage/matt_models/ddrm/ffhq/x_sr_{str(idx).zfill(4)}.png"
-                    plt.imsave(file_path, clear_color(x0[0]))
+            if (idx + 1) in [5, 10, 15]:
+                file_path = f"tmp_intermediate_ddrm_{str(idx).zfill(4)}.png"
+                plt.imsave(file_path, clear_color(x0[0]))
 
             count += 1
 
