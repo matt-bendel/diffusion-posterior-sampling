@@ -226,6 +226,8 @@ def main():
                         plt.imsave(f'motivation_fig/interediate_ddrm_{i}_{im_count}.png', clear_color(im))
                         im += 1
 
+                    continue
+
                 lpips_vals.append(loss_fn_vgg(sample, ref_img).mean().detach().cpu().numpy())
                 psnr_vals.append(peak_signal_noise_ratio(sample, ref_img).mean().detach().cpu().numpy())
 

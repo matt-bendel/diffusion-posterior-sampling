@@ -346,7 +346,7 @@ class GaussianDiffusion:
             if (idx + 1) in [5, 10, 15]:
                 # file_path = f"tmp_intermediate_ddrm_{str(idx).zfill(4)}.png"
                 # plt.imsave(file_path, clear_color(x0[0]))
-                return_ims.append(x[0])
+                return_ims.append(x0[0])
 
             count += 1
 
