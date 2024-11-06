@@ -181,6 +181,7 @@ class GaussianDiffusion:
         device = x_start.device
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
+        count = 0
         for idx in pbar:
             time = torch.tensor([idx] * img.shape[0], device=device)
             x_t = img.clone()
@@ -204,9 +205,10 @@ class GaussianDiffusion:
 
             posterior_score = prior_score + likelihood_score
 
-            pred_clean_im = (x_t + (1 - extract_and_expand(self.alphas_cumprod, time, x_t)) * posterior_score) / extract_and_expand(self.sqrt_alphas_cumprod, time, x_t)
-            file_path = f"/storage/matt_models/inpainting/dps/cond_mean/x_cond_mean_{str(idx).zfill(4)}.png"
-            plt.imsave(file_path, clear_color(pred_clean_im[0]))
+            if (idx + 1) in [250, 500, 750]:
+                pred_clean_im = (x_t + (1 - extract_and_expand(self.alphas_cumprod, time, x_t)) * posterior_score) / extract_and_expand(self.sqrt_alphas_cumprod, time, x_t)
+                file_path = f"tmp_intermediate_dps_{str(idx).zfill(4)}.png"
+                plt.imsave(file_path, clear_color(pred_clean_im[0]))
            
             pbar.set_postfix({'distance': distance.item()}, refresh=False)
             if record:
