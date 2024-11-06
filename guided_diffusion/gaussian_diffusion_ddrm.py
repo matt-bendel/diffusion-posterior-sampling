@@ -290,6 +290,7 @@ class GaussianDiffusion:
 
         pbar = tqdm(list(range(self.num_timesteps))[::-1])
         count = 0
+        return_ims = []
         for idx in pbar:
             t = torch.tensor([idx] * img.shape[0], device=device)
             out = self.p_mean_variance(model, xt.float(), t)
@@ -343,12 +344,13 @@ class GaussianDiffusion:
             x0 = svd.V(V_t_x0).view(*x.shape).clone()
 
             if (idx + 1) in [5, 10, 15]:
-                file_path = f"tmp_intermediate_ddrm_{str(idx).zfill(4)}.png"
-                plt.imsave(file_path, clear_color(x0[0]))
+                # file_path = f"tmp_intermediate_ddrm_{str(idx).zfill(4)}.png"
+                # plt.imsave(file_path, clear_color(x0[0]))
+                return_ims.append(x[0])
 
             count += 1
 
-        return x0
+        return x0, return_ims
 
     def denoise(self, model, x, t, y, cond, vamp, noise_sig, truth):
         raise NotImplementedError
