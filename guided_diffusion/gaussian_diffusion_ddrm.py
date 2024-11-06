@@ -340,7 +340,7 @@ class GaussianDiffusion:
             # aggregate all 3 cases and give next prediction
             xt_mod_next = svd.V(Vt_xt_mod_next)
             xt = (at_next.sqrt()[0, 0, 0, 0] * xt_mod_next).view(*x.shape)
-            x0 = x0_t.clone()
+            x0 = svd.V(V_t_x0).view(*x.shape).clone()
 
             if (idx + 1) in [5, 10, 15]:
                 file_path = f"tmp_intermediate_ddrm_{str(idx).zfill(4)}.png"
