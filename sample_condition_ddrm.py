@@ -224,7 +224,7 @@ def main():
                     im_count = 0
                     for im in return_ims:
                         plt.imsave(f'motivation_fig/interediate_ddrm_{i}_{im_count}.png', clear_color(im))
-                        im += 1
+                        im_count += 1
 
                     continue
 
