@@ -198,7 +198,7 @@ def main():
         base_im_count = 0
         for i, data in enumerate(test_loader):
             logger.info(f"Inference for image {i}")
-            if i == 5:
+            if i == 25:
                 exit()
             y, x, _, mean, std = data[0]
 
