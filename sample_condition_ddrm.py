@@ -237,9 +237,9 @@ def main():
                 else:
                     y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2] if not sr else ref_img.shape[2] // blur_by, ref_img.shape[3] if not sr else ref_img.shape[2] // blur_by)
 
-                # for j in range(sample.shape[0]):
-                #     plt.imsave(f'/storage/matt_models/ddrm/{"imagenet" if args.imagenet else "ffhq"}/{deg}/image_{i * y.shape[0] + j}.png',
-                #                clear_color(sample[j].unsqueeze(0)))
+                for j in range(sample.shape[0]):
+                    plt.imsave(f'/storage/matt_models/ddrm/{"imagenet" if args.imagenet else "ffhq"}/{deg}/image_{i * y.shape[0] + j}.png',
+                               clear_color(sample[j].unsqueeze(0)))
 
         print(f'Avg. LPIPS: {np.mean(lpips_vals)} +/- {np.std(lpips_vals) / len(lpips_vals)}')
         print(f'Avg. PSNR: {np.mean(psnr_vals)} +/- {np.std(psnr_vals) / len(psnr_vals)}')
