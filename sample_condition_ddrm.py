@@ -221,12 +221,12 @@ def main():
                     x_start = torch.randn(ref_img.shape, device=device)
                     sample, return_ims = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path, mask=mask,
                                        noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img, svd=H)
-                    im_count = 0
-                    for im in return_ims:
-                        plt.imsave(f'motivation_fig/intermediate_ddrm_{i}_{im_count}.png', clear_color(im))
-                        im_count += 1
-
-                    continue
+                    # im_count = 0
+                    # for im in return_ims:
+                    #     plt.imsave(f'motivation_fig/intermediate_ddrm_{i}_{im_count}.png', clear_color(im))
+                    #     im_count += 1
+                    #
+                    # continue
 
                 lpips_vals.append(loss_fn_vgg(sample, ref_img).mean().detach().cpu().numpy())
                 psnr_vals.append(peak_signal_noise_ratio(sample, ref_img).mean().detach().cpu().numpy())
