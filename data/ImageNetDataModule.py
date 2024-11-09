@@ -118,7 +118,7 @@ class ImageNetDataModule(pl.LightningDataModule):
     def test_dataloader(self):
         return DataLoader(
             dataset=self.test_data,
-            batch_size=8,
+            batch_size=16,
             num_workers=4,
             pin_memory=False,
             drop_last=False
