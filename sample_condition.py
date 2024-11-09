@@ -105,6 +105,8 @@ def main():
     for k in range(1):
         base_im_count = 0
         for i, data in enumerate(test_loader):
+            if i > 10:
+                exit()
             logger.info(f"Inference for image {i}")
             y, x, mask, mean, std = data[0]
 
@@ -130,9 +132,11 @@ def main():
             # Sampling
             x_start = torch.randn(ref_img.shape, device=device).requires_grad_()
             sample, return_ims = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path)
+
             im_count = 0
             for im in return_ims:
-                plt.imsave(f'motivation_fig/intermediate_dps_{i}_{im_count}.png', clear_color(im))
+                plt.imsave(f'motivation_fig/inp_box_dps_{i}_{im_count}.png',
+                           clear_color(im))
                 im_count += 1
 
             continue
