@@ -135,7 +135,7 @@ def main():
 
             im_count = 0
             for im in return_ims:
-                plt.imsave(f'motivation_fig/inp_box_dps_{i}_{im_count}.png',
+                plt.imsave(f'motivation_fig/sr_bicubic4_dps_{i}_{im_count}.png',
                            clear_color(im))
                 im_count += 1
 
