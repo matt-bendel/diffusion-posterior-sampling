@@ -105,7 +105,10 @@ def main():
     for k in range(1):
         base_im_count = 0
         for i, data in enumerate(test_loader):
-            if i > 10:
+            if i < 10:
+                continue
+
+            if i > 30:
                 exit()
             logger.info(f"Inference for image {i}")
             y, x, mask, mean, std = data[0]
