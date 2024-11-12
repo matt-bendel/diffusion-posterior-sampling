@@ -403,7 +403,7 @@ class DDIM(SpacedDiffusion):
 
         x = torch.zeros_like(b)
 
-        b_norm = torch.sum(b ** 2, dim=(1, 2, 3))
+        b_norm = torch.sum(b ** 2, dim=1)
 
         r = b - A(x)
         p = r.clone()
