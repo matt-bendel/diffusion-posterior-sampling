@@ -401,7 +401,7 @@ class DDIM(SpacedDiffusion):
     def CG_new(self, A, b):
         # solve Abar'Abar x = Abar' y
 
-        x = self.cg_initialization.clone()
+        x = torch.zeros_like(b)
 
         b_norm = torch.sum(b ** 2, dim=(1, 2, 3))
 
