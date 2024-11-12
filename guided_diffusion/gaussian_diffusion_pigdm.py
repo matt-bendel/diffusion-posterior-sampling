@@ -420,7 +420,7 @@ class DDIM(SpacedDiffusion):
 
             diff = (torch.sum(r ** 2, dim=1) / b_norm).sqrt()
 
-            if torch.mean(diff) <= 1e5:
+            if torch.mean(diff) <= 1e4:
                 break
 
             beta = torch.sum(r ** 2, dim=1) / rsold
