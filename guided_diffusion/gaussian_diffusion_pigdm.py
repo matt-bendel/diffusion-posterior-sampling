@@ -402,6 +402,7 @@ class DDIM(SpacedDiffusion):
         # solve Abar'Abar x = Abar' y
 
         x = torch.zeros_like(b)
+        prev_x = x.clone()
 
         b_norm = torch.sum(b ** 2, dim=1)
 
@@ -416,6 +417,9 @@ class DDIM(SpacedDiffusion):
             alpha = rsold / torch.sum(p * Ap, dim=1)
 
             x = x + alpha[:, None] * p
+            if torch.isnan(x).any():
+                return prev_x
+
             r = r - alpha[:, None] * Ap
 
             diff = (torch.sum(r ** 2, dim=1) / b_norm).sqrt()
@@ -427,6 +431,7 @@ class DDIM(SpacedDiffusion):
 
             p = r + beta[:, None] * p
             num_cg_steps += 1
+            prev_x = x.clone()
 
         return x.clone()
 
