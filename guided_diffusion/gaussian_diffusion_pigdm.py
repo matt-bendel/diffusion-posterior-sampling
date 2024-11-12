@@ -452,14 +452,14 @@ class DDIM(SpacedDiffusion):
 
         if noise_sig > 0:
             I_scale = noise_sig ** 2 / (r_t ** 2)
-            singulars = H.singulars()
-
-            meas_diff = y - H.H(pred_x_start)
-            U_H_meas_diff = H.Ut(meas_diff)
-            Lam_V_H_meas_diff = U_H_meas_diff
-            Lam_V_H_meas_diff[:, :singulars.shape[0]] = Lam_V_H_meas_diff[:, :singulars.shape[0]] / (singulars ** 2 + I_scale)
-            Lam_V_H_meas_diff[:, singulars.shape[0]:] = Lam_V_H_meas_diff[:, singulars.shape[0]:] / I_scale
-            inv_term_meas_diff = H.U(Lam_V_H_meas_diff)
+            # singulars = H.singulars()
+            #
+            # meas_diff = y - H.H(pred_x_start)
+            # U_H_meas_diff = H.Ut(meas_diff)
+            # Lam_V_H_meas_diff = U_H_meas_diff
+            # Lam_V_H_meas_diff[:, :singulars.shape[0]] = Lam_V_H_meas_diff[:, :singulars.shape[0]] / (singulars ** 2 + I_scale)
+            # Lam_V_H_meas_diff[:, singulars.shape[0]:] = Lam_V_H_meas_diff[:, singulars.shape[0]:] / I_scale
+            # inv_term_meas_diff = H.U(Lam_V_H_meas_diff)
 
             A_func = lambda vec: H.H(H.Ht(vec)) + I_scale * vec
             b = y - H.H(pred_x_start)
