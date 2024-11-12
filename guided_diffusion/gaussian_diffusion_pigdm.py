@@ -411,21 +411,21 @@ class DDIM(SpacedDiffusion):
         num_cg_steps = 0
         while num_cg_steps < 100:
             Ap = A(p)
-            rsold = torch.sum(r ** 2, dim=(1, 2, 3))
+            rsold = torch.sum(r ** 2, dim=1)
 
-            alpha = rsold / torch.sum(p * Ap, dim=(1, 2, 3))
+            alpha = rsold / torch.sum(p * Ap, dim=1)
 
-            x = x + alpha[:, None, None, None] * p
-            r = r - alpha[:, None, None, None] * Ap
+            x = x + alpha[:, None] * p
+            r = r - alpha[:, None] * Ap
 
-            diff = (torch.sum(r ** 2, dim=(1, 2, 3)) / b_norm).sqrt()
+            diff = (torch.sum(r ** 2, dim=1) / b_norm).sqrt()
 
             if torch.mean(diff) <= 1e5:
                 break
 
-            beta = torch.sum(r ** 2, dim=(1, 2, 3)) / rsold
+            beta = torch.sum(r ** 2, dim=1) / rsold
 
-            p = r + beta[:, None, None, None] * p
+            p = r + beta[:, None] * p
             num_cg_steps += 1
 
         return x.clone()
