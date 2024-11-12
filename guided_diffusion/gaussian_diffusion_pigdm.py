@@ -398,6 +398,38 @@ class DDPM(SpacedDiffusion):
 
 @register_sampler(name='ddim')
 class DDIM(SpacedDiffusion):
+    def CG_new(self, A, b):
+        # solve Abar'Abar x = Abar' y
+
+        x = self.cg_initialization.clone()
+
+        b_norm = torch.sum(b ** 2, dim=(1, 2, 3))
+
+        r = b - A(x)
+        p = r.clone()
+
+        num_cg_steps = 0
+        while num_cg_steps < 100:
+            Ap = A(p)
+            rsold = torch.sum(r ** 2, dim=(1, 2, 3))
+
+            alpha = rsold / torch.sum(p * Ap, dim=(1, 2, 3))
+
+            x = x + alpha[:, None, None, None] * p
+            r = r - alpha[:, None, None, None] * Ap
+
+            diff = (torch.sum(r ** 2, dim=(1, 2, 3)) / b_norm).sqrt()
+
+            if torch.mean(diff) <= 1e5:
+                break
+
+            beta = torch.sum(r ** 2, dim=(1, 2, 3)) / rsold
+
+            p = r + beta[:, None, None, None] * p
+            num_cg_steps += 1
+
+        return x.clone()
+
     def p_sample(self, model, x, t, y, cond, H, noise_sig, eta=0.85):
         eta = 1.0
         x = x.clone().requires_grad_(True)
@@ -429,7 +461,11 @@ class DDIM(SpacedDiffusion):
             Lam_V_H_meas_diff[:, singulars.shape[0]:] = Lam_V_H_meas_diff[:, singulars.shape[0]:] / I_scale
             inv_term_meas_diff = H.U(Lam_V_H_meas_diff)
 
-            g = (H.Ht(inv_term_meas_diff).detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
+            A_func = lambda vec: H.H(H.Ht(vec)) + I_scale * vec
+            b = y - H.H(pred_x_start)
+            cg_out = self.CG_new(A_func, b)
+
+            g = (cg_out.detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
         else:
             g = ((H.H_pinv(y) - H.H_pinv(H.H(pred_x_start))).detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
 
