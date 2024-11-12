@@ -465,9 +465,11 @@ class DDIM(SpacedDiffusion):
             b = y - H.H(pred_x_start)
             cg_out = self.CG_new(A_func, b)
 
-            print(torch.isnan(cg_out).any())
+            if torch.isnan(cg_out).any():
+                print('NAN')
+                exit()
 
-            g = (cg_out.detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
+            g = (H.Ht(cg_out).detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
         else:
             g = ((H.H_pinv(y) - H.H_pinv(H.H(pred_x_start))).detach().reshape(y.shape[0], -1) * pred_x_start.reshape(y.shape[0], -1)).sum()
 
