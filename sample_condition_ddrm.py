@@ -126,6 +126,7 @@ def main():
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
         measure_config['operator']['name'] = operators[l]
+        print(measure_config)
         noiser = get_noise(**measure_config['noise'])
 
         # Forward measurement model (Ax + n)
@@ -239,7 +240,7 @@ def main():
                     y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2] if not sr else ref_img.shape[2] // blur_by, ref_img.shape[3] if not sr else ref_img.shape[2] // blur_by)
 
                 for j in range(sample.shape[0]):
-                    plt.imsave(f'/storage/matt_models/ddrm/{"imagenet" if args.imagenet else "ffhq"}/{deg}/image_{i * y.shape[0] + j}.png',
+                    plt.imsave(f'/storage/matt_models/ddrm/{"imagenet" if args.imagenet else "ffhq"}/{deg}_noisy/image_{i * y.shape[0] + j}.png',
                                clear_color(sample[j].unsqueeze(0)))
 
         print(f'Avg. LPIPS: {np.mean(lpips_vals)} +/- {np.std(lpips_vals) / len(lpips_vals)}')
