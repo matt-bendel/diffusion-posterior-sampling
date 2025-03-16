@@ -116,7 +116,7 @@ def main():
     # operators = ['blur_gauss']
     operators = ['sr_bicubic4']
 
-    noise_levels = [0.0]
+    noise_levels = [0.05]
 
     loss_fn_vgg = lpips.LPIPS(net='vgg').cuda()
 
@@ -221,12 +221,12 @@ def main():
                     x_start = torch.randn(ref_img.shape, device=device)
                     sample, return_ims = sample_fn(x_start=x_start, measurement=y_n, record=True, save_root=out_path, mask=mask,
                                        noise_sig=measure_config['noise']['sigma'], meas_type=measure_config['operator']['name'], truth=ref_img, svd=H)
-                    im_count = 0
-                    for im in return_ims:
-                        plt.imsave(f'motivation_fig/{measure_config["operator"]["name"]}_ddrm_{i}_{im_count}.png', clear_color(im))
-                        im_count += 1
+                    # im_count = 0
+                    # for im in return_ims:
+                    #     plt.imsave(f'motivation_fig/{measure_config["operator"]["name"]}_ddrm_{i}_{im_count}.png', clear_color(im))
+                    #     im_count += 1
 
-                    continue
+                    # continue
 
                 lpips_vals.append(loss_fn_vgg(sample, ref_img).mean().detach().cpu().numpy())
                 psnr_vals.append(peak_signal_noise_ratio(sample, ref_img).mean().detach().cpu().numpy())
@@ -237,9 +237,9 @@ def main():
                 else:
                     y = y.view(ref_img.shape[0], ref_img.shape[1], ref_img.shape[2] if not sr else ref_img.shape[2] // blur_by, ref_img.shape[3] if not sr else ref_img.shape[2] // blur_by)
 
-                # for j in range(sample.shape[0]):
-                #     plt.imsave(f'/storage/matt_models/ddrm/{"imagenet" if args.imagenet else "ffhq"}/{deg}/image_{i * y.shape[0] + j}.png',
-                #                clear_color(sample[j].unsqueeze(0)))
+                for j in range(sample.shape[0]):
+                    plt.imsave(f'/storage/matt_models/ddrm/{"imagenet" if args.imagenet else "ffhq"}/{deg}/image_{i * y.shape[0] + j}.png',
+                               clear_color(sample[j].unsqueeze(0)))
 
         print(f'Avg. LPIPS: {np.mean(lpips_vals)} +/- {np.std(lpips_vals) / len(lpips_vals)}')
         print(f'Avg. PSNR: {np.mean(psnr_vals)} +/- {np.std(psnr_vals) / len(psnr_vals)}')
