@@ -200,8 +200,9 @@ def main():
         base_im_count = 0
         for i, data in enumerate(test_loader):
             logger.info(f"Inference for image {i}")
-            if i > 10:
-                exit()
+            if i < 11:
+                continue
+
             y, x, _, mean, std = data[0]
 
             y = x + torch.rand_like(x) * measure_config['noise']['sigma']
