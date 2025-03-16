@@ -126,7 +126,7 @@ def main():
     for l in range(len(operators)):
         measure_config['noise']['sigma'] = noise_levels[l]
         measure_config['operator']['name'] = operators[l]
-        print(measure_config)
+        print(noise_levels[l])
         noiser = get_noise(**measure_config['noise'])
 
         # Forward measurement model (Ax + n)
@@ -214,7 +214,7 @@ def main():
 
             # y_n = operator.forward(ref_img, mask=mask)
             y_n = H.H(ref_img)
-            y_n = noiser(y_n)
+            y_n = y_n + torch.rand_like(y_n) * noise_levels[l]
 
             for k in range(1):
                 # Sampling
