@@ -149,6 +149,7 @@ def main():
         elif measure_config['operator']['name'][:10] == 'sr_bicubic':
             sr = True
             factor = int(measure_config['operator']['name'][10:])
+            print(f'SR FACTOR: {factor}')
             blur_by = factor
 
             def bicubic_kernel(x, a=-0.5):
